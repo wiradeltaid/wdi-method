@@ -15,6 +15,7 @@
     "README.md",
     "CHANGELOG.md",
     "LICENSE",
+    "NOTICE",
     "!**/__pycache__",
     "!**/*.pyc"
   ],

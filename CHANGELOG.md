@@ -10,6 +10,17 @@ version contains every fix below it.
 
 ---
 
+## 0.6.20 — 2026-09-16
+
+- **Rebrand, legal SSOT, and repository hygiene alignment.**
+  - **Organization migration:** Repository, issue tracker, and documentation URLs aligned to [`wiradeltaid/wdi-method`](https://github.com/wiradeltaid/wdi-method).
+  - **Copyright & License:** Legal copyright holder updated to `Wira Delta Indonesia` in `LICENSE`, `package.json`, and newly added `NOTICE`.
+  - **Legal SSOT documents:** Added source-stamped `SECURITY.md` (private vulnerability reporting via `security@wiradelta.id` and GitHub Security Advisories) and `PRIVACY.md` (offline-first, zero telemetry).
+  - **Trademark protection:** Added `## The name and the icon` to `README.md` and licensing terms to `CONTRIBUTING.md`, separating MIT code rights from Wira Delta Indonesia trademarks.
+  - **Packaging:** Added `NOTICE` to `files` in `package.json` so third-party attributions ship inside the npm tarball.
+
+**What a repo that already has the method installed does about it.** Run `npx wdi-method@latest update`. It updates the stamped method block in `AGENTS.md` to point to the canonical `wiradeltaid` repository.
+
 ## 0.6.19 — 2026-09-10
 
 - **One autopilot run now costs one cloud CI run, not dozens.** A run over fifteen tickets pushed often

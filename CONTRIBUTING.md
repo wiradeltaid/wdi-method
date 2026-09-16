@@ -98,6 +98,10 @@ A bug report needs: what you ran, what you expected, what happened instead, and 
 version (`npx wdi-method --help` prints it). A feature request needs: what gap it closes, and — ideally
 — the product repo where you hit that gap.
 
+**Security issues:** DO NOT report security vulnerabilities via public GitHub Issues. Send them privately
+through GitHub Security Advisories or to [`security@wiradelta.id`](mailto:security@wiradelta.id) (see
+[`SECURITY.md`](SECURITY.md)).
+
 ## Pull request guidelines
 
 | Work type | Requirement |
@@ -203,6 +207,7 @@ which is how a client folder name once reached this repo through a file nobody w
 `node --test tests/*.test.mjs`. A test that mutates `kit/` MUST copy the package to a temporary directory
 first: Node runs test files in parallel, and `promote` deletes `kit/` before rewriting it.
 
-## License
+## Licensing of Contributions & Trademarks
 
-By contributing, you agree your contribution is licensed under this repository's [MIT License](LICENSE).
+- By submitting a pull request or contribution, you agree that your contributions will be licensed under this repository's [MIT License](LICENSE).
+- Contributions do not grant ownership of the project's trademarks, names ("Wira Delta Indonesia", "WDI Method"), or visual marks (see [`README.md`](README.md) §The name and the icon).

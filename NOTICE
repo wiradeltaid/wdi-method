@@ -1,0 +1,28 @@
+WDI Method
+Copyright (c) 2026 Wira Delta Indonesia
+
+This product includes software developed by third parties under the following licenses:
+
+========================================================================
+@clack/prompts and @clack/core
+Copyright (c) 2023 Nate Moore
+License: MIT (https://github.com/natemoo-re/clack)
+========================================================================
+
+========================================================================
+sisteransi
+Copyright (c) Terkel Gjervig
+License: MIT (https://github.com/terkelg/sisteransi)
+========================================================================
+
+========================================================================
+fast-string-width, fast-wrap-ansi, fast-string-truncated-width
+Copyright (c) Kevin Martensson
+License: MIT (https://github.com/kevva)
+========================================================================
+
+========================================================================
+Upstream Methodology & Skills Architecture
+- BMad Method: Copyright (c) BMad Code Org, MIT License (https://github.com/bmad-code-org/BMAD-METHOD)
+- mattpocock/skills: Copyright (c) Matt Pocock, MIT License (https://github.com/mattpocock/skills)
+========================================================================

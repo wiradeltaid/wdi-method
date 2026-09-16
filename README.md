@@ -529,10 +529,30 @@ how versioning works here, and what to check before publishing.
 [`CHANGELOG.md`](CHANGELOG.md) is what changed in each version, and what each change means for a repo
 that already has the method installed. Read it before an `update` that crosses more than a patch.
 
-## License
+## License and attribution
 
-MIT — see [LICENSE](LICENSE). Requires Node 20+ and [uv](https://docs.astral.sh/uv/) for the Python
-scripts.
+MIT License — see [LICENSE](LICENSE). Copyright (c) 2026 Wira Delta Indonesia.
+
+- What it stores and sends: [`PRIVACY.md`](PRIVACY.md) (offline-first, zero telemetry).
+- How to report vulnerabilities: [`SECURITY.md`](SECURITY.md) (private reporting via `security@wiradelta.id` or GitHub Security Advisories).
+- Third-party components and attributions: [`NOTICE`](NOTICE).
+
+Requires Node 20+ and [uv](https://docs.astral.sh/uv/) for the Python scripts.
+
+## The name and the icon
+
+The MIT License grants broad rights over code. It says nothing about names or logos,
+and it does not oblige the studio to hand over either — so the licence above covers
+this repository's code, not the name **WDI Method**, not **Wira Delta Indonesia**,
+and not any associated visual marks or logos.
+
+You may use those names to refer to this project: "based on WDI Method", "a fork of WDI Method",
+or "compatible with WDI Method". You may not use them as the name of your own product or
+methodology, or in a way that suggests you are this project or endorsed by it.
+
+If you publish a modified distribution or fork, please give it your own name, so the
+engineers using it know whom to ask when something behaves unexpectedly. The code is yours
+to take; the name is not.
 
 [![Version](https://img.shields.io/npm/v/wdi-method?color=blue&label=version)](https://www.npmjs.com/package/wdi-method)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
