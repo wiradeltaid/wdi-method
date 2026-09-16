@@ -10,14 +10,25 @@ version contains every fix below it.
 
 ---
 
-## 0.6.20 — 2026-09-16
+## [0.6.20] - 2026-09-17
 
-- **Rebrand, legal SSOT, and repository hygiene alignment.**
-  - **Organization migration:** Repository, issue tracker, and documentation URLs aligned to [`wiradeltaid/wdi-method`](https://github.com/wiradeltaid/wdi-method).
-  - **Copyright & License:** Legal copyright holder updated to `Wira Delta Indonesia` in `LICENSE`, `package.json`, and newly added `NOTICE`.
-  - **Legal SSOT documents:** Added source-stamped `SECURITY.md` (private vulnerability reporting via `security@wiradelta.id` and GitHub Security Advisories) and `PRIVACY.md` (offline-first, zero telemetry).
-  - **Trademark protection:** Added `## The name and the icon` to `README.md` and licensing terms to `CONTRIBUTING.md`, separating MIT code rights from Wira Delta Indonesia trademarks.
-  - **Packaging:** Added `NOTICE` to `files` in `package.json` so third-party attributions ship inside the npm tarball.
+### Added
+
+- **GitHub Community Standards & Hygiene:** Added `.github/ISSUE_TEMPLATE/bug_report.md`, `.github/ISSUE_TEMPLATE/feature_request.md`, and `.github/pull_request_template.md`.
+- **Bilingual Showcase (Preset 2):** Added Indonesian summary etalase (`README.id.md`) with cross-language switcher on `README.md`.
+- **Legal SSOT Documents:** Added source-stamped `SECURITY.md` (private vulnerability reporting via `security@wiradelta.id` and GitHub Security Advisories) and `PRIVACY.md` (offline-first, zero telemetry).
+- **Attribution & Third-Party Notices:** Added `NOTICE` summarizing runtime and framework dependencies (`@clack`, `sisteransi`, BMad Method, `mattpocock/skills`), included in npm tarball via `package.json`.
+- **Trademark Protection:** Added `## The name and the icon` to `README.md` and licensing terms to `CONTRIBUTING.md`, separating MIT code rights from Wira Delta Indonesia trademarks.
+- **Process Survivability Documentation:** Documented session persistence guidelines (`tmux`/`screen` on Linux/remote, persistent terminal on Windows) in `wdi-autopilot` skill.
+
+### Changed
+
+- **Organization Migration:** Repository, issue tracker, and documentation URLs aligned across the codebase and kit overlay to [`wiradeltaid/wdi-method`](https://github.com/wiradeltaid/wdi-method).
+- **Copyright & License:** Legal copyright holder updated to `Wira Delta Indonesia` in `LICENSE` and `package.json`.
+
+### Security
+
+- **Private Vulnerability Reporting:** Activated GitHub Security Advisories private vulnerability reporting on `wiradeltaid/wdi-method`.
 
 **What a repo that already has the method installed does about it.** Run `npx wdi-method@latest update`. It updates the stamped method block in `AGENTS.md` to point to the canonical `wiradeltaid` repository.
 

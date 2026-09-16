@@ -59,6 +59,7 @@ NOT start the loop while any row in the first two groups is red.
 | | Where the ledger and the final report will be written | — |
 | | The **run branch** — `autopilot/<mandate-id>`, using the next free `DEC-` id from `decisions.yaml`, which the mandate then takes — and that the run will open **one** PR from it | The branch already exists with commits nobody can account for |
 | **Runtime** | The session runs with permission prompts bypassed | Cannot be verified from inside the session. Printed as a line the owner confirms |
+| | Session survivability: on Linux/remote SSH, run inside `tmux` or `screen`; on Windows, in a dedicated persistent Windows Terminal window | Ephemeral terminal that aborts the loop on disconnect |
 
 **Every row arrives with its default already in it**, and the owner changes only what they want changed —
 the same rule the installer follows. A preflight that asks fourteen questions one at a time has failed.
@@ -101,6 +102,10 @@ On the owner's confirmation, and not before:
 
 The interval is the **pause between** iterations, not the length of one. An iteration that outlives it
 finishes first; the next firing waits.
+
+**Session survivability across environments:**
+- **Linux / Remote SSH:** Run inside a session manager such as `tmux` (`tmux new -s autopilot`) or `screen` before starting the loop. Disconnecting SSH or closing the terminal then leaves the autonomous loop running unharmed.
+- **Windows (PowerShell / Windows Terminal):** `tmux` is not native to Windows PowerShell. Run the session in a dedicated persistent Windows Terminal tab or window left active, or via background subagent tools (`run_in_background`). Do not invoke or require `tmux` on Windows environments.
 
 ## Door 2 — One iteration
 

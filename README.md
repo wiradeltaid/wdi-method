@@ -1,5 +1,7 @@
 # WDI Method
 
+[English](README.md) | [Bahasa Indonesia](README.id.md)
+
 **The review layer BMad leaves thin — documents a human reads to check a decision before code gets written, sized to what the change actually deserves.**
 
 [BMad](https://github.com/bmad-code-org/BMAD-METHOD) decides *what* to build and *how* to build it well. WDI Method wraps it — it does not replace it — and adds the part between those two decisions and the code: inventories, a use case catalogue, a component design record, and a way to choose how much of that a given change actually needs.
