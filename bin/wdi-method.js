@@ -126,7 +126,7 @@ const BMAD_RETIRED_G5 = [
   "bmad-sprint-planning",
   "bmad-sprint-status",
 ];
-const REPO_URL = "https://github.com/wiradigitalid/wdi-method";
+const REPO_URL = "https://github.com/wiradeltaid/wdi-method";
 const HELP_SKILL = "wdi-help";
 const INIT_SKILL = "wdi-init";
 // The room's readers file is seeded as a skeleton and is useless until a product writes it. The
@@ -138,7 +138,7 @@ function readersAreSkeleton(target) {
   return /^SKELETON\s*=\s*True\b/m.test(fs.readFileSync(file, "utf8"));
 }
 const BMAD_REPO = "https://github.com/bmad-code-org/BMAD-METHOD";
-const WDI_REPO = "https://github.com/wiradigitalid/wdi-method";
+const WDI_REPO = "https://github.com/wiradeltaid/wdi-method";
 
 const RED = "\x1b[31m";
 const GREEN = "\x1b[32m";

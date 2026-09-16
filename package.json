@@ -35,10 +35,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wiradigitalid/wdi-method.git"
+    "url": "git+https://github.com/wiradeltaid/wdi-method.git"
   },
   "bugs": {
-    "url": "https://github.com/wiradigitalid/wdi-method/issues"
+    "url": "https://github.com/wiradeltaid/wdi-method/issues"
   },
-  "homepage": "https://github.com/wiradigitalid/wdi-method#readme"
+  "homepage": "https://github.com/wiradeltaid/wdi-method#readme"
 }

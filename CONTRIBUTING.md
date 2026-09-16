@@ -5,7 +5,7 @@ readable by a human — every contribution should make that middle clearer, not 
 
 ---
 
-> **Before you write code, open an [issue](https://github.com/wiradigitalid/wdi-method/issues)
+> **Before you write code, open an [issue](https://github.com/wiradeltaid/wdi-method/issues)
 > describing what you want to change and why.**
 >
 > If the change adds a skill, restructures a guide, or touches more than a couple of files, wait for a
@@ -91,7 +91,7 @@ Read the diff before committing it.
 ## Reporting issues
 
 Bug reports and feature requests both go through
-[GitHub Issues](https://github.com/wiradigitalid/wdi-method/issues). Before opening one, search existing
+[GitHub Issues](https://github.com/wiradeltaid/wdi-method/issues). Before opening one, search existing
 issues — open and closed — for the same report.
 
 A bug report needs: what you ran, what you expected, what happened instead, and your `wdi-method`

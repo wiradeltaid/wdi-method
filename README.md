@@ -522,7 +522,7 @@ carefully to read the diff. [`CONTRIBUTING.md`](CONTRIBUTING.md) has the detail,
 
 ## Support and Contributing
 
-Open an [issue](https://github.com/wiradigitalid/wdi-method/issues) for a bug or a proposal. Read
+Open an [issue](https://github.com/wiradeltaid/wdi-method/issues) for a bug or a proposal. Read
 [`CONTRIBUTING.md`](CONTRIBUTING.md) before sending a pull request — it explains where a change belongs,
 how versioning works here, and what to check before publishing.
 

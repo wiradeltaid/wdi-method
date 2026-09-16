@@ -27,7 +27,7 @@ npx wdi-method update --yes
 ```
 
 BMad: https://github.com/bmad-code-org/BMAD-METHOD
-WDI Method: https://github.com/wiradigitalid/wdi-method
+WDI Method: https://github.com/wiradeltaid/wdi-method
 
 A method file MUST NOT be invented here. If a rule is wrong, fix it in the WDI
 Method package, then update.
