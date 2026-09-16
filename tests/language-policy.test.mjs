@@ -166,7 +166,7 @@ test("the folder name becomes an Enter-ready suggestion, and an acronym stays on
   // A first install has nowhere to read a product name from, so the folder is the best guess there is —
   // and a guess the owner accepts with Enter beats a field they have to type.
   const cases = [
-    ["worship-presenter-web", "Worship Presenter Web"],
+    ["acme-billing-portal", "Acme Billing Portal"],
     ["acmeBillingPortal", "Acme Billing Portal"],
     ["my_app.v2", "My App V2"],
     ["API-gateway", "API Gateway"],

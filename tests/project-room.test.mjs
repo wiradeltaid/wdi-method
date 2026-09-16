@@ -419,7 +419,7 @@ test("update splits project/constitution.md even with NO migration — the 0.5.0
 
 test("update refreshes the room's README — it is the package's, and a stale copy misinforms", () => {
   // The README claimed in its own text to be "authored in the package", yet update kept it forever.
-  // worship-presenter-web's copy still pointed at .constitution/codebase/*-guide.md, a folder 0.5.0
+  // acme-billing-portal's copy still pointed at .constitution/codebase/*-guide.md, a folder 0.5.0
   // deletes, and nothing would ever have corrected it. Either the package writes it or it stops
   // claiming authorship — this is the first.
   const pkg = isolatedPackage();

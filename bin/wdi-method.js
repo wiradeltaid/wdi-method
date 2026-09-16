@@ -972,7 +972,7 @@ function syncConstitution(target) {
     // again: the same rule as the language policy.
     // ONE file in the room is the package's and is refreshed like any method file: the room's own
     // README. It explains what the room is FOR and carries no product decision, so a stale copy does
-    // not preserve anybody's work — it just misinforms. worship-presenter-web proved that: its copy
+    // not preserve anybody's work — it just misinforms. acme-billing-portal proved that: its copy
     // still pointed at `.constitution/codebase/*-guide.md`, a folder 0.5.0 deleted, and no update
     // would ever have corrected it while the file claimed in its own text to be "authored in the
     // package". Either the package writes it or it stops claiming authorship; this is the first.
