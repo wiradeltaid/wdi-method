@@ -30,7 +30,8 @@ strictly preserving requirement traceability and RTM metadata in `.control/regis
 
 ### A. Interactive Mode (invoked bare: `/wdi-prune-or-archive`)
 
-1. Read `.control/registry/specs.yaml`.
+1. Find closed candidate specs: inspect `.scratch/` directly or run `python .constitution/method/scripts/lifecycle.py --dry-run`
+   (or grep `specs.yaml` for `status:\s*closed` — MUST NOT dump the entire historical `specs.yaml` into context).
 2. Find all specs with `status: closed` whose directory currently resides under `.scratch/`:
    - If no closed specs reside in `.scratch/`: report that `.scratch/` is already clean of closed specs
      and stop.

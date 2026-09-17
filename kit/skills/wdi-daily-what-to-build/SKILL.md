@@ -29,9 +29,10 @@ here would anchor the reviewer to your interpretation instead of the author's ow
 
 ## 2. Interactive Housekeeping Hook
 
-Inspect `.control/registry/specs.yaml` for any spec marked `status: closed` whose directory still
-resides under `.scratch/`. If found, offer the maintainer the choice to clean them up via
-`/wdi-prune-or-archive`:
+Inspect `.control/registry/specs.yaml` selectively (e.g. search for `status:\s*closed` whose `spec_folder:`
+resides under `.scratch/`, or run `lifecycle.py --dry-run` — MUST NOT read the entire historical file into context)
+for any spec marked `status: closed` whose directory still resides under `.scratch/`. If found, offer the
+maintainer the choice to clean them up via `/wdi-prune-or-archive`:
 - **Archive:** `/wdi-prune-or-archive --spec <id> --archive` (moves the spec directory to
   `.archive/specs/<spec-folder>/` and updates `specs.yaml`).
 - **Prune:** `/wdi-prune-or-archive --spec <id> --prune` (removes the spec directory from git and disk

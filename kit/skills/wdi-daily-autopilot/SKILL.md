@@ -72,10 +72,13 @@ Per `wdi-autopilot` § Preflight, unattended loop iterations **require an active
 `.control/registry/decisions.yaml` whose expiry date has not lapsed. A loop MUST NOT self-authorize
 its own mandate.
 
-1. Inspect `decisions.yaml` for an existing decision of `type: mandate` at `status: accepted` with an
-   unexpired date.
+1. Inspect `decisions.yaml` using targeted search (e.g. `Grep` for `status:\s*accepted`) rather than reading
+   the entire file into context. Check if any returned match is of `type: mandate` with an unexpired date.
+   (MUST NOT call `Read` on the entire 1000+ line `decisions.yaml` file).
 2. **If no active accepted mandate exists:**
    - Execute `wdi-autopilot` Door 1 (Preflight) in this interactive turn.
+   - When checking open work to include in the mandate, query `specs.yaml` selectively (e.g. `Grep` for
+     `status:\s*(open|ready-for-dev)`) instead of reading all historical closed specs into context.
    - Present the one-page preflight summary and wait for the owner's explicit confirmation.
    - Once confirmed, write the accepted mandate row into `decisions.yaml` and initialize its ledger.
 3. **If an active accepted mandate already exists:** Proceed directly to compose and launch the loop.
