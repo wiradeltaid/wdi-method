@@ -35,7 +35,7 @@ import yaml
 
 
 def _run_cmd(cmd: list[str], cwd: Path) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True)
+    return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, encoding="utf-8", errors="replace")
 
 
 def check_git_clean(root: Path, dry_run: bool = False) -> None:

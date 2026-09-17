@@ -173,7 +173,7 @@ def git(root: Path, *args: str) -> str | None:
     try:
         out = subprocess.run(
             ["git", "-C", str(root), *args],
-            capture_output=True, text=True, timeout=30, check=False,
+            capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30, check=False,
         )
     except (OSError, subprocess.SubprocessError):
         return None
@@ -1710,7 +1710,7 @@ def _ignore_rule(root: Path, rel: str) -> tuple[bool, str]:
     try:
         out = subprocess.run(
             ["git", "-C", str(root), "check-ignore", "-v", "--no-index", rel],
-            capture_output=True, text=True, timeout=30, check=False,
+            capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30, check=False,
         )
     except (OSError, subprocess.SubprocessError):
         return (False, "")
@@ -1749,7 +1749,7 @@ def corpus_in_git(c: Corpus, r: Result) -> None:
         try:
             ls_res = subprocess.run(
                 ["git", "-C", str(c.root), "ls-files", ".control/custom-dispatch.yaml"],
-                capture_output=True, text=True, timeout=30, check=False,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30, check=False,
             )
             if ls_res.returncode == 0 and ls_res.stdout.strip():
                 r.fail("custom-dispatch-untracked", ".control/custom-dispatch.yaml",

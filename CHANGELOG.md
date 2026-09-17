@@ -10,6 +10,16 @@ version contains every fix below it.
 
 ---
 
+## [0.6.23] - 2026-09-18
+
+### Changed
+
+- **Fixed Coordinator Builder & Elimination of In-Session Coding Delegation:** `wdi-daily-autopilot` now fixes `roles.builder` strictly to `coordinator`. The coordinating session implements code directly in the active worktree following TDD red-to-green cycles. Coding delegation (whether `in-session` subagents or external builder runners) is prohibited in the daily routine to eliminate delegation latency and state-reporting hallucinations.
+- **Python Subprocess UTF-8 Resilience on Windows:** Fixed `UnicodeDecodeError: 'charmap'` in `validate.py` and `lifecycle.py` by adding `encoding="utf-8", errors="replace"` to all `subprocess.run(..., text=True)` calls.
+- **Ephemeral Smoke Artifact Scaffolding:** Added `ensureGitignoreSmoke()` in installer/updater logic to automatically ensure `.work/smoke/` is ignored in `.gitignore`, preventing dirty working tree failures during preflight checks.
+
+**What a repo that already has the method installed does about it.** Run `npx wdi-method@latest update`. It updates method skills and python validation scripts, enforces direct coordinator implementation, and automatically ensures `.work/smoke/` is ignored.
+
 ## [0.6.22] - 2026-09-17
 
 ### Added

@@ -48,18 +48,9 @@ Inspect the repository for `.control/custom-dispatch.yaml` (if not found in the 
     mark peer review as bypassed (coordinator self-review only).
   - If `roles.deep_analyst` is `none`, document review and architecture analysis are handled by the main reviewer or
     coordinator directly, without dispatching a separate deep analyst process.
-  - Resolve `roles.builder` for the coding execution inside the active run worktree:
-    - `coordinator` (default): coordinating session implements code directly (optimal for tight TDD and atomic refactoring).
-      Guardrail: when `roles.builder` is `coordinator`, coordinator direct implementation MUST NOT eliminate
-      independent peer review for components whose `risk_accepted` is not `low`; `roles.reviewer` MUST NOT be set
-      to `none` in such cases.
-    - `in-session`: coordinator delegates coding pass to an in-session subagent (`Agent` tool) in the active worktree.
-    - `<runner-id>`: coordinator delegates coding pass to the named external runner spawned with working directory (`cwd`) set to the active worktree.
-      If `<runner-id>` is not found in `runners:`, or lacks a nonempty `command` string under `type: shell-out`,
-      stop immediately and report to the maintainer (fail-closed; do NOT guess or silently fall back).
-      (Note: Synchronous shell-out runners are subject to a 10-minute CLI tool timeout; prefer `in-session`
-      for long-running TDD passes or keep ticket slices small).
-  - Resolve runner dispatch by `type:`:
+  - `roles.builder` is fixed to `coordinator`: the coordinating session implements code directly inside the active run worktree (ensuring tight TDD cycles, direct verification, and eliminating delegation/handoff hallucinations). Coding delegation (whether `in-session` subagents or external builder runners) is prohibited in the daily routine.
+    Guardrail: coordinator direct implementation MUST NOT eliminate independent peer review for components whose `risk_accepted` is not `low`; `roles.reviewer` MUST NOT be set to `none` in such cases.
+  - Resolve runner dispatch by `type:` for reviewer and deep analyst:
     - `auto`: Evaluates whether the runner's target model is reachable in-session from the active
       session profile (per the caller's global agent collaboration rules). Dispatches in-session via `Agent`
       if reachable; falls back to shell-out using `command` if unreachable in-session.
@@ -67,7 +58,7 @@ Inspect the repository for `.control/custom-dispatch.yaml` (if not found in the 
     - `shell-out`: Executes the external shell-out `command` (single-string command). If `command` is absent
       or empty, stop and report immediately (fail-closed).
 - **If `.control/custom-dispatch.yaml` does not exist**:
-  Default `roles.builder` to `coordinator` and resolve dispatch through the caller's active CLI environment.
+  Resolve reviewer dispatch through the caller's active CLI environment.
 
 ## 3. Mandate Verification & Preflight Requirement
 
@@ -118,7 +109,7 @@ Fill the standing five-point routine template:
 
 ```markdown
 Execute all FR/Tickets/Specs to completion under the active mandate:
-1. Coding & Delegation: <resolved coding execution: author code directly as coordinator | delegate coding pass to in-session subagent in active worktree | delegate coding pass to <resolved builder runner> in active worktree cwd>. Boundary: builder edits application and test files only. Builder MUST NOT commit, push, merge, alter git branches, or write to .control/registry/ or .control/memlog/.
+1. Coding & Implementation: author code directly as coordinator in the active worktree. No coding delegation — coordinator alone implements application and test changes following TDD red-to-green cycles. Boundary: coordinator edits application and test files only during ticket coding, and defers commits to step 5. Builder MUST NOT commit, push, merge, alter git branches, or write to .control/registry/ or .control/memlog/.
 2. Code review: perform code review — self code-review by coordinator, and peer review: <resolved peer command | "none due to config">.
 3. Testing & Verification: coordinator alone runs the authoritative test suite (from codebase-stack-guide.md) directly on the active worktree after the coding pass and verifies red-to-green evidence before staging or committing.
 4. Reviews and peer analysis: delegate document and architecture review to <resolved peer command | "coordinator self-review (peer review: none due to config)"> — follow wdi-review criteria for any touched architecture or spec documents.

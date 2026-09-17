@@ -899,6 +899,24 @@ function ensureGitignoreCustomDispatch(target) {
   }
 }
 
+function ensureGitignoreSmoke(target) {
+  const gitignorePath = path.join(target, ".gitignore");
+  const rule = ".work/smoke/";
+  if (fs.existsSync(gitignorePath)) {
+    const content = fs.readFileSync(gitignorePath, "utf8");
+    const lines = content.split(/\r?\n/).map((l) => l.trim());
+    if (lines.includes(rule) || lines.includes(`/${rule}`) || lines.includes(".work/smoke") || lines.includes(".work/**")) {
+      return;
+    }
+    const separator = content.endsWith("\n") ? "" : "\n";
+    fs.writeFileSync(gitignorePath, `${content}${separator}# Ephemeral smoke test artifacts\n${rule}\n`, "utf8");
+    note("added .work/smoke/ to .gitignore");
+  } else {
+    fs.writeFileSync(gitignorePath, `# Ephemeral smoke test artifacts\n${rule}\n`, "utf8");
+    note("created .gitignore with .work/smoke/");
+  }
+}
+
 function seedDailyTierScaffold(target) {
   const control = path.join(target, ".control");
   if (!fs.existsSync(control)) return;
@@ -930,6 +948,7 @@ function seedDailyTierScaffold(target) {
   }
 
   ensureGitignoreCustomDispatch(target);
+  ensureGitignoreSmoke(target);
 
   const localDispatchDest = path.join(control, "custom-dispatch.yaml");
   if (!fs.existsSync(localDispatchDest) && fs.existsSync(exampleSrc)) {

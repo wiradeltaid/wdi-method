@@ -128,6 +128,9 @@ describe("autonomous daily tier skills (Fase 4)", () => {
       assert.match(fs.readFileSync(path.join(target, ".gitignore"), "utf8"),
         /\.control\/custom-dispatch\.yaml/,
         ".gitignore missing custom-dispatch.yaml rule");
+      assert.match(fs.readFileSync(path.join(target, ".gitignore"), "utf8"),
+        /\.work\/smoke\//,
+        ".gitignore missing .work/smoke/ rule");
     } finally {
       fs.rmSync(target, { recursive: true, force: true });
     }
@@ -203,6 +206,8 @@ describe("autonomous daily tier skills (Fase 4)", () => {
     assert.match(content, /fail-closed/i, "missing fail-closed runner resolution");
     assert.match(content, /coordinator alone runs the authoritative test suite/i, "missing coordinator test suite authority");
     assert.match(content, /builder MUST NOT commit/i, "missing builder commit prohibition");
+    assert.match(content, /roles\.builder.*fixed to.*coordinator/i, "missing roles.builder fixed to coordinator clause");
+    assert.match(content, /No coding delegation/i, "missing prohibition of coding delegation");
   });
 
   it("wdi-daily-what-to-build enforces fail-closed reviewer resolution, read-only advisory review, and upfront dependencies", () => {

@@ -21,7 +21,6 @@ runners: {}
 # External CLI runners (always shell-out):
 # NOTE: For roles.reviewer, runner commands MUST enforce read-only execution where supported
 # (e.g. `--trust-tools=fs_read` for kiro-cli, `--mode plan` for cursor-agent).
-# Full write permissions (`-a`, `--force`) are reserved for roles.builder.
 #
 # terra:
 #   type: shell-out
@@ -39,15 +38,13 @@ runners: {}
 #   timeout_s: 600
 
 roles:
-  # Builder options (operates sequentially inside the active run worktree; coordinator runs tests & commits):
-  #   - coordinator: Coordinating session implements code directly (default fallback for tight TDD and atomic edits).
-  #     Guardrail: builder: coordinator MUST NOT be paired with reviewer: none unless all touched components
-  #     have risk_accepted: low and the decision is recorded. A builder cannot be its own sole judge.
-  #   - in-session: Delegates coding pass to an in-session subagent in the active worktree (no 10m wall-clock timeout)
-  #   - <runner-id>: Delegates coding pass to an external runner in the active worktree
-  #
-  # WARNING: Synchronous shell-out runners are capped at 10 minutes (600s) by CLI harness tools.
-  # For complex tickets or long-running TDD cycles, prefer 'in-session' or keep ticket slices small.
+  # Builder configuration:
+  #   builder is fixed to 'coordinator' (mandatory). The coordinating session implements code
+  #   directly in the active run worktree (tight TDD cycles, direct verification). Coding delegation
+  #   (in-session subagent or external builder runner) is prohibited in the daily routine to eliminate
+  #   handoff latency and delegation hallucinations.
+  #   Guardrail: builder: coordinator MUST NOT be paired with reviewer: none unless all touched
+  #   components have risk_accepted: low and the decision is recorded. A builder cannot be its own sole judge.
   builder: coordinator
 
   # Reviewer options:
