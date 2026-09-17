@@ -56,6 +56,10 @@ const WDI_SKILLS = [
   "wdi-report",
   "wdi-systematic-debugging",
   "wdi-upgrade",
+  "wdi-prune-or-archive",
+  "wdi-daily-what-to-build",
+  "wdi-daily-autopilot",
+  "wdi-daily-what-to-test",
 ];
 
 const PRD_SLUG_PLACEHOLDER = "FILL-initiative-slug";
@@ -877,6 +881,65 @@ function seedRequirementSplit(target) {
   return true;
 }
 
+function ensureGitignoreCustomDispatch(target) {
+  const gitignorePath = path.join(target, ".gitignore");
+  const rule = ".control/custom-dispatch.yaml";
+  if (fs.existsSync(gitignorePath)) {
+    const content = fs.readFileSync(gitignorePath, "utf8");
+    const lines = content.split(/\r?\n/).map((l) => l.trim());
+    if (lines.includes(rule) || lines.includes(`/${rule}`) || lines.includes(".control/*.yaml")) {
+      return;
+    }
+    const separator = content.endsWith("\n") ? "" : "\n";
+    fs.writeFileSync(gitignorePath, `${content}${separator}# Local runner configuration (never commit personal runners/credentials)\n${rule}\n`, "utf8");
+    note("added .control/custom-dispatch.yaml to .gitignore");
+  } else {
+    fs.writeFileSync(gitignorePath, `# Local runner configuration (never commit personal runners/credentials)\n${rule}\n`, "utf8");
+    note("created .gitignore with .control/custom-dispatch.yaml");
+  }
+}
+
+function seedDailyTierScaffold(target) {
+  const control = path.join(target, ".control");
+  if (!fs.existsSync(control)) return;
+
+  const exampleDest = path.join(control, "custom-dispatch.yaml.example");
+  const exampleSrc = path.join(SCAFFOLD, "custom-dispatch.yaml.example");
+  if (fs.existsSync(exampleSrc)) {
+    const isNew = !fs.existsSync(exampleDest);
+    copyFile(exampleSrc, exampleDest);
+    note(isNew ? "seeded .control/custom-dispatch.yaml.example" : "refreshed .control/custom-dispatch.yaml.example");
+  }
+
+  const targetsDest = path.join(control, "test-targets");
+  const targetsSrc = path.join(SCAFFOLD, "test-targets");
+  if (fs.existsSync(targetsSrc)) {
+    fs.mkdirSync(targetsDest, { recursive: true });
+    let seeded = 0;
+    for (const file of fs.readdirSync(targetsSrc)) {
+      const srcFile = path.join(targetsSrc, file);
+      const dstFile = path.join(targetsDest, file);
+      if (!fs.existsSync(dstFile)) {
+        copyFile(srcFile, dstFile);
+        seeded += 1;
+      }
+    }
+    if (seeded > 0) {
+      note(`seeded ${seeded} template(s) in .control/test-targets/`);
+    }
+  }
+
+  ensureGitignoreCustomDispatch(target);
+
+  const localDispatchDest = path.join(control, "custom-dispatch.yaml");
+  if (!fs.existsSync(localDispatchDest) && fs.existsSync(exampleSrc)) {
+    const raw = fs.readFileSync(exampleSrc, "utf8");
+    const content = raw.replace(/^# \.control\/custom-dispatch\.yaml\.example/m, "# .control/custom-dispatch.yaml");
+    fs.writeFileSync(localDispatchDest, content, "utf8");
+    note("seeded default .control/custom-dispatch.yaml (gitignored)");
+  }
+}
+
 function migrateToTwoFolders(target) {
   const c = path.join(target, ".constitution");
   if (!fs.existsSync(c)) return false;          // a first install has nothing to migrate
@@ -1574,6 +1637,7 @@ function apply(target, agents,
   seedAgentDocs(target);
   warnStaleAgentDocs(target);
   seedRequirementSplit(target);
+  seedDailyTierScaffold(target);
   // The split MUST also be reachable without a migration. 0.5.2 only ran it from inside
   // migrateToTwoFolders, which returns early when the old layout is absent — so a repo that took
   // 0.5.0 or 0.5.1, whose project/constitution.md was moved WHOLE and never split, could never be

@@ -1,0 +1,57 @@
+# .control/custom-dispatch.yaml.example
+# Optional machine-local runner and dispatch configuration for autonomous daily tier skills.
+# When seeded to `.control/custom-dispatch.yaml`, it remains local and gitignored.
+schema: 1
+
+runners: {}
+# Uncomment and customize runners on this machine:
+#
+# Auto runners (dispatches in-session if model is reachable from active session;
+# otherwise executes shell-out command):
+# sonnet:
+#   type: auto
+#   model: sonnet
+#   command: 'claude --model claude-sonnet-5 --effort high --dangerously-skip-permissions -p'
+#
+# opus:
+#   type: auto
+#   model: opus
+#   command: 'claude --model claude-opus-5 --effort high --dangerously-skip-permissions -p'
+#
+# External CLI runners (always shell-out):
+# terra:
+#   type: shell-out
+#   command: 'kiro-cli chat --model gpt-5.6-terra --effort high -a --no-interactive'
+#
+# composer:
+#   type: shell-out
+#   command: 'cursor-agent --force --model "composer-2.5"'
+#
+# sol:
+#   type: shell-out
+#   command: 'cursor-agent --model "gpt-5.6-sol-high" --force'
+
+roles:
+  # Builder options (operates sequentially inside the active run worktree; coordinator runs tests & commits):
+  #   - coordinator: Coordinating session implements code directly (default fallback)
+  #   - in-session: Delegates coding pass to an in-session subagent in the active worktree (no 10m wall-clock timeout)
+  #   - <runner-id>: Delegates coding pass to an external runner in the active worktree
+  #
+  # WARNING: Synchronous shell-out runners are capped at 10 minutes (600s) by CLI harness tools.
+  # For complex tickets or long-running TDD cycles, prefer 'in-session' or keep ticket slices small.
+  builder: coordinator
+
+  # Reviewer options:
+  #   - default: Resolves peer review via caller's active session / global agent rules
+  #   - <runner-id>: Dispatches peer review to the named runner
+  #   - none: Disables peer review pass (coordinator self-review only)
+  reviewer: default
+
+  # Deep analyst options (for architecture spine, complex debugging, or hard decisions):
+  #   - default: Uses reviewer runner or coordinator for deep analysis
+  #   - <runner-id>: Dispatches deep analysis to a dedicated high-reasoning runner
+  #   - none: Disables separate deep analyst dispatch (handled by reviewer/coordinator)
+  deep_analyst: default
+
+review_policy:
+  peer_review: true        # Set to false (or set reviewer: none) to bypass peer review pass
