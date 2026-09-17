@@ -200,6 +200,23 @@ page you did not believe is how every later page inherits the doubt.
 domain model skips every gate and runs `/implement` directly — and **stops to become a spec `S`** the
 moment it touches an `FR`. `wdi-help` tells you which of these you are in; it reads the registry, not you.
 
+### Autonomous Daily Tier (`/wdi-daily-*`)
+
+For rapid daily driving with minimal friction, WDI Method provides three autonomous tier wrappers
+built on top of the shared delivery kernel:
+
+- **`/wdi-daily-what-to-build [reviewer] <notes>`**: Turns raw manual-test notes into a classified,
+  reviewed spec or ticket. It runs housekeeping on closed specs (offering prune or archive via
+  `lifecycle.py`), drafts the spec via `wdi-build` on the development branch, and dispatches an
+  independent second opinion before stopping.
+- **`/wdi-daily-autopilot [in-session] [peer] [interval] [--skip-peer-review]`**: Composes and
+  launches the standing daily unattended loop (`/loop 10m /wdi-autopilot`) with self code-review and
+  peer review resolved from local configuration (`.control/custom-dispatch.yaml`) or agent rules.
+- **`/wdi-daily-what-to-test [web <target>|mobile <target>|desktop]`**: Post-merge verification step.
+  Lands on the development branch, prunes merged worktrees, cleans ephemeral smoke test logs, and
+  assembles a physical test checklist from recently closed tickets (using templates in
+  `.control/test-targets/`).
+
 ---
 
 ## Why the steps are in this order
@@ -370,7 +387,7 @@ which review lenses run, and which review traces a validator will demand.
 
 Around them: `wdi-init` (scaffold, component birth, depth and risk settings, structure maps),
 `wdi-decision`, `wdi-question`, `wdi-log`, `wdi-help`, `wdi-explain-to-me`, `wdi-autopilot`, `wdi-reconcile`, `wdi-review`, `wdi-report`,
-`wdi-systematic-debugging`, and `wdi-upgrade` (moves a corpus written under an older kit into the current
+`wdi-systematic-debugging`, `wdi-prune-or-archive` (cleans up completed spec directories by archiving to `.archive/specs/` or pruning from disk), and `wdi-upgrade` (moves a corpus written under an older kit into the current
 shape — content moves, nothing is invented).
 
 **No BMad skill is invoked directly.** Each has a wrapper, and the wrapper is what checks position,
@@ -463,10 +480,10 @@ English, whatever the settings say — it travels to every repo through this pac
 
 | | |
 |---|---|
-| Overwrites | everything in `.constitution/method/` · the eighteen wrappers · `_bmad/custom/*.toml` · the marked block in `AGENTS.md` |
+| Overwrites | everything in `.constitution/method/` · the method wrappers (19 core skills and 3 daily tier skills) · `_bmad/custom/*.toml` · the marked block in `AGENTS.md` |
 | Renames | a file whose content needs no judgment to move — `waves.yaml` → `specs.yaml`, the pre-0.5 registry names, and a pre-0.6.2 autopilot ledger to `autopilot-<mandate-id>.md`. Content is never rewritten |
 | Seeds | `docs/agents/` — the ticket engines' own config, already answered for this method, so `/setup-matt-pocock-skills` is not part of getting started. Seeded once; a file you already wrote is never touched |
-| Removes | Wrappers the method has retired — a `wdi-*` folder with a `SKILL.md` that is no longer one of the eighteen. Each removal is printed |
+| Removes | Wrappers the method has retired — a `wdi-*` folder with a `SKILL.md` that is no longer one of the installed method skills. Each removal is printed |
 | Reports | what is still in the OLD shape, as an `upgrade` line — and names `wdi-upgrade` as the next step. The installer does not move content; that is a decision, and the skill's |
 | Keeps | All of `.constitution/project/`, plus your initiative slug and your language choice. A setting somebody already chose is not the installer's to change behind their back |
 | Never resurrects | A folder you retired. On update, absence is treated as a decision |

@@ -196,6 +196,22 @@ it to make the output quiet.
 The rows themselves are **not** yours to land. This intent produces the reader; `wdi-blueprint` intent
 `platform` owns the three inventories, and a plan-versus-code gap is its finding to route.
 
+## Rendered Files Hygiene & Gitignore (Optional)
+
+The `.what-rendered/` and `.how-rendered/` directories contain generated human-facing presentations
+derived from canonical files in `.what/` and `.how/`. The method validator deliberately excludes them
+from `COMMITTED_DIRS`, allowing products to choose whether to commit them.
+
+If the maintainer prefers to keep the git tree clean of generated presentation files:
+1. Untrack them from git: `git rm -r --cached .what-rendered/ .how-rendered/`
+2. Add both folders to `.gitignore`:
+   ```gitignore
+   .what-rendered/
+   .how-rendered/
+   ```
+3. Whenever a human-readable rendered view is needed, regenerate on demand:
+   `uv run .constitution/method/scripts/validate.py --generate`
+
 ## Rules
 
 - You MUST NOT write `.what/` or `.how/` content beyond a skeleton and its frontmatter. Behaviour is

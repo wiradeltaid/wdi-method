@@ -74,6 +74,11 @@ mis-route in this flow, because every other gate is the same for every component
 | An accepted `DEC-` has not reached its documents | `wdi-decision` intent `apply` |
 | A bug, a failing test, unexpected behaviour | `wdi-systematic-debugging`, before any fix is proposed |
 | Numbers are wanted before the work is committed | `wdi-report` intent `estimate` |
+| Closed specs remain in `.scratch/`, or need archival/pruning | `wdi-prune-or-archive` — archives closed spec to `.archive/specs/` or prunes from disk |
+| Raw manual-test notes needing triage, review, and spec drafting | `wdi-daily-what-to-build` — classifies notes, opens spec via `wdi-build`, offers housekeeping, gets second opinion |
+| Autonomous delivery loop with local runner and peer review | `wdi-daily-autopilot` — composes routine, resolves local runners, launches `/loop` unattended |
+| Merged autopilot run needing branch cleanup and physical test checklist | `wdi-daily-what-to-test` — syncs branch, prunes merged worktrees, provides target smoke checklist |
+| Cleaning up generated rendered duplicate files from git | Untrack via `git rm -r --cached .what-rendered/ .how-rendered/`, add to `.gitignore`, regenerate via `validate.py --generate` |
 
 A brief that exists but is thin is still a brief. You MUST NOT route back to `wdi-problem` because a
 section reads weakly — route there only when the brief is absent, when a change signal invalidates what

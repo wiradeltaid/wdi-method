@@ -65,6 +65,13 @@ Prinsip kerja WDI Method berpusat pada keterlibatan manusia pada titik keputusan
 ### Autopilot Otonom (`wdi-autopilot`)
 Untuk pekerjaan implementasi bertahap tanpa interupsi pertanyaan di tengah jalan, gunakan `wdi-autopilot`. Pemilik produk menetapkan satu **mandat** di awal (cakupan FR, batasan risiko, interval loop), dan agent akan menjalankan iterasi loop (`/loop 5m /wdi-autopilot`), mencatat setiap keputusan teknis ke dalam ledger, dan berhenti hanya saat mandat tuntas atau terblokir.
 
+### Tingkat Harian Otonom (`/wdi-daily-*`) & Manajemen Siklus Hidup
+Untuk alur kerja harian berkecepatan tinggi dengan minim interupsi:
+- **`/wdi-prune-or-archive [spec-id] [--archive|--prune]`**: Pembersihan berkas spek tertutup dari `.scratch/` ke `.archive/specs/` atau pembersihan disk secara aman dengan preservasi jejak audit RTM.
+- **`/wdi-daily-what-to-build [reviewer] <notes>`**: Klasifikasi catatan uji manual menjadi tiket/spek, pembersihan housekeeping spek tertutup (prune/archive via `/wdi-prune-or-archive`), draf spek via `wdi-build` langsung di cabang development, dan permohonan second opinion independen.
+- **`/wdi-daily-autopilot [in-session] [peer] [interval] [--skip-peer-review]`**: Menyusun dan meluncurkan rutinitas mandat otonom (`/loop 10m /wdi-autopilot`) dengan integrasi konfigurasi runner lokal (`.control/custom-dispatch.yaml`).
+- **`/wdi-daily-what-to-test [web <target>|mobile <target>|desktop]`**: Langkah verifikasi pasca-merge. Sinkronisasi cabang development, pembersihan worktree yang telah dimerge, penghapusan log smoke sementara, dan penyusunan checklist uji fisik berbasis tiket tertutup (menggunakan template di `.control/test-targets/`).
+
 ---
 
 ## Ketahanan Proses & Lingkungan Eksekusi

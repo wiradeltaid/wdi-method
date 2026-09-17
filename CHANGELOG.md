@@ -10,6 +10,25 @@ version contains every fix below it.
 
 ---
 
+## [0.6.21] - 2026-09-17
+
+### Added
+
+- **Autonomous Daily Tier Skills (`/wdi-daily-*`):** Added three streamlined wrappers (`wdi-daily-what-to-build`, `wdi-daily-autopilot`, `wdi-daily-what-to-test`) providing rapid manual-test notes triage, autonomous unattended loops with local runner integration, and post-merge physical testing verification.
+- **Local Dispatch Runner Schema & Safety:** Added `.control/custom-dispatch.yaml.example` for optional machine-specific runner definitions. Installer and update automatically ensure `.control/custom-dispatch.yaml` is added to `.gitignore`, and `validate.py` enforces fail-closed rejection if personal dispatch files are committed to git.
+- **Physical Smoke Test Target Templates:** Added `.control/test-targets/` (`desktop.md`, `web.md`, `mobile.md`) seeded per-file during install and update without overwriting custom templates.
+- **Spec Lifecycle Management (`lifecycle.py`):** Added Python lifecycle utility supporting `--archive` (`git mv` to `.archive/specs/<spec-id>/`) and `--prune` (`git rm` of completed spec directories while preserving RTM history). Supported by `archived_spec_closed` validator and historical citation resolution.
+- **Normative Branch Protection Guide:** Added `.constitution/method/branch-guide.md` establishing absolute immunity for `primary_branch` and `development_branch`, fail-closed branch prechecks, and fast-forward pull mandates.
+- **Delivery Flow SSOT in `AGENTS.md`:** Absorbed standing sequence rules directly into product agent guidelines (authoring on active development branch, implementation in isolated worktree, prohibition of unattended auto-continue).
+
+### Changed
+
+- **Surgical Policy Block Upsert:** Replaced full-block regex replacement in `lib/identity.mjs` with per-key upsert (`upsertBlockKeys`), safely preserving configured branch policies (`primary_branch`, `development_branch`) across updates.
+- **Branch Configuration:** De-hardcoded `main` in `wdi-build`, `wdi-autopilot`, and `ci-guide.md`, dynamically resolving to `policy.development_branch`.
+- **Smoke Test Directory Standardization:** Automated spec smoke tests standardized under `.scratch/<spec>/smoke/`, while transient human verification logs live in `.work/smoke/` and permanent audit records remain in `.control/memlog/`.
+
+**What a repo that already has the method installed does about it.** Run `npx wdi-method@latest update`. It updates method skills and guides, seeds missing test-target templates and custom-dispatch example, and adds `.control/custom-dispatch.yaml` to `.gitignore`.
+
 ## [0.6.20] - 2026-09-17
 
 ### Added
