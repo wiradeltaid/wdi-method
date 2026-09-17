@@ -72,9 +72,14 @@ Per `wdi-autopilot` § Preflight, unattended loop iterations **require an active
 `.control/registry/decisions.yaml` whose expiry date has not lapsed. A loop MUST NOT self-authorize
 its own mandate.
 
-1. Inspect `decisions.yaml` using targeted search (e.g. `Grep` for `status:\s*accepted`) rather than reading
-   the entire file into context. Check if any returned match is of `type: mandate` with an unexpired date.
-   (MUST NOT call `Read` on the entire 1000+ line `decisions.yaml` file).
+1. Check if an active accepted mandate exists:
+   - An active mandate MUST have BOTH `type: mandate` and `status: accepted` with an unexpired `expires:` date.
+   - MUST NOT run a broad search for `type:\s*mandate` across `decisions.yaml` (which matches dozens of historical
+     `applied` mandates and overflows the tool output limit with hundreds of lines).
+   - Query specifically for an active mandate entry using multiline search (e.g. `Grep` with
+     `pattern: "type:\s*mandate[\s\S]{1,100}?status:\s*accepted|status:\s*accepted[\s\S]{1,100}?type:\s*mandate", multiline: true`).
+   - MUST NOT call `Read` on the entire 1000+ line `decisions.yaml` file. When reading the latest decision ID
+     to determine the next candidate `DEC-` ID, read only the tail (e.g. the last 50-80 lines) of `decisions.yaml`.
 2. **If no active accepted mandate exists:**
    - Execute `wdi-autopilot` Door 1 (Preflight) in this interactive turn.
    - When checking open work to include in the mandate, query `specs.yaml` selectively (e.g. `Grep` for
@@ -84,6 +89,9 @@ its own mandate.
    - Run validator preflight via `uv run .constitution/method/scripts/validate.py --check --baseline`
      (or `--generate --baseline`). If `.github/validate-baseline.txt` exists in the repo, the `--baseline` flag
      guarantees that accepted repository baseline findings are recognized as green.
+   - When verifying the preflight test suite from `codebase-stack-guide.md`, run tests with quiet output flags
+     if supported (e.g. `-- --quiet` or standard concise runner flags) to avoid flooding the context window
+     with hundreds of verbose pass lines.
    - Present the one-page preflight summary and wait for the owner's explicit confirmation.
    - Once confirmed, write the accepted mandate row into `decisions.yaml` and initialize its ledger.
 3. **If an active accepted mandate already exists:** Proceed directly to compose and launch the loop.
