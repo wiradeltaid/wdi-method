@@ -33,7 +33,9 @@ runners: {}
 
 roles:
   # Builder options (operates sequentially inside the active run worktree; coordinator runs tests & commits):
-  #   - coordinator: Coordinating session implements code directly (default fallback)
+  #   - coordinator: Coordinating session implements code directly (default fallback for tight TDD and atomic edits).
+  #     Guardrail: builder: coordinator MUST NOT be paired with reviewer: none unless all touched components
+  #     have risk_accepted: low and the decision is recorded. A builder cannot be its own sole judge.
   #   - in-session: Delegates coding pass to an in-session subagent in the active worktree (no 10m wall-clock timeout)
   #   - <runner-id>: Delegates coding pass to an external runner in the active worktree
   #

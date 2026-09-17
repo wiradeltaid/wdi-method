@@ -65,7 +65,7 @@ that cannot provide them is **blocked**, not excused.
 | Check | When it fails |
 |---|---|
 | Every component this spec touches has passed G4, **or** sits at `mode: catalog` | Route to `wdi-component`. `spec-after-g4` checks it, and `catalog` skipping G4 is by design, not an exception |
-| An isolated worktree | Isolate first. MUST NOT run in a shared checkout. Standing exception: Phase 1 (Open the spec) and Phase 2 (The contract and the tickets) authoring runs directly on `development_branch` (`policy.development_branch`, default `main`) with no code changes; the isolated worktree requirement binds Phase 3 (Ship each ticket) onward |
+| An isolated working tree | Isolate first. MUST NOT run in a shared or dirty checkout. Permitted isolation models: an isolated linked worktree (`git worktree add`), or an exclusive primary working tree checked out to the task branch with a clean status dedicated to this task (`.constitution/method/branch-guide.md`). Standing exception: Phase 1 (Open the spec) and Phase 2 (The contract and the tickets) authoring runs directly on `development_branch` (`policy.development_branch`, default `main`) with no code changes; the isolated working tree requirement binds Phase 3 (Ship each ticket) onward |
 | Every `prd` slug names a real `.what/_prd/<initiative>/` folder | A spec without a promise covering it is a spec nobody agreed to (`spec-names-release-prd`) |
 | Development branch verified locally or on remote (`refs/heads/<branch>` or `refs/remotes/origin/<branch>`) | Branch missing. Stop immediately and report to maintainer; MUST NOT guess or silently fall back to `main` (`.constitution/method/branch-guide.md`) |
 

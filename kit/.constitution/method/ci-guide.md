@@ -33,6 +33,23 @@ triggers**.
   the run MUST keep intermediate work off the remote instead: hold the push, or make the pushed head
   commit carry `[skip ci]`, which GitHub honours for `push` and `pull_request` events.
 
+### CI execution policy
+
+The product's CI execution policy is configured in `.control/registry/index.yaml` under `policy:`, defaulting to `cycle-end-cloud`:
+
+```yaml
+policy:
+  ci_execution: cycle-end-cloud # cycle-end-cloud (default)
+```
+
+- **`cycle-end-cloud` (default):** Intermediate pushes start nothing; exactly one cloud CI run is triggered at `wdi-autopilot` § Finish when the work is offered for review. Green CI on the pushed head SHA is required before marking the PR ready for review.
+- **Mandate CI override (signed bypass for constrained environments):** Where cloud runner allowances are strictly limited or emergency releases require local verification, an autonomous mandate MAY record a signed override on its decision block in `decisions.yaml`:
+  ```yaml
+  mandate:
+    ci_override: local-only-approved-by: "<Person, YYYY-MM-DD>"
+  ```
+  Under this signed override, the autopilot run MUST NOT call `gh pr ready`, the PR MUST remain as a Draft, no cloud runner is awaited, and the final release report MUST explicitly state: *"locally verified; cloud verification intentionally deferred by mandate"*. A global un-audited toggle MUST NOT be used to silently disable CI evidence.
+
 ## Trigger shape
 
 | Event | Use it | Why |

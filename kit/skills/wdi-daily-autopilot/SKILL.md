@@ -49,7 +49,10 @@ Inspect the repository for `.control/custom-dispatch.yaml` (if not found in the 
   - If `roles.deep_analyst` is `none`, document review and architecture analysis are handled by the main reviewer or
     coordinator directly, without dispatching a separate deep analyst process.
   - Resolve `roles.builder` for the coding execution inside the active run worktree:
-    - `coordinator` (default): coordinating session implements code directly.
+    - `coordinator` (default): coordinating session implements code directly (optimal for tight TDD and atomic refactoring).
+      Guardrail: when `roles.builder` is `coordinator`, coordinator direct implementation MUST NOT eliminate
+      independent peer review for components whose `risk_accepted` is not `low`; `roles.reviewer` MUST NOT be set
+      to `none` in such cases.
     - `in-session`: coordinator delegates coding pass to an in-session subagent (`Agent` tool) in the active worktree.
     - `<runner-id>`: coordinator delegates coding pass to the named external runner spawned with working directory (`cwd`) set to the active worktree.
       If `<runner-id>` is not found in `runners:`, or lacks a nonempty `command` string under `type: shell-out`,
@@ -75,14 +78,19 @@ its own mandate.
 1. Check if an active accepted mandate exists:
    - An active mandate MUST have BOTH `type: mandate` and `status: accepted` with an unexpired `expires:` date
      (`today <= expires`) and no `superseded_by:` or `status: superseded`.
-   - MUST NOT run a broad search for `type:\s*mandate` across `decisions.yaml` (which matches dozens of historical
-     `applied` mandates and overflows the tool output limit with hundreds of lines).
-   - Query specifically for an active mandate entry using multiline search (e.g. `Grep` with
-     `pattern: "type:\s*mandate[\s\S]{1,100}?status:\s*accepted|status:\s*accepted[\s\S]{1,100}?type:\s*mandate", multiline: true`).
-     Once a candidate match is found, verify its individual decision block to confirm `expires:` is present,
-     valid, and unexpired.
-   - **Fail-closed on multiple active mandates:** If more than 1 active accepted mandate is found, stop and
-     report immediately to the maintainer (fail-closed; MUST NOT guess or choose between them).
+   - **Primary lookup ($O(1)$):** Read `.control/generated/status.yaml` and inspect `mandates:`:
+     - If `mandates.resolution: one`: the active mandate is `mandates.active_mandate.id` (with its verified `expires` and `status`). Proceed directly to step 3.
+     - If `mandates.resolution: ambiguous`: stop and report immediately to the maintainer naming all `mandates.active_ids` (fail-closed; MUST NOT guess or choose between them).
+     - If `mandates.resolution: none`: proceed to step 2 (Preflight).
+   - **Fallback lookup (when `status.yaml` does not exist or lacks `mandates:`):**
+     - MUST NOT run a broad search for `type:\s*mandate` across `decisions.yaml` (which matches dozens of historical
+       `applied` mandates and overflows the tool output limit with hundreds of lines).
+     - Query specifically for an active mandate entry using multiline search (e.g. `Grep` with
+       `pattern: "type:\s*mandate[\s\S]{1,100}?status:\s*accepted|status:\s*accepted[\s\S]{1,100}?type:\s*mandate", multiline: true`).
+       Once a candidate match is found, verify its individual decision block to confirm `expires:` is present,
+       valid, and unexpired.
+     - **Fail-closed on multiple active mandates:** If more than 1 active accepted mandate is found, stop and
+       report immediately to the maintainer (fail-closed; MUST NOT guess or choose between them).
    - MUST NOT call `Read` on the entire 1000+ line `decisions.yaml` file. When reading the latest decision ID
      to determine the next candidate `DEC-` ID, read only the tail (e.g. the last 50-80 lines) of `decisions.yaml`.
 2. **If no active accepted mandate exists:**

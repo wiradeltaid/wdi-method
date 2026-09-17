@@ -1418,3 +1418,64 @@ test("refs-resolve does NOT offer that route for a missing id that is not a requ
     `a spec id was offered the withdrawn route. Only a promise can be withdrawn; suggesting it for `
     + `anything else sends the reader to write a field the guide never defined:\n${line}`);
 });
+
+test("gen_status projects active_mandate into status.yaml with resolution and active_ids", (t) => {
+  if (requireUv(t)) return;
+  const tmp = installedTree();
+  try {
+    // Helper to run generate without throwing on validator findings
+    const runGen = (asof) => {
+      try {
+        const args = ["run", path.join(SCRIPTS, "validate.py"), "--root", ".", "--generate"];
+        if (asof) args.push("--asof", asof);
+        execFileSync("uv", args, { cwd: tmp, encoding: "utf8", env: PY_ENV, stdio: ["ignore", "pipe", "pipe"] });
+      } catch {}
+    };
+
+    // 1. With asof inside mandate window (2026-01-25), DEC-002 is active: resolution: one
+    runGen("2026-01-25");
+    let status = fs.readFileSync(path.join(tmp, ".control", "generated", "status.yaml"), "utf8");
+    assert.match(status, /mandates:\s*\n\s*resolution: one\s*\n\s*active_ids:\s*\n\s*- DEC-002\s*\n\s*active_mandate:\s*\n\s*id: DEC-002/,
+      `status.yaml did not project active mandate DEC-002 when asof was valid:\n${status}`);
+
+    // 2. Default asof (today 2026-09-17) is after expires (2026-02-01): resolution: none
+    runGen();
+    status = fs.readFileSync(path.join(tmp, ".control", "generated", "status.yaml"), "utf8");
+    assert.match(status, /mandates:\s*\n\s*resolution: none\s*\n\s*active_ids: \[\]\s*\n\s*active_mandate: null/,
+      `status.yaml did not project resolution: none when mandate expired:\n${status}`);
+
+    // 3. Multiple active mandates produce resolution: ambiguous
+    const decFile = path.join(tmp, ".control", "registry", "decisions.yaml");
+    fs.appendFileSync(decFile, `  - id: DEC-005
+    title: "Second concurrent mandate"
+    status: accepted
+    type: mandate
+    accepted_by: "Wira, 2026-01-20"
+    mandate:
+      from_gate: G5
+      scope: all
+      expires: '2026-02-01'
+    touches: []
+`);
+    fs.writeFileSync(path.join(tmp, ".control", "memlog", "autopilot-DEC-005.md"), "# Ledger DEC-005\n");
+    runGen("2026-01-25");
+    status = fs.readFileSync(path.join(tmp, ".control", "generated", "status.yaml"), "utf8");
+    assert.match(status, /mandates:\s*\n\s*resolution: ambiguous\s*\n\s*active_ids:\s*\n\s*- DEC-002\s*\n\s*- DEC-005\s*\n\s*active_mandate: null/,
+      `status.yaml did not flag ambiguous when multiple mandates are active:\n${status}`);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test("lc-registered error message includes guidance to use touches: [] for non-code tickets", (t) => {
+  if (requireUv(t)) return;
+  const out = afterMutation((dir) => {
+    const specFile = path.join(dir, ".control", "registry", "specs.yaml");
+    fs.writeFileSync(specFile, fs.readFileSync(specFile, "utf8")
+      .replace("status: open\n", "status: closed\n")
+      .replace("touches: [money]\n", "touches: [corpus-docs]\n"));
+  });
+  assert.match(out, /lc-registered.*corpus-docs.*For corpus- or documentation-only tickets with no application code changes, use `touches: \[\]`/,
+    `lc-registered error did not carry the guidance for corpus-only tickets:\n${out}`);
+});
+

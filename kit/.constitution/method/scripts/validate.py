@@ -657,7 +657,8 @@ def lc_registered(c: Corpus, r: Result) -> None:  # was V12
             if area not in areas:
                 r.fail("lc-registered", str(ticket.get("id")),
                        f"its spec is already closed, but `{area}` is not registered as an `area` "
-                       f"in components.yaml")
+                       f"in components.yaml. For corpus- or documentation-only tickets with no "
+                       f"application code changes, use `touches: []` instead of inventing an area name.")
         pid = str(ticket.get("component") or "")
         row = pc_by_id.get(pid)
         if row is None or (str(spec.get("id")), pid) in seen:
@@ -2093,7 +2094,57 @@ def gen_rtm(c: Corpus) -> dict:
     return {"rtm": lines}
 
 
-def gen_status(c: Corpus, rtm: dict, result: Result) -> dict:
+def _active_mandates(c: Corpus, asof: dt.date | None = None) -> dict:
+    """Project active mandate status into status.yaml: resolution (one | none | ambiguous),
+    active_ids list, and active_mandate dict.
+
+    An active accepted mandate MUST have type: mandate, status: accepted, an unexpired
+    expires date (today <= expires), and no superseded_by or status: superseded.
+    """
+    today = asof or dt.date.today()
+    actives: list[dict] = []
+    for dec in c.decs:
+        if str(dec.get("type") or "") != "mandate":
+            continue
+        status = str(dec.get("status") or "")
+        if status != "accepted":
+            continue
+        did = str(dec.get("id") or "")
+        ref = str(dec.get("superseded_by") or _dec_fm(c, dec).get("superseded_by") or "").strip()
+        if ref or status == "superseded":
+            continue
+        params = dec.get("mandate") if isinstance(dec.get("mandate"), dict) else {}
+        expires = _dec_date(c, {"date": params.get("expires")})
+        if expires is None or expires < today:
+            continue
+        actives.append({
+            "id": did,
+            "status": status,
+            "expires": expires.isoformat(),
+            "scope": params.get("scope", "all"),
+        })
+    actives.sort(key=lambda a: a["id"])
+    if len(actives) == 1:
+        return {
+            "resolution": "one",
+            "active_ids": [actives[0]["id"]],
+            "active_mandate": actives[0],
+        }
+    elif len(actives) > 1:
+        return {
+            "resolution": "ambiguous",
+            "active_ids": [a["id"] for a in actives],
+            "active_mandate": None,
+        }
+    else:
+        return {
+            "resolution": "none",
+            "active_ids": [],
+            "active_mandate": None,
+        }
+
+
+def gen_status(c: Corpus, rtm: dict, result: Result, asof: dt.date | None = None) -> dict:
     lines = rtm.get("rtm") or []
     counted = [line for line in lines if not line.get("exempt")]
     exempt = len(lines) - len(counted)
@@ -2116,6 +2167,7 @@ def gen_status(c: Corpus, rtm: dict, result: Result) -> dict:
         "validators_red": result.red,
         "validators_skipped": dict(sorted(result.skipped.items())),
         "open_questions": _question_budget(c),
+        "mandates": _active_mandates(c, asof),
     }
 
 
@@ -2915,7 +2967,7 @@ def page_sdd(c: Corpus, pid: str) -> str:
     return "\n".join(parts) + "\n"
 
 
-def generate(c: Corpus, result: Result) -> list[Path]:
+def generate(c: Corpus, result: Result, asof: dt.date | None = None) -> list[Path]:
     """Machine tables into `.control/generated/`; every page a human reads into the two rendered
     trees, at the mirror path of the working document it projects."""
     out_dir = c.root / ".control" / "generated"
@@ -2926,7 +2978,7 @@ def generate(c: Corpus, result: Result) -> list[Path]:
         "risks": gen_risks(c),
         "dag": gen_dag(c),
         "rtm": rtm,
-        "status": gen_status(c, rtm, result),
+        "status": gen_status(c, rtm, result, asof),
     }
     written = []
     for name in GENERATED_ORDER:
@@ -3001,7 +3053,7 @@ def main(argv: list[str] | None = None) -> int:
     result = run_checks(corpus, asof)
 
     if args.generate:
-        for path in generate(corpus, result):
+        for path in generate(corpus, result, asof):
             print(f"  wrote {path.relative_to(root).as_posix()}")
 
     if result.findings:

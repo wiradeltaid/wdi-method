@@ -17,12 +17,15 @@ hold, the same panel reviews the code. What changes is who answers when a skill 
 | **Preflight** | **No active accepted mandate exists**, and the owner asked for one in this turn | Checks everything, prints one page, waits for the owner's confirmation, writes the mandate, starts the loop | Yes — this is the only place this skill MAY ask |
 | **Iteration** | A mandate at `accepted` whose `expires` has not passed | Reads the registry and the ledger's `## Resume`, works from where the last iteration stopped for as long as it safely can, records, returns only at one of three stops | **Never** |
 | **Finish, lapsed** | A mandate at `accepted` whose `expires` **has** passed | Goes straight to § Finish, marks the run lapsed, cancels the loop | **Never** |
+| **Terminal / No-op** | A mandate at `applied` or `superseded` (or unattended invocation with no unworked mandate) | Clean no-op: reports mandate already completed/lapsed, cancels any active loop task, and halts immediately | **Never** |
 
 **A run MUST NOT write itself a mandate.** Preflight is reachable only when the owner asked for it in the
 turn that is running; a loop firing MUST NOT open it, whatever the mandate's state. Without that, an expired
 mandate would put the next firing back at preflight — where the defaults are already filled in and nobody is
 awake to refuse them — and the run would renew its own authority. The lapsed door exists precisely so the
-expiry ends the run instead of restarting it.
+expiry ends the run instead of restarting it. If an unattended iteration fires after a mandate has already
+reached `status: applied` or `superseded`, the skill MUST NOT attempt to re-open Preflight or restart work;
+it MUST perform a clean, single-line no-op and cancel any lingering loop scheduler.
 
 Typing `/wdi-autopilot` while a mandate is active opens the iteration door, not the preflight. To change a
 setting, the owner supersedes the mandate with a new one — `wdi-decision` owns supersession. A superseded
@@ -49,7 +52,7 @@ NOT start the loop while any row in the first two groups is red.
 | | A CI workflow is configured | None. § Finish would wait for checks that never arrive; say so and read the local suite as the evidence instead |
 | | **No workflow fires on an intermediate push** — the run branch is pushed dozens of times and a metered runner MUST NOT start on any of them. `ci-guide.md` § Trigger shape is the check: `workflow_dispatch` present, the automatic trigger `pull_request` `types: [ready_for_review]`, no bare `on: push` | A workflow triggers on every push. Fix it before the mandate is written — one autopilot run over fifteen tickets has spent most of a month's allowance in two days — or, where the workflow is not this repo's to change, the run holds every intermediate push and the preflight page says so |
 | **Position** | `gates_passed` in `index.yaml`, `g4_passed` per component, validators green (`uv run .constitution/method/scripts/validate.py --baseline`) | A red validator. Name it; autopilot MUST NOT start on a corpus already red |
-| | An isolated worktree | A shared checkout. `wdi-build` refuses one, so this skill refuses earlier |
+| | An isolated working tree | A shared or dirty checkout. Permitted: an isolated linked worktree (`git worktree add`), or an exclusive primary working tree checked out to `autopilot/<mandate-id>` with a clean working tree (`git status --porcelain` empty) dedicated to this run (`.constitution/method/branch-guide.md`). `wdi-build` refuses un-isolated checkouts, so this skill refuses earlier |
 | | `from_gate` — the first gate the run will hold itself | Below the last passed gate. Default: the gate after the last one passed |
 | **Settings** | `scope` — the `FR` ids to deliver, or `all` | — (default `all` open `FR`) |
 | | `parked` — what stops for the owner instead of being decided: any of `promise` · `ad-n` · `sensitive` | — (default **`ad-n`**, and nothing else. `decision-guide.md` says narrowing an invariant MUST NOT be softened further, so removing it is the owner's to say out loud — not a default they never saw) |
@@ -393,8 +396,14 @@ When § The work table reaches § Finish:
    Green marks the one PR **ready for review**. Red keeps it a **draft** and is reported red: a PR marked
    ready is an invitation to merge, and the run MUST NOT extend one over a red branch, nor patch to turn it
    green at the door.
-5. Cancel the loop: in Claude Code, the `loop` skill's cancel; elsewhere, tell the owner the loop has nothing
-   left to do.
+
+   **Signed CI override:** If the mandate decision block in `decisions.yaml` records a signed `ci_override`
+   (e.g. `ci_override: local-only-approved-by: "<Person, Date>"` per `.constitution/method/ci-guide.md`),
+   the run MUST NOT mark the draft PR ready (`gh pr ready`). The PR MUST remain as a Draft, no cloud runner
+   is awaited, and the final output report explicitly states: *"locally verified; cloud verification intentionally deferred by mandate"*.
+5. **Cancel the loop cleanly:** in Claude Code, inspect scheduled jobs via `CronList`, identify the job firing
+   `/wdi-autopilot`, and call `CronDelete` on its task ID to eliminate zombie loop firings; elsewhere, call the platform's
+   loop cancellation mechanism or inform the owner that the loop has completed its mandate and has nothing left to do.
 6. Write the final report as the Output below. The owner merges; the run never does.
 
 ## Red Flags — STOP
