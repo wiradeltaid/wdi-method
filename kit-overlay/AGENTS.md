@@ -241,7 +241,9 @@ MUST anything in `.constitution/method/why/`; `status: Reference` forbids it. A 
   skill as reference is fine. The exceptions are: (1) `wdi-autopilot` under a `DEC-` of `type: mandate`
   at `status: accepted` that has not expired: the mandate **is** the go-ahead, for every skill it
   needs, until it lapses; (2) when the owner explicitly invokes an autonomous daily tier skill
-  (`/wdi-daily-*`), the owner's invocation authorizes the bounded orchestration steps specified in that skill.
+  (`/wdi-daily-*`), the owner's invocation authorizes the bounded orchestration steps specified in that skill;
+  (3) read-only status and routing inquiries (`wdi-help`): the model MAY invoke `wdi-help` automatically
+  to inspect current gate progress, open work, or determine the next skill without modifying project state.
 - `.work/` is not production code. It MUST NOT be imported by the application, and MUST be
   excluded when searching for code.
 <!-- END:wdi-method -->
