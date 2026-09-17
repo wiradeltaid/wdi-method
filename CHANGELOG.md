@@ -10,6 +10,20 @@ version contains every fix below it.
 
 ---
 
+## [0.6.22] - 2026-09-17
+
+### Added
+
+- **Advisory Read-Only Reviewer & Single-Writer Discipline:** Step 4 of `wdi-daily-what-to-build` now strictly dispatches reviewers in read-only mode (`--trust-tools=fs_read` / `--mode plan`) to eliminate unbounded tool-calling edit loops and orphaned background shells. The coordinator alone applies spec/ticket edits and writes the `spec_reviewed` trace into `specs.yaml`.
+- **Live Peer Review Stamping Contract:** Added clarification in `wdi-review` affirming that live, same-session peer review dispatched and evaluated by the coordinator fulfills stamping requirements without redundant re-review from scratch.
+- **Desktop Process Gate & File-Lock Prevention:** Added runtime process verification and manifest logging (`.work/smoke/runtime-desktop.yaml`) in `wdi-daily-what-to-test` to prevent Windows file-lock compilation failures (error 5/32).
+- **Delta-Scoped Checklist Retrieval:** `wdi-daily-what-to-test` bounds verification checklist discovery strictly to the sync delta (`before_sync..HEAD`), eliminating brute-force scans of historical specs.
+- **Upfront Dependency Enforcement:** `wdi-daily-what-to-build` mandates establishing sequential `blocked_by` chains for tickets sharing `touches` upfront to satisfy `parallel-tickets-blocked`.
+- **Canonical `uv run` Validation:** Standardized all validation commands to `uv run .constitution/method/scripts/validate.py --generate --baseline`, preventing Windows Python Launcher shebang parsing errors.
+- **Remote-Tracking Branch Hygiene:** `wdi-daily-what-to-test` adds `git fetch --prune origin` and safely prunes merged autopilot run branches while protecting primary and development branches.
+
+**What a repo that already has the method installed does about it.** Run `npx wdi-method@latest update`. It updates method skills, tightens reviewer dispatch and process gating, and keeps triage focused without administrative or tool-loop interruptions.
+
 ## [0.6.21] - 2026-09-17
 
 ### Added
