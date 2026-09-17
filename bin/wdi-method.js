@@ -1504,9 +1504,13 @@ function upsertAgentFiles(target, platforms, productName) {
 
   if (platformUsesHook(platforms, "claude-md")) {
     const claude = path.join(target, "CLAUDE.md");
-    if (!fs.existsSync(claude)) {
-      fs.writeFileSync(claude, "@AGENTS.md\n");
-      note("CLAUDE.md created as @AGENTS.md");
+    if (!fs.existsSync(claude) || fs.readFileSync(claude, "utf8").trim() === "@AGENTS.md") {
+      fs.writeFileSync(claude, next);
+      note("CLAUDE.md synchronized from AGENTS.md");
+    } else {
+      const patched = upsertMethodBlock(fs.readFileSync(claude, "utf8"), template);
+      fs.writeFileSync(claude, patched.endsWith("\n") ? patched : `${patched}\n`);
+      note("method block refreshed in CLAUDE.md");
     }
   }
 }
@@ -2069,7 +2073,7 @@ async function runWizard(pre) {
       "",
       "What gets written for the platforms you picked:",
       "  AGENTS.md  (the BEGIN:wdi-method block — always)",
-      platformUsesHook(selected, "claude-md") ? "  CLAUDE.md  →  @AGENTS.md" : "",
+      platformUsesHook(selected, "claude-md") ? "  CLAUDE.md  (method block mirror)" : "",
       platformUsesHook(selected, "cursorrules") ? "  .cursorrules  (method block mirror)" : "",
       platformUsesHook(selected, "agents-mirror") ? "  .agents/AGENTS.md  (method block mirror)" : "",
       platformUsesHook(selected, "opencode-commands")
