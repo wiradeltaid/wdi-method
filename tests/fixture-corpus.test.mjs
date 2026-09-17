@@ -291,6 +291,33 @@ test("the live-cite net survives that skip — a dangling cite in the product st
   }
 });
 
+test("validate.py --baseline exits 0 when findings match baseline file", (t) => {
+  if (requireUv(t)) return;
+  const tmp = installedTree();
+  try {
+    const map = path.join(tmp, ".control", "structure-codebase.md");
+    fs.appendFileSync(map, "\nRouting note: see `.what/does-not-exist.md`.\n");
+
+    let rawOut;
+    try {
+      rawOut = execFileSync("uv", ["run", path.join(SCRIPTS, "validate.py"), "--root", "."],
+                            { cwd: tmp, encoding: "utf8", env: PY_ENV, stdio: ["ignore", "pipe", "pipe"] });
+    } catch (e) {
+      rawOut = `${e.stdout || ""}${e.stderr || ""}`;
+    }
+    assert.match(rawOut, /RED — 1 findings/);
+
+    const baselineFile = path.join(tmp, "baseline.txt");
+    fs.writeFileSync(baselineFile, "  cites-resolve              .control/structure-codebase.md: cites `.what/does-not-exist.md` which does not exist\n");
+
+    const baseOut = execFileSync("uv", ["run", path.join(SCRIPTS, "validate.py"), "--root", ".", "--baseline", "baseline.txt"],
+                                 { cwd: tmp, encoding: "utf8", env: PY_ENV, stdio: ["ignore", "pipe", "pipe"] });
+    assert.match(baseOut, /GREEN \(baseline match\)/);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
 // ---------------------------------------------------------------------------------------------
 // The delivery half of the registry — one spec, two tickets — was rewritten wholesale when `wave`
 // became `spec` and `story` became `ticket`. Eight validators walk it, and until the fixture

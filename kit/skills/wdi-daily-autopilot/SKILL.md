@@ -79,6 +79,11 @@ its own mandate.
    - Execute `wdi-autopilot` Door 1 (Preflight) in this interactive turn.
    - When checking open work to include in the mandate, query `specs.yaml` selectively (e.g. `Grep` for
      `status:\s*(open|ready-for-dev)`) instead of reading all historical closed specs into context.
+     Inspect the candidate spec's folder using the `spec_folder:` path from `specs.yaml` (MUST NOT run
+     broad recursive searches on all of `.scratch/`).
+   - Run validator preflight via `uv run .constitution/method/scripts/validate.py --check --baseline`
+     (or `--generate --baseline`). If `.github/validate-baseline.txt` exists in the repo, the `--baseline` flag
+     guarantees that accepted repository baseline findings are recognized as green.
    - Present the one-page preflight summary and wait for the owner's explicit confirmation.
    - Once confirmed, write the accepted mandate row into `decisions.yaml` and initialize its ledger.
 3. **If an active accepted mandate already exists:** Proceed directly to compose and launch the loop.

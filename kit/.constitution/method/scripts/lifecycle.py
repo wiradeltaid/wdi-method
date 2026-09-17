@@ -245,13 +245,14 @@ def run_validator_check(root: Path, created_dirs: list[Path] | None = None) -> N
     if not validate_script.is_file():
         _rollback_git_changes(root, created_dirs)
         sys.exit(f"error: validate.py script not found at `{validate_script}` — fail-closed.")
-    res = _run_cmd(["uv", "run", str(validate_script), "--root", str(root), "--check"], root)
+    baseline_file = root / ".github" / "validate-baseline.txt"
+    base_args = ["--baseline", str(baseline_file)] if baseline_file.is_file() else []
+    res = _run_cmd(["uv", "run", str(validate_script), "--root", str(root), "--check", *base_args], root)
     if res.returncode != 0 and ("No such file or directory" in res.stderr or "not recognized" in res.stderr):
-        res = _run_cmd(["uv", "run", "--with", "pyyaml", "python", str(validate_script), "--root", str(root), "--check"], root)
+        res = _run_cmd(["uv", "run", "--with", "pyyaml", "python", str(validate_script), "--root", str(root), "--check", *base_args], root)
     if res.returncode != 0 and ("No such file or directory" in res.stderr or "not recognized" in res.stderr):
-        res = _run_cmd([sys.executable, str(validate_script), "--root", str(root), "--check"], root)
+        res = _run_cmd([sys.executable, str(validate_script), "--root", str(root), "--check", *base_args], root)
     if res.returncode != 0:
-        baseline_file = root / ".github" / "validate-baseline.txt"
         if baseline_file.is_file():
             raw_lines = res.stdout.splitlines()
             findings = []

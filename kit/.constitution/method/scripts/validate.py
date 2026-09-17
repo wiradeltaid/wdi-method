@@ -2983,6 +2983,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--asof", default=None,
                         help="reference date for plan-dates, format YYYY-MM-DD (default: today). "
                              "Stated explicitly so a run can be repeated exactly")
+    parser.add_argument("--baseline", nargs="?", const=".github/validate-baseline.txt", default=None,
+                        help="path to baseline findings file (default: .github/validate-baseline.txt); "
+                             "exits 0 if current findings match baseline exactly")
     args = parser.parse_args(argv)
 
     if not args.check and not args.generate:
@@ -3002,6 +3005,23 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  wrote {path.relative_to(root).as_posix()}")
 
     if result.findings:
+        if args.baseline:
+            base_p = Path(args.baseline)
+            if not base_p.is_absolute():
+                base_p = root / base_p
+            if base_p.is_file():
+                current_fmt = [f"  {f.vid:<26} {f.subject}: {f.message}".rstrip()
+                               for f in sorted(result.findings, key=lambda f: f.sort_key)]
+                base_lines = [l.rstrip() for l in base_p.read_text(encoding="utf-8").splitlines() if l.strip()]
+                if sorted(current_fmt) == sorted(base_lines):
+                    print(f"\nGREEN (baseline match) — {len(result.findings)} finding(s) match baseline `{base_p.relative_to(root).as_posix()}`")
+                    if result.skipped:
+                        print("\nSkipped:")
+                        for vid, why in sorted(result.skipped.items()):
+                            print(f"  {vid:<26} {why}")
+                    print(f"\nV14 reference date: {asof.isoformat()}")
+                    return 0
+
         print(f"\nRED — {len(result.findings)} findings across {len(result.red)} validators\n")
         for finding in sorted(result.findings, key=lambda f: f.sort_key):
             print(f"  {finding.vid:<26} {finding.subject}: {finding.message}")

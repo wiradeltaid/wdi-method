@@ -48,7 +48,7 @@ NOT start the loop while any row in the first two groups is red.
 | | The remote accepts the run branch — `git push --dry-run` — and `development_branch` (`policy.development_branch`, default `main`) is reachable as a PR base | Auth or remote failure. Fail-closed: if the configured `development_branch` does not exist locally or on remote (`refs/heads/<branch>` or `refs/remotes/origin/<branch>`), stop immediately and report to maintainer; MUST NOT guess or silently fall back to `main` (`.constitution/method/branch-guide.md`). The first real push is at the first spec close, hours in |
 | | A CI workflow is configured | None. § Finish would wait for checks that never arrive; say so and read the local suite as the evidence instead |
 | | **No workflow fires on an intermediate push** — the run branch is pushed dozens of times and a metered runner MUST NOT start on any of them. `ci-guide.md` § Trigger shape is the check: `workflow_dispatch` present, the automatic trigger `pull_request` `types: [ready_for_review]`, no bare `on: push` | A workflow triggers on every push. Fix it before the mandate is written — one autopilot run over fifteen tickets has spent most of a month's allowance in two days — or, where the workflow is not this repo's to change, the run holds every intermediate push and the preflight page says so |
-| **Position** | `gates_passed` in `index.yaml`, `g4_passed` per component, validators green (`validate.py`) | A red validator. Name it; autopilot MUST NOT start on a corpus already red |
+| **Position** | `gates_passed` in `index.yaml`, `g4_passed` per component, validators green (`uv run .constitution/method/scripts/validate.py --baseline`) | A red validator. Name it; autopilot MUST NOT start on a corpus already red |
 | | An isolated worktree | A shared checkout. `wdi-build` refuses one, so this skill refuses earlier |
 | | `from_gate` — the first gate the run will hold itself | Below the last passed gate. Default: the gate after the last one passed |
 | **Settings** | `scope` — the `FR` ids to deliver, or `all` | — (default `all` open `FR`) |
@@ -111,7 +111,7 @@ finishes first; the next firing waits.
 
 Open with three reads, in this order:
 
-1. `validate.py --generate`. `.control/generated/` is written by that flag and nothing else, so without it
+1. `uv run .constitution/method/scripts/validate.py --generate --baseline`. `.control/generated/` is written by that flag and nothing else, so without it
    every iteration reads a status file from before the run and re-holds gates that already passed. It sweeps
    the validators for free at the same time.
 2. **Reconcile `## Resume` against git.** Compare the run branch HEAD with the commit Resume names. A
@@ -367,7 +367,7 @@ When § The work table reaches § Finish:
    `.constitution/project/codebase-stack-guide.md` names, exercise every closed `FR`'s proof of done from
    the PRD, record pass or fail per `FR` in the ledger. At `owner`: run nothing; the test script below is
    the whole deliverable.
-2. `validate.py --generate`, then `wdi-report` intent `progress`.
+2. `uv run .constitution/method/scripts/validate.py --generate --baseline`, then `wdi-report` intent `progress`.
 3. Raise the mandate to `applied`, `touches` naming the ledger, and rewrite `## Resume` one last time so it
    reads as the run's end state rather than a step that never came.
 4. **Leave the run branch in a state the owner can merge.** A ticket still in flight is either finished or
