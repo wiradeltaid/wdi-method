@@ -73,11 +73,16 @@ Per `wdi-autopilot` § Preflight, unattended loop iterations **require an active
 its own mandate.
 
 1. Check if an active accepted mandate exists:
-   - An active mandate MUST have BOTH `type: mandate` and `status: accepted` with an unexpired `expires:` date.
+   - An active mandate MUST have BOTH `type: mandate` and `status: accepted` with an unexpired `expires:` date
+     (`today <= expires`) and no `superseded_by:` or `status: superseded`.
    - MUST NOT run a broad search for `type:\s*mandate` across `decisions.yaml` (which matches dozens of historical
      `applied` mandates and overflows the tool output limit with hundreds of lines).
    - Query specifically for an active mandate entry using multiline search (e.g. `Grep` with
      `pattern: "type:\s*mandate[\s\S]{1,100}?status:\s*accepted|status:\s*accepted[\s\S]{1,100}?type:\s*mandate", multiline: true`).
+     Once a candidate match is found, verify its individual decision block to confirm `expires:` is present,
+     valid, and unexpired.
+   - **Fail-closed on multiple active mandates:** If more than 1 active accepted mandate is found, stop and
+     report immediately to the maintainer (fail-closed; MUST NOT guess or choose between them).
    - MUST NOT call `Read` on the entire 1000+ line `decisions.yaml` file. When reading the latest decision ID
      to determine the next candidate `DEC-` ID, read only the tail (e.g. the last 50-80 lines) of `decisions.yaml`.
 2. **If no active accepted mandate exists:**
@@ -92,6 +97,9 @@ its own mandate.
    - When verifying the preflight test suite from `codebase-stack-guide.md`, run tests with quiet output flags
      if supported (e.g. `-- --quiet` or standard concise runner flags) to avoid flooding the context window
      with hundreds of verbose pass lines.
+   - **Fail-closed on test failure:** If the test suite command exits non-zero, immediately surface the failure
+     summary (the failing test names and error excerpt) and abort preflight; a mandate MUST NOT be opened on a
+     failing test suite.
    - Present the one-page preflight summary and wait for the owner's explicit confirmation.
    - Once confirmed, write the accepted mandate row into `decisions.yaml` and initialize its ledger.
 3. **If an active accepted mandate already exists:** Proceed directly to compose and launch the loop.
