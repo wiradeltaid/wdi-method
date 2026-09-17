@@ -19,17 +19,24 @@ runners: {}
 #   command: 'claude --model claude-opus-5 --effort high --dangerously-skip-permissions -p'
 #
 # External CLI runners (always shell-out):
+# NOTE: For roles.reviewer, runner commands MUST enforce read-only execution where supported
+# (e.g. `--trust-tools=fs_read` for kiro-cli, `--mode plan` for cursor-agent).
+# Full write permissions (`-a`, `--force`) are reserved for roles.builder.
+#
 # terra:
 #   type: shell-out
-#   command: 'kiro-cli chat --model gpt-5.6-terra --effort high -a --no-interactive'
+#   command: 'kiro-cli chat --model gpt-5.6-terra --effort high --trust-tools=fs_read --no-interactive'
+#   timeout_s: 600   # Hard wall-clock timeout in seconds for backgrounded dispatch (default: 600s)
 #
 # composer:
 #   type: shell-out
-#   command: 'cursor-agent --force --model "composer-2.5"'
+#   command: 'cursor-agent --mode plan --model "composer-2.5"'
+#   timeout_s: 600
 #
 # sol:
 #   type: shell-out
-#   command: 'cursor-agent --model "gpt-5.6-sol-high" --force'
+#   command: 'cursor-agent --mode plan --model "gpt-5.6-sol-high"'
+#   timeout_s: 600
 
 roles:
   # Builder options (operates sequentially inside the active run worktree; coordinator runs tests & commits):
@@ -47,6 +54,8 @@ roles:
   #   - default: Resolves peer review via caller's active session / global agent rules
   #   - <runner-id>: Dispatches peer review to the named runner
   #   - none: Disables peer review pass (coordinator self-review only)
+  # NOTE: Reviewer runners in daily triage (wdi-daily-what-to-build) operate strictly as advisory /
+  # read-only critics. The coordinator alone applies edits to the spec/tickets and writes registry traces.
   reviewer: default
 
   # Deep analyst options (for architecture spine, complex debugging, or hard decisions):

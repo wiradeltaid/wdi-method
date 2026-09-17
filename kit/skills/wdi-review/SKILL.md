@@ -188,7 +188,10 @@ reviewed:
   `EXPERIENCE.md`, and research MAY be reviewed on request; the finding report is the whole output,
   and no `reviewed:` block is written.
 - You MUST NOT stamp on behalf of a review someone else ran earlier. Re-run it; the run is cheap and
-  the claim is not.
+  the claim is not. A live peer or second-opinion review dispatched and evaluated within the same coordinating
+  session (as in `wdi-daily-what-to-build`) satisfies this requirement; the coordinator, as sole writer, writes
+  the trace based on that live session evaluation without needing to independently re-derive the findings from
+  scratch. Stale reviews from prior sessions or unverified third-party claims remain strictly prohibited.
 - When the artifact changed **materially** after the review, the trace is stale and you MUST re-run
   rather than bump the date. A wording-only change is the one exception, and §*When a review has to run
   again* owns it.

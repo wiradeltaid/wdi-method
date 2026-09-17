@@ -205,11 +205,22 @@ describe("autonomous daily tier skills (Fase 4)", () => {
     assert.match(content, /builder MUST NOT commit/i, "missing builder commit prohibition");
   });
 
-  it("wdi-daily-what-to-build enforces fail-closed reviewer resolution and keeps triage un-interrupted", () => {
+  it("wdi-daily-what-to-build enforces fail-closed reviewer resolution, read-only advisory review, and upfront dependencies", () => {
     const content = fs.readFileSync(path.join(KIT_SKILLS, "wdi-daily-what-to-build", "SKILL.md"), "utf8");
     assert.match(content, /fail-closed/i, "missing fail-closed reviewer resolution");
     assert.match(content, /single-string command/i, "missing single-string command specification");
     assert.doesNotMatch(content, /Interactive Housekeeping Hook/, "interactive housekeeping hook must be removed from what-to-build");
+    assert.match(content, /parallel-tickets-blocked/i, "missing parallel-tickets-blocked upfront contract");
+    assert.match(content, /strictly advisory \/ read-only/i, "missing advisory/read-only mandate");
+    assert.match(content, /Coordinator Stamping/i, "missing coordinator stamping clause");
+    assert.match(content, /uv run \.constitution\/method\/scripts\/validate\.py --generate --baseline/, "missing canonical uv validation command");
+
+    const reviewContent = fs.readFileSync(path.join(KIT_SKILLS, "wdi-review", "SKILL.md"), "utf8");
+    assert.match(reviewContent, /live peer or second-opinion review dispatched and evaluated/i, "missing live peer review stamping clause in wdi-review");
+
+    const exampleContent = fs.readFileSync(path.join(SCAFFOLD_CONTROL, "custom-dispatch.yaml.example"), "utf8");
+    assert.match(exampleContent, /timeout_s:\s*600/, "custom-dispatch.yaml.example missing timeout_s example");
+    assert.match(exampleContent, /--trust-tools=fs_read/, "custom-dispatch.yaml.example missing read-only flag example");
   });
 
   it("validate.py fails when .control/custom-dispatch.yaml is tracked in git", () => {
