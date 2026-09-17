@@ -39,7 +39,7 @@ that names the engine's `SKILL.md` path and carries out its process — or from 
 names which; the seams, the `to-tickets` quiz, and § When the code turns out to be right are decided by the
 coordinator and written to the ledger, one row each; and whatever the mandate lists as `parked` still stops,
 reported for the owner rather than decided. One thing changes **shape** rather than owner: a mandate is one
-unit of work and reaches `main` through **one PR**, so Step 4 commits the ticket to the run branch instead of
+unit of work and reaches the active development branch (`policy.development_branch`, default `main`) through **one PR**, so Step 4 commits the ticket to the run branch instead of
 opening a PR per ticket, and Step 5 splits: the coordinator pushes the run branch at every spec close, but
 **the cloud run happens once, at `wdi-autopilot` § Finish** — every intermediate push starts nothing, and
 what a spec close is judged on until then is the run branch's own full suite, run locally. The checklist,
@@ -65,10 +65,11 @@ that cannot provide them is **blocked**, not excused.
 | Check | When it fails |
 |---|---|
 | Every component this spec touches has passed G4, **or** sits at `mode: catalog` | Route to `wdi-component`. `spec-after-g4` checks it, and `catalog` skipping G4 is by design, not an exception |
-| An isolated worktree | Isolate first. MUST NOT run in a shared checkout |
+| An isolated worktree | Isolate first. MUST NOT run in a shared checkout. Standing exception: Phase 1 (Open the spec) and Phase 2 (The contract and the tickets) authoring runs directly on `development_branch` (`policy.development_branch`, default `main`) with no code changes; the isolated worktree requirement binds Phase 3 (Ship each ticket) onward |
 | Every `prd` slug names a real `.what/_prd/<initiative>/` folder | A spec without a promise covering it is a spec nobody agreed to (`spec-names-release-prd`) |
+| Development branch verified locally or on remote (`refs/heads/<branch>` or `refs/remotes/origin/<branch>`) | Branch missing. Stop immediately and report to maintainer; MUST NOT guess or silently fall back to `main` (`.constitution/method/branch-guide.md`) |
 
-The repo commits straight to `main` and opens a PR only when asked. **Invoking this skill is that ask**, for
+The repo commits straight to the active development branch (`policy.development_branch`, default `main`) during Phase 1 & 2 authoring and opens a PR only when asked. **Invoking this skill is that ask**, for
 this spec only; it MUST NOT be read as standing permission for the next change.
 
 ## Phase 1 — Open the spec
@@ -302,7 +303,7 @@ The five items that left this list moved to Phase 4, where the information actua
 
 - MUST run the repository's commit/push audit before `git push`: refuse the forbidden paths, run the guard test,
   fix content on failure. A failing guard is a finding about the content — MUST NOT weaken the guard or the test.
-- MUST NOT push to `main`/`master`, MUST NOT force-push, MUST NOT merge.
+- MUST NOT push directly to protected branches (`primary_branch` or `development_branch` from `policy:`, default `main`), MUST NOT force-push, MUST NOT merge.
 - The coordinator MUST be the hand that pushes and opens the PR.
 
 ### Step 5 — watch CI, then judge
@@ -349,6 +350,11 @@ out.
 5. **RTM green.** Every traceability row for this spec is closed. New risks are in the risk register with an
    owner.
 6. Mark the spec `status: closed` in `specs.yaml`.
+7. **Housekeeping (Archive or Prune).** Once marked closed, offer the maintainer the choice to clean up
+   the completed spec directory from `.scratch/<spec-id>-<slug>/` using `/wdi-prune-or-archive`:
+   - **Archive:** `/wdi-prune-or-archive --spec <spec-id> --archive` (moves the directory to `.archive/specs/<spec-id>-<slug>/` and updates `spec_folder` in `specs.yaml`).
+   - **Prune:** `/wdi-prune-or-archive --spec <spec-id> --prune` (removes the completed spec directory from git and disk while preserving RTM history in `specs.yaml`).
+   If the maintainer declines or defers, leave the directory in `.scratch/`.
 
 The retrospective step is **repealed**, and `RTR-` with it. It was the only thing size `L` decided, and the
 only thing `V19` checked.

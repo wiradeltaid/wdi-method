@@ -38,8 +38,8 @@ triggers**.
 | Event | Use it | Why |
 |---|---|---|
 | `workflow_dispatch` | **MUST** be present | The manual re-run. Without it, a red run can only be retried by pushing again |
-| `pull_request:` `types: [ready_for_review]` | The one automatic trigger | A draft PR is work in progress; marking it ready is the moment somebody is asking for the verdict |
-| `push:` `branches: [main]` | MAY | One run per merge, as the record of trunk health. Drop it where the allowance is tight |
+| `pull_request:` `types: [ready_for_review]` | The one automatic trigger | A draft PR is work in progress; marking it ready is the moment somebody is asking for the verdict. 100% branch-agnostic standard — triggers identically for `main`, `development`, or custom target branches |
+| `push:` `branches: [main, development]` | MAY | One run per merge, as the record of branch health. Note: GitHub Actions evaluates branch filters statically before checkout; if custom branch names are configured in `index.yaml` policy, update this list manually. Drop it where the allowance is tight |
 | bare `on: push` | **MUST NOT** | Every branch, every commit, no filter. This is the setting that spends an allowance |
 
 Two consequences worth stating, because both surprise people:
@@ -81,9 +81,11 @@ on:
       - '.constitution/**'
       - '_bmad-output/**'
       - '.work/**'
-  # One run per merge, as the record of trunk health. Delete this block where the allowance is tight.
+  # One run per merge, as the record of branch health. GitHub Actions evaluates branch filters
+  # statically before checkout; if index.yaml policy configures custom branch names (e.g. trunk, dev),
+  # update this list manually. Delete this block where the allowance is tight.
   push:
-    branches: [main]
+    branches: [main, development]
     paths-ignore:
       - '**.md'
       - '.scratch/**'

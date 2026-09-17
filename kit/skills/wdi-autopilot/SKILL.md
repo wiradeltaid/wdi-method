@@ -45,7 +45,7 @@ NOT start the loop while any row in the first two groups is red.
 | | The tracker the engines publish to is configured — `docs/agents/issue-tracker.md`, written once by `/setup-matt-pocock-skills` | Missing. `to-tickets` would stop to ask for it, and this skill never asks; the owner runs the setup before confirming |
 | | Reviewers separate from the builder can be dispatched | The session cannot spawn a second agent and any touched component is `risk_accepted: low` — Step 3 of `wdi-build` would block |
 | | `.constitution/project/codebase-stack-guide.md` names build and test commands, **and the test command exits 0 here** | Absent or failing. Every ticket's "full suite green once" and the smoke test read it. Found at minute one, not at hour six |
-| | The remote accepts the run branch — `git push --dry-run` — and `main` is reachable as a PR base | Auth or remote failure. The first real push is at the first spec close, hours in |
+| | The remote accepts the run branch — `git push --dry-run` — and `development_branch` (`policy.development_branch`, default `main`) is reachable as a PR base | Auth or remote failure. Fail-closed: if the configured `development_branch` does not exist locally or on remote (`refs/heads/<branch>` or `refs/remotes/origin/<branch>`), stop immediately and report to maintainer; MUST NOT guess or silently fall back to `main` (`.constitution/method/branch-guide.md`). The first real push is at the first spec close, hours in |
 | | A CI workflow is configured | None. § Finish would wait for checks that never arrive; say so and read the local suite as the evidence instead |
 | | **No workflow fires on an intermediate push** — the run branch is pushed dozens of times and a metered runner MUST NOT start on any of them. `ci-guide.md` § Trigger shape is the check: `workflow_dispatch` present, the automatic trigger `pull_request` `types: [ready_for_review]`, no bare `on: push` | A workflow triggers on every push. Fix it before the mandate is written — one autopilot run over fifteen tickets has spent most of a month's allowance in two days — or, where the workflow is not this repo's to change, the run holds every intermediate push and the preflight page says so |
 | **Position** | `gates_passed` in `index.yaml`, `g4_passed` per component, validators green (`validate.py`) | A red validator. Name it; autopilot MUST NOT start on a corpus already red |
@@ -200,7 +200,7 @@ the method's, and none of them relaxes here:
 
 ### One run, one branch, one PR
 
-A mandate is **one unit of work**, and it reaches `main` through **one door**: a single PR from the run
+A mandate is **one unit of work**, and it reaches the active development branch (`policy.development_branch`, default `main`) through **one door**: a single PR from the run
 branch, which the **owner** merges after the final review. This is what makes the result reviewable as a
 whole instead of as a stream of PRs nobody read.
 
@@ -214,9 +214,9 @@ branch, one PR, nothing else on the remote.
 |---|---|
 | Step 4 pushes a ticket branch and opens a PR per ticket | The ticket is committed to the run branch — directly, or merged in from its own worktree by the coordinator. The ticket-closing checklist is still answered first. **No PR per ticket** |
 | Step 5 watches CI per PR | The coordinator pushes the run branch **at every spec close** — and that push starts **no cloud run**; the first push opens the one PR as a **draft**. CI runs **once**, at § Finish, and is judged exactly as Step 5 says on the pushed head SHA |
-| `MUST NOT merge` | Holds harder. The run never merges to `main`; the owner does, once, after § Finish |
+| `MUST NOT merge` | Holds harder. The run never merges to `primary_branch` or `development_branch`; the owner does, once, after § Finish |
 
-A second PR is a red flag. Where a change cannot ride the run branch — a hotfix `main` needs today — it is
+A second PR is a red flag. Where a change cannot ride the run branch — an urgent fix the target branch needs today — it is
 reported for the owner, not opened by the run.
 
 ### Cycle-end CI — the cloud runner fires once
@@ -288,6 +288,8 @@ what it decided while running* — and this is exactly one. `memlog-home` holds 
 
 Frontmatter `artifact:` names the mandate's `DEC-` file — `memlog-home` demands it of every memlog.
 
+The mandate ledger file (`.control/memlog/autopilot-<mandate-id>.md` and its companion directory `.control/memlog/autopilot-<mandate-id>/`) is **permanent** and MUST NOT be deleted or removed during spec pruning or housekeeping — it preserves the provenance of autonomous runs.
+
 **It has two readers who want opposite things, and that is what shapes it.** The next iteration needs a
 resume point: where the last one stopped and what to do now. The owner needs every decision, with what it
 cost. Serving both from one flat table is what made a real ledger reach 41 KB by its twenty-second
@@ -356,7 +358,12 @@ applies it.
 
 When § The work table reaches § Finish:
 
-1. **Smoke test.** At `smoke_test: agent`: run the application with the commands
+1. **Smoke test.** Standardized smoke test locations:
+   - **Automated spec test:** `.scratch/<spec-id>-<slug>/smoke/` — spec-level smoke artifacts that archive alongside the spec when closed.
+   - **Human interactive test:** `.work/smoke/<target>.md` — ephemeral test scripts and physical run notes, cleaned up once the task finishes.
+   - **Mandate ledger:** `.control/memlog/autopilot-<mandate-id>.md` — permanent record of pass/fail results per `FR`, never pruned.
+
+   At `smoke_test: agent`: run the application with the commands
    `.constitution/project/codebase-stack-guide.md` names, exercise every closed `FR`'s proof of done from
    the PRD, record pass or fail per `FR` in the ledger. At `owner`: run nothing; the test script below is
    the whole deliverable.
@@ -414,7 +421,7 @@ When § The work table reaches § Finish:
 - Spinning until `expires` on work that is not runnable, instead of finishing and naming the blockers
 - Returning after one step while work remains and none of the three stops applies
 - A second PR, any branch but the run branch pushed, a working branch left alive at Finish, or any merge
-  into `main` by the run — working branches and worktrees during the run are fine; surviving ones are not
+  into `primary_branch` or `development_branch` by the run — working branches and worktrees during the run are fine; surviving ones are not
 - Merging a red ticket into the run branch, or patching the branch forward instead of reverting the merge
 - Marking the PR ready over red CI, or handing over a run branch with a ticket half-applied
 - Parallel builders sharing a worktree, or a registry written by anyone but the coordinator

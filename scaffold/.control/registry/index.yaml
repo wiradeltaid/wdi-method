@@ -9,6 +9,15 @@ product:
   name: "{product}"
   client: ""
 
+# POLICY SETTINGS. Language and branching rules for the repository.
+# Branch settings default to `main` if omitted. Set `development_branch` to match
+# `primary_branch` for single-branch workflows.
+policy:
+  doc_language: "English"
+  doc_filename_language: "English"
+  # primary_branch: main
+  # development_branch: development # Set equal to primary_branch for single-branch workflow
+
 # GLOBAL DEPTH. The only document-depth knob, and it MUST NOT also govern review intensity —
 # that is `risk_accepted` per component in components.yaml.
 #   catalog  UC list + three inventories + C4; zero extra files per component. G4 is skipped

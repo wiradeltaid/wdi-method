@@ -66,6 +66,28 @@ under `.constitution/`. They are agent instructions, and they travel to every re
 **A corpus written before these settings existed MUST NOT be migrated for them.** The readers accept more
 than one language, so existing documents keep working and only new writing follows the setting.
 
+## Branches
+
+**Two branch settings live in `.control/registry/index.yaml` under `policy:`, both defaulting to `main`:**
+
+| Setting | Governs | Default |
+|---|---|---|
+| `primary_branch` | Production / release trunk | `main` |
+| `development_branch` | Active development branch for specs, worktrees, and PR targets | `main` |
+
+- **Immunity:** Agents MUST NOT delete, overwrite, force-push, or rename `primary_branch` or `development_branch`.
+- **Branch protection:** Agents MUST NOT commit application code directly to `primary_branch` or `development_branch`. Code changes MUST arrive via isolated task branches/worktrees and pull requests. In single-branch mode, direct commits to the shared branch are permitted strictly for Phase 1 & 2 planning documents in `.scratch/` and `.control/registry/specs.yaml`.
+- **Target branch:** All worktrees and PRs MUST target `development_branch`. Agents MUST verify the branch exists locally or on remote (`refs/heads/<branch>` or `refs/remotes/origin/<branch>`) and MUST NOT guess or silently fall back to `main`.
+- `.constitution/method/branch-guide.md` binds branch rules.
+
+## Delivery flow
+
+Applies to all feature specification, ticket creation, and code delivery in this repo:
+
+1. Turning notes, a task, or test results into a spec and tickets MUST go through `wdi-build`'s engines (`to-spec` / `to-tickets`, `mattpocock/skills`) — agents MUST NOT invent a bespoke spec or ticket format.
+2. Standing exception to `wdi-build`'s isolated worktree precondition: the spec authoring step (opening the spec, writing `SPEC.md` and ticket files in `.scratch/`, with no application code changes) happens directly on the active development branch (`policy.development_branch`, default `main`). The worktree requirement binds ticket implementation onward and `wdi-autopilot`.
+3. During or after spec and ticket authoring, an agent MUST NOT auto-continue into implementing code, committing, pushing, launching `wdi-autopilot`, merging a PR, cleaning up a worktree, or deploying without explicit confirmation from the maintainer. When explicitly commanded to build a ticket (`wdi-build`), committing and pushing to the task branch are permitted, but auto-merging PRs or auto-deploying remain strictly prohibited.
+
 ## The thing in your hand → its folder
 
 Read this instead of reasoning about what `.what/` and `.how/` mean.
@@ -185,6 +207,7 @@ verifies the result, and lands the memlog.
 | Opening, accepting, or applying a `DEC-` | `.constitution/method/document/decision-guide.md` |
 | Writing or reading a structure map | `.constitution/method/structure-guide.md` |
 | Writing or changing a CI workflow, or deciding whether a push may start a cloud run | `.constitution/method/ci-guide.md` |
+| Branching rules, protected branches, or PR target policy | `.constitution/method/branch-guide.md` |
 | Looking for where code lives, or placing new code | `.control/structure-codebase.md` |
 | Looking for where a document lives | `.control/structure-document.md` |
 | Writing or reviewing code | `.constitution/project/codebase-stack-guide.md` · `.constitution/project/codebase-conventions-guide.md` · `.constitution/project/codebase-brownfield-guide.md` |
@@ -215,9 +238,10 @@ MUST anything in `.constitution/method/why/`; `status: Reference` forbids it. A 
 
 - A skill MUST NOT be invoked automatically. Name the one that fits and wait for the owner's
   go-ahead — this holds even when the skill's own description says it must be used. Reading a
-  skill as reference is fine. The one exception is `wdi-autopilot` under a `DEC-` of `type: mandate`
+  skill as reference is fine. The exceptions are: (1) `wdi-autopilot` under a `DEC-` of `type: mandate`
   at `status: accepted` that has not expired: the mandate **is** the go-ahead, for every skill it
-  needs, until it lapses.
+  needs, until it lapses; (2) when the owner explicitly invokes an autonomous daily tier skill
+  (`/wdi-daily-*`), the owner's invocation authorizes the bounded orchestration steps specified in that skill.
 - `.work/` is not production code. It MUST NOT be imported by the application, and MUST be
   excluded when searching for code.
 <!-- END:wdi-method -->

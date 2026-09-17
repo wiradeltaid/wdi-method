@@ -233,6 +233,16 @@ test("readBranchPolicy reads configured branches or defaults to main", () => {
     primaryBranch: "trunk",
     developmentBranch: "dev",
   });
+
+  const singleQuoted = [
+    'policy:',
+    "  primary_branch: 'trunk'",
+    "  development_branch: 'dev'",
+  ].join("\n");
+  assert.deepEqual(readBranchPolicy(singleQuoted), {
+    primaryBranch: "trunk",
+    developmentBranch: "dev",
+  });
 });
 
 test("writeBranchPolicy writes branch settings into policy: without destroying existing keys", () => {
