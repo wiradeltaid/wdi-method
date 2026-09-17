@@ -179,6 +179,11 @@ verifies the result, and lands the memlog.
 - `CONTEXT.md`, `CONTEXT-MAP.md`, and `docs/adr/` MUST NOT be created. `docs/agents/domain.md` is the
   engines' config and says so too: the vocabulary is `.control/product-glossary.md`, domain knowledge is
   `.what/`, design is `.how/`, and a decision is a `DEC-` — never an ADR. Article 3 owns the rule.
+- `.control/registry/specs.yaml` MUST NOT be read in full (1000+ lines) into context to check project
+  status or open work — invoke skill `wdi-help` or read the generated status projection in
+  `.control/generated/` (`status.yaml`) instead.
+- `.scratch/` MUST NOT be searched with broad or recursive wildcard patterns (`*` or `**`) to discover
+  specs — inspect only the candidate spec's folder using `spec_folder:` from `status.yaml` or `specs.yaml`.
 
 ## Routing — load a guide when the task matches
 
@@ -193,7 +198,7 @@ verifies the result, and lands the memlog.
 | Unsure about a domain term | `.control/product-glossary.md` |
 | Looking for a non-technical fact — a domain, an account, a legal entity, a locked date | `.control/project-non-technical-log.md` |
 | Naming anything — a code identifier, a file, a database column | `.constitution/method/language-guide.md` |
-| Asking "which gate now, what next" | `.constitution/method/document/delivery-flow-guide.md` · skill `wdi-help` |
+| Asking "which gate now, what next", project status, or open/pending specs | skill `wdi-help` (MUST invoke `wdi-help` or read generated `status.yaml`) |
 | Having to decide something, and wanting the reading done first | skill `wdi-explain-to-me` — it briefs, and changes nothing |
 | Wanting every `FR` delivered without being asked in between | skill `wdi-autopilot` — preflight, one mandate, then the loop |
 | Setting or changing `mode` or `risk_accepted` | `.constitution/method/document/delivery-flow-guide.md` · skill `wdi-init` |
@@ -242,8 +247,9 @@ MUST anything in `.constitution/method/why/`; `status: Reference` forbids it. A 
   at `status: accepted` that has not expired: the mandate **is** the go-ahead, for every skill it
   needs, until it lapses; (2) when the owner explicitly invokes an autonomous daily tier skill
   (`/wdi-daily-*`), the owner's invocation authorizes the bounded orchestration steps specified in that skill;
-  (3) read-only status and routing inquiries (`wdi-help`): the model MAY invoke `wdi-help` automatically
-  to inspect current gate progress, open work, or determine the next skill without modifying project state.
+  (3) read-only status, open specs, and routing inquiries (`wdi-help`): the model MUST invoke
+  `wdi-help` (or read the generated status projection in `.control/generated/`) automatically to
+  inspect current gate progress, open work, or determine the next skill without modifying project state.
 - `.work/` is not production code. It MUST NOT be imported by the application, and MUST be
   excluded when searching for code.
 <!-- END:wdi-method -->
