@@ -80,6 +80,14 @@ describe("autonomous daily tier skills (Fase 4)", () => {
     for (const name of DAILY_SKILLS) {
       assert.match(helpContent, new RegExp(`\`${name}\``), `wdi-help routing table is missing ${name}`);
     }
+    assert.match(helpContent, /\.control\/generated\/status\.yaml/, "wdi-help must reference status.yaml");
+    assert.match(helpContent, /MUST NOT call Read on the entire/, "wdi-help must forbid full reads of specs.yaml");
+    assert.match(helpContent, /MUST NOT run broad or recursive searches across \`?\.scratch/, "wdi-help must forbid broad scratch sweeps");
+  });
+
+  it("kit/skills/wdi-explain-to-me/SKILL.md references valid status projection", () => {
+    const explainContent = fs.readFileSync(path.join(KIT_SKILLS, "wdi-explain-to-me", "SKILL.md"), "utf8");
+    assert.match(explainContent, /\.control\/generated\/status\.(md|yaml)/, "wdi-explain-to-me must reference valid status extension");
   });
 
   it("README.md and README.id.md document the daily tier skills", () => {

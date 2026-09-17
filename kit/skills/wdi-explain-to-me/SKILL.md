@@ -26,7 +26,7 @@ Four asks look alike from the outside and are four skills:
 | Source | What it answers |
 |---|---|
 | The topic argument | An id (`OQ-12`, `DEC-007`, a defect row, a validator name), a file path, or a sentence |
-| `.control/registry/*.yaml` · `.control/generated/status` | What the registry says holds today, and which validators are red |
+| `.control/registry/*.yaml` · `.control/generated/status.md` | What the registry says holds today, and which validators are red (also available as `status.yaml`) |
 | `.control/questions/` · `.control/decisions/` | Whether this was asked or decided before, and what is already settled |
 | The working documents in `.what/` and `.how/` | The promise and the mechanism the topic touches |
 | `validate.py` output · tests · git history · the code | What actually holds, as opposed to what a document claims |

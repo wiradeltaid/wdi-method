@@ -18,15 +18,16 @@ about BMad itself.
 
 | Source | What it answers |
 |---|---|
-| `.control/generated/status.md` | Which spec is open, how many of its tickets are done, which validators are red (also available as `status.yaml`) |
+| `.control/generated/status.yaml` | Primary machine-readable status: which spec is open, tickets progress, red validators (or `status.md`) |
 | `.control/registry/index.yaml` | The global `mode`, and the gate map |
 | `.control/registry/components.yaml` | Per-component `mode`, `risk_accepted`, and `g4_passed` |
-| `.control/registry/specs.yaml` | Spec → release, size, `depends_on`, and its ticket index (MUST query selectively; MUST NOT read entire file) |
+| `.control/registry/specs.yaml` | Fallback only when status is absent/stale: spec → release, size, and ticket index (MUST query selectively) |
 | `.constitution/method/document/delivery-flow-guide.md` | The five gates and their checklists |
 | `.constitution/method/why/README.md` | The whole shape, when the caller has never seen the method |
 
-You MUST read `.control/generated/status.md` (or `status.yaml`) rather than counting files yourself. It
-is generated from the registry; hand-counting produces a second answer that will disagree.
+You MUST read `.control/generated/status.yaml` (or `status.md`) rather than counting files yourself. You
+MUST NOT open or inspect `.control/registry/specs.yaml` if the status file is present and answers which
+spec is open.
 
 ## What to answer
 
@@ -95,13 +96,16 @@ it claims, or when one of its eight required sections is missing outright.
   `wdi-blueprint`, `wdi-build`, `wdi-decision`, `wdi-review`, `wdi-ux`.
 - Only `.control/questions/blocking.md` holds a gate. `external.md` holds go-live and MUST NOT be reported
   as blocking a design gate; `assumptions.md` holds nothing.
-- You MUST NOT invent progress. If `.control/generated/status.md` is missing or stale, say so, query
-  `specs.yaml` selectively, and name `validate.py --generate`.
+- You MUST NOT invent progress. If `.control/generated/status.yaml` (or `status.md`) is missing or stale,
+  say so, query `specs.yaml` selectively, and name `validate.py --generate`.
 - You MUST NOT call Read on the entire 1000+ line `.control/registry/specs.yaml` file into context. When
-  discovering active or open work, query `specs.yaml` selectively (e.g. `Grep` for `status:\s*(open|ready-for-dev)`).
+  discovering active or open work as a fallback, query `specs.yaml` selectively (e.g. `Grep` for `status:\s*(open|ready-for-dev)`).
 - You MUST NOT run broad or recursive searches across `.scratch/` (e.g. searching `*` or `**/*`). When
   inspecting candidate open specs or tickets, inspect only the candidate spec's folder using the `spec_folder:`
   path resolved from `specs.yaml`.
+- You MUST treat `wdi-help` as a fast status and routing skill: if filesystem drift, orphaned folders, or
+  discrepancies between registry and disk are suspected, route to `wdi-reconcile` rather than conducting
+  a filesystem audit in this skill.
 - You MUST NOT route anyone to `/setup-matt-pocock-skills` to *finish an install*. The installer seeds
   `docs/agents/` pre-answered, and that interview's own defaults send every engineering skill looking for a
   root `CONTEXT.md` and `docs/adr/` — which Article 3 forbids and `wdi-reconcile` reports. It is for
