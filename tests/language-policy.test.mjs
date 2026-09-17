@@ -9,6 +9,8 @@ import { execFileSync } from "node:child_process";
 import {
   readLanguagePolicy,
   writeLanguagePolicy,
+  readBranchPolicy,
+  writeBranchPolicy,
   readProductIdentity,
   DEFAULT_DOC_LANGUAGE,
   humaniseFolderName,
@@ -177,3 +179,188 @@ test("the folder name becomes an Enter-ready suggestion, and an acronym stays on
     assert.equal(humaniseFolderName(input), want, `folder "${input}"`);
   }
 });
+
+test("writeLanguagePolicy preserves other keys in policy: (like primary_branch and development_branch)", () => {
+  const initial = [
+    'product:',
+    '  name: "Widget"',
+    '  client: ""',
+    '',
+    'policy:',
+    '  doc_language: "id"',
+    '  doc_filename_language: "id"',
+    '  primary_branch: "main"',
+    '  development_branch: "development"',
+    '',
+    'mode: catalog',
+    '',
+  ].join("\n");
+
+  const updated = writeLanguagePolicy(initial, {
+    docLanguage: "English",
+    docFilenameLanguage: "English",
+  });
+
+  assert.match(updated, /primary_branch:\s*"main"/);
+  assert.match(updated, /development_branch:\s*"development"/);
+  assert.equal(readLanguagePolicy(updated).docLanguage, "English");
+  assert.equal(readBranchPolicy(updated).primaryBranch, "main");
+  assert.equal(readBranchPolicy(updated).developmentBranch, "development");
+});
+
+test("readBranchPolicy reads configured branches or defaults to main", () => {
+  assert.deepEqual(readBranchPolicy(""), {
+    primaryBranch: "main",
+    developmentBranch: "main",
+  });
+
+  const custom = [
+    'policy:',
+    '  primary_branch: "trunk"',
+    '  development_branch: "dev"',
+  ].join("\n");
+  assert.deepEqual(readBranchPolicy(custom), {
+    primaryBranch: "trunk",
+    developmentBranch: "dev",
+  });
+
+  const bare = [
+    'policy:',
+    '  primary_branch: trunk',
+    '  development_branch: dev',
+  ].join("\n");
+  assert.deepEqual(readBranchPolicy(bare), {
+    primaryBranch: "trunk",
+    developmentBranch: "dev",
+  });
+});
+
+test("writeBranchPolicy writes branch settings into policy: without destroying existing keys", () => {
+  const initial = [
+    'product:',
+    '  name: "Widget"',
+    '  client: ""',
+    '',
+    'policy:',
+    '  doc_language: "id"',
+    '  doc_filename_language: "id"',
+    '',
+    'mode: catalog',
+  ].join("\n");
+
+  const updated = writeBranchPolicy(initial, {
+    primaryBranch: "main",
+    developmentBranch: "development",
+  });
+
+  assert.deepEqual(readBranchPolicy(updated), {
+    primaryBranch: "main",
+    developmentBranch: "development",
+  });
+  assert.deepEqual(readLanguagePolicy(updated), {
+    docLanguage: "id",
+    docFilenameLanguage: "id",
+  });
+});
+
+test("writeBranchPolicy creates policy: block after product: if policy: is missing", () => {
+  const initial = 'product:\n  name: "Widget"\n  client: ""\n\nmode: catalog\n';
+  const updated = writeBranchPolicy(initial, {
+    primaryBranch: "main",
+    developmentBranch: "development",
+  });
+  assert.deepEqual(readBranchPolicy(updated), {
+    primaryBranch: "main",
+    developmentBranch: "development",
+  });
+  assert.match(updated, /product:\n  name: "Widget"[\s\S]*policy:\n[\s\S]*mode: catalog/);
+});
+
+test("peer review edge case: header regex does not match nested keys at column > 0", () => {
+  const nested = [
+    'something:',
+    '  policy:',
+    '    nested_key: 1',
+    '',
+    'mode: catalog',
+    '',
+  ].join("\n");
+  const updated = writeBranchPolicy(nested, {
+    primaryBranch: "main",
+    developmentBranch: "development",
+  });
+  // Top-level policy: block should be created, NOT injected into something.policy
+  assert.match(updated, /^policy:\n  primary_branch: "main"/m);
+  assert.match(updated, /something:\n  policy:\n    nested_key: 1/);
+});
+
+test("peer review edge case: column-0 comments inside block do not terminate block prematurely", () => {
+  const withComment = [
+    'policy:',
+    '  doc_language: "id"',
+    '# note in column 0',
+    '  primary_branch: "trunk"',
+    '',
+    'mode: catalog',
+  ].join("\n");
+  assert.equal(readBranchPolicy(withComment).primaryBranch, "trunk");
+  const updated = writeBranchPolicy(withComment, { developmentBranch: "dev" });
+  assert.equal(readBranchPolicy(updated).primaryBranch, "trunk");
+  assert.equal(readBranchPolicy(updated).developmentBranch, "dev");
+  assert.match(updated, /# note in column 0/);
+});
+
+test("peer review edge case: nested child keys (indent > 2) are not overwritten as direct sibling keys", () => {
+  const nestedChild = [
+    'policy:',
+    '  branch_defaults:',
+    '    primary_branch: "nested"',
+    '  doc_language: "id"',
+    '',
+    'mode: catalog',
+  ].join("\n");
+  const updated = writeBranchPolicy(nestedChild, { primaryBranch: "main" });
+  assert.match(updated, /    primary_branch: "nested"/);
+  assert.match(updated, /  primary_branch: "main"/);
+});
+
+test("peer review edge case: empty partial write does not create empty block", () => {
+  const text = 'mode: catalog\n';
+  const updated = writeLanguagePolicy(text, {});
+  assert.equal(updated, text);
+});
+
+test("peer review edge case: preserves inline comments on updated key", () => {
+  const initial = [
+    'policy:',
+    '  primary_branch: "trunk"   # production release branch',
+    '  development_branch: "dev"',
+  ].join("\n");
+  const updated = writeBranchPolicy(initial, { primaryBranch: "main" });
+  assert.match(updated, /  primary_branch: "main"   # production release branch/);
+});
+
+test("peer review edge case: CRLF round-trip and idempotency for writeBranchPolicy", () => {
+  const lf = [
+    'product:',
+    '  name: "X"',
+    '',
+    'policy:',
+    '  doc_language: "en"',
+    '  primary_branch: "main"',
+    '',
+    'mode: catalog',
+  ].join("\n");
+  const crlf = lf.replaceAll("\n", "\r\n");
+
+  const out1 = writeBranchPolicy(crlf, { primaryBranch: "trunk", developmentBranch: "dev" });
+  assert.ok(out1.includes("\r\n"));
+  assert.equal(out1.split("\n").length - 1, out1.split("\r\n").length - 1);
+  assert.deepEqual(readBranchPolicy(out1), { primaryBranch: "trunk", developmentBranch: "dev" });
+
+  // Idempotency: calling again produces identical output
+  const out2 = writeBranchPolicy(out1, { primaryBranch: "trunk", developmentBranch: "dev" });
+  assert.equal(out2, out1);
+});
+
+
