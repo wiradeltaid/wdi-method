@@ -68,9 +68,9 @@ Untuk pekerjaan implementasi bertahap tanpa interupsi pertanyaan di tengah jalan
 ### Tingkat Harian Otonom (`/wdi-daily-*`) & Manajemen Siklus Hidup
 Untuk alur kerja harian berkecepatan tinggi dengan minim interupsi:
 - **`/wdi-prune-or-archive [spec-id] [--archive|--prune]`**: Pembersihan berkas spek tertutup dari `.scratch/` ke `.archive/specs/` atau pembersihan disk secara aman dengan preservasi jejak audit RTM.
-- **`/wdi-daily-what-to-build [reviewer] <notes>`**: Klasifikasi catatan uji manual menjadi tiket/spek, pembersihan housekeeping spek tertutup (prune/archive via `/wdi-prune-or-archive`), draf spek via `wdi-build` langsung di cabang development, dan permohonan second opinion independen.
+- **`/wdi-daily-what-to-build [reviewer] <notes>`**: Klasifikasi catatan uji manual menjadi tiket/spek, draf spek via `wdi-build` langsung di cabang development, dan permohonan second opinion independen tanpa interupsi housekeeping.
 - **`/wdi-daily-autopilot [in-session] [peer] [interval] [--skip-peer-review]`**: Menyusun dan meluncurkan rutinitas mandat otonom (`/loop 10m /wdi-autopilot`) dengan integrasi konfigurasi runner lokal (`.control/custom-dispatch.yaml`).
-- **`/wdi-daily-what-to-test [web <target>|mobile <target>|desktop]`**: Langkah verifikasi pasca-merge. Sinkronisasi cabang development, pembersihan worktree yang telah dimerge, penghapusan log smoke sementara, dan penyusunan checklist uji fisik berbasis tiket tertutup (menggunakan template di `.control/test-targets/`).
+- **`/wdi-daily-what-to-test [web <target>|mobile <target>|desktop]`**: Langkah verifikasi pasca-merge. Sinkronisasi cabang development, pembersihan worktree dan branch remote yang telah dimerge, gate proses desktop untuk mencegah file-locking, penghapusan log smoke sementara, dan penyusunan checklist uji fisik berbasis delta commit (menggunakan template di `.control/test-targets/`).
 
 ---
 

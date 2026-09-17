@@ -206,16 +206,15 @@ For rapid daily driving with minimal friction, WDI Method provides three autonom
 built on top of the shared delivery kernel:
 
 - **`/wdi-daily-what-to-build [reviewer] <notes>`**: Turns raw manual-test notes into a classified,
-  reviewed spec or ticket. It runs housekeeping on closed specs (offering prune or archive via
-  `lifecycle.py`), drafts the spec via `wdi-build` on the development branch, and dispatches an
-  independent second opinion before stopping.
+  reviewed spec or ticket. It classifies notes against the corpus, drafts the spec via `wdi-build` on
+  the development branch, and dispatches an independent second opinion before stopping.
 - **`/wdi-daily-autopilot [in-session] [peer] [interval] [--skip-peer-review]`**: Composes and
   launches the standing daily unattended loop (`/loop 10m /wdi-autopilot`) with self code-review and
   peer review resolved from local configuration (`.control/custom-dispatch.yaml`) or agent rules.
 - **`/wdi-daily-what-to-test [web <target>|mobile <target>|desktop]`**: Post-merge verification step.
-  Lands on the development branch, prunes merged worktrees, cleans ephemeral smoke test logs, and
-  assembles a physical test checklist from recently closed tickets (using templates in
-  `.control/test-targets/`).
+  Lands on the development branch, prunes merged worktrees and remote-tracking branches, manages desktop
+  process gates, cleans ephemeral smoke test logs, and assembles a physical test checklist from the
+  delivery delta (using templates in `.control/test-targets/`).
 
 ---
 

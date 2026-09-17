@@ -7,10 +7,13 @@ disable-model-invocation: true
 # WDI Daily What-to-Build Triage
 
 Daily entry point for "I just tested something by hand, now what." Classifies the notes (new feature,
-fix, removal, or green), offers interactive housekeeping for closed specs, authors the resulting spec
-or ticket through this repo's own `wdi-build` flow, dispatches an independent second opinion grounded
-in the *original* notes, folds that feedback back in, then stops — this run never continues into
-`wdi-autopilot`, a commit, or a push.
+fix, removal, or green), authors the resulting spec or ticket through this repo's own `wdi-build` flow,
+dispatches an independent second opinion grounded in the *original* notes, folds that feedback back in,
+then stops — this run never continues into `wdi-autopilot`, a commit, or a push.
+
+Spec lifecycle maintenance (archiving or pruning closed specs) belongs to `/wdi-prune-or-archive`;
+this skill remains 100% focused on triaging incoming test notes into actionable specs without administrative
+interruption.
 
 `/wdi-daily-what-to-build [reviewer] <notes>` — if the first word matches a known runner or a reviewer
 defined in `.control/custom-dispatch.yaml`, it picks the reviewer; otherwise all input is treated as
@@ -24,23 +27,10 @@ Method product repo and this skill has no corpus to write into — report that a
 
 ## 1. Keep the notes verbatim
 
-Hold the raw notes as given. They are forwarded unedited to the reviewer in step 5 — a paraphrase
+Hold the raw notes as given. They are forwarded unedited to the reviewer in step 4 — a paraphrase
 here would anchor the reviewer to your interpretation instead of the author's own words.
 
-## 2. Interactive Housekeeping Hook
-
-Inspect `.control/registry/specs.yaml` selectively (e.g. search for `status:\s*closed` whose `spec_folder:`
-resides under `.scratch/`, or run `lifecycle.py --dry-run` — MUST NOT read the entire historical file into context)
-for any spec marked `status: closed` whose directory still resides under `.scratch/`. If found, offer the
-maintainer the choice to clean them up via `/wdi-prune-or-archive`:
-- **Archive:** `/wdi-prune-or-archive --spec <id> --archive` (moves the spec directory to
-  `.archive/specs/<spec-folder>/` and updates `specs.yaml`).
-- **Prune:** `/wdi-prune-or-archive --spec <id> --prune` (removes the spec directory from git and disk
-  while keeping RTM metadata in `specs.yaml`).
-
-If the maintainer declines or prefers to defer, continue directly to step 3 without blocking.
-
-## 3. Classify against the actual corpus, not the notes alone
+## 2. Classify against the actual corpus, not the notes alone
 
 Search `.what/`, `.how/`, and `.control/` for the FR, UC, ticket, or SPEC the notes actually touch
 before deciding new vs. fix vs. removal vs. green. A classification made without checking what already
@@ -48,9 +38,9 @@ exists there is a guess.
 
 - **Green** — behaviour already matches what is promised and built. Report that and stop; MUST NOT
   open a spec or ticket for a non-finding.
-- **New / fix / removal** — continue to step 4.
+- **New / fix / removal** — continue to step 3.
 
-## 4. Author through wdi-build, not by hand
+## 3. Author through wdi-build, not by hand
 
 This repo's Delivery Flow standing sequence (`AGENTS.md` § Delivery Flow) requires turning notes into
 a spec or ticket through `wdi-build`'s engines (`to-spec` / `to-tickets`) — MUST NOT hand-write a
@@ -64,12 +54,12 @@ exception.
 Phase 2 (worktree isolation and ticket implementation) or Phase 3 (closing the spec) — each of those is
 a separate, explicit ask, usually from a different chat session running `wdi-autopilot`.
 
-## 5. Package and dispatch the second opinion
+## 4. Package and dispatch the second opinion
 
 Write the review packet to a scratch file first — `.work/wdi-daily-what-to-build/<slug>-second-opinion.md` —
 rather than inlining it into shell arguments:
 
-1. Path to the drafted spec or ticket from step 4.
+1. Path to the drafted spec or ticket from step 3.
 2. The original raw notes from step 1, unedited.
 3. This standing mandate: *"If this draft touches the architecture spine, an SRS, an SDD, or a SPEC,
    you are authorized to run `wdi-review` on it yourself and edit the document directly to apply its
@@ -77,7 +67,7 @@ rather than inlining it into shell arguments:
 
 Reviewer resolution:
 - If `review_policy.peer_review` is explicitly `false`, or if `roles.reviewer` in `.control/custom-dispatch.yaml` is set
-  to `none`, or if the command is invoked with `--no-review`, skip Step 5 (second opinion review) and proceed directly to Step 6/7.
+  to `none`, or if the command is invoked with `--no-review`, skip Step 4 (second opinion review) and proceed directly to Step 5/6.
 - If `.control/custom-dispatch.yaml` exists in the repo root (or in the main repository root via `(git rev-parse --git-common-dir)/..` when running inside a linked git worktree): inspect `runners:` and `roles.reviewer`.
   A runner definition specifies `type:` (`auto`, `in-session`, or `shell-out`):
   - `auto` (recommended): Evaluates whether the runner's target model is reachable in-session from the active
@@ -95,13 +85,13 @@ Reviewer resolution:
 When the dispatched reviewer has no native Skill tool, instruct it to read and follow the target
 guide directly as plain markdown instructions.
 
-## 6. Fold the feedback back in
+## 5. Fold the feedback back in
 
 Revise the spec or ticket in place based on what the reviewer returns, then present the final version.
 MUST NOT silently drop a reviewer objection — if you disagree with one, state the disagreement
 explicitly in the report.
 
-## 7. Stop and hand off
+## 6. Stop and hand off
 
 Report what now exists (or that the notes were green) and its file path. MUST NOT commit, push, or
 start `wdi-autopilot` in this same run — state that as the next step and wait for the maintainer to

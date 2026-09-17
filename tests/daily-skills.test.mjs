@@ -181,13 +181,18 @@ describe("autonomous daily tier skills (Fase 4)", () => {
     }
   });
 
-  it("wdi-daily-what-to-test enforces branch immunity and fast-forward sync", () => {
+  it("wdi-daily-what-to-test enforces branch immunity, process gate, and delta retrieval", () => {
     const content = fs.readFileSync(path.join(KIT_SKILLS, "wdi-daily-what-to-test", "SKILL.md"), "utf8");
     assert.match(content, /primary_branch/, "missing primary_branch resolution");
     assert.match(content, /development_branch/, "missing development_branch resolution");
     assert.match(content, /MUST NEVER be deleted/i, "missing branch immunity clause");
     assert.match(content, /git pull --ff-only/, "missing fast-forward pull mandate");
     assert.match(content, /Fail-Closed Branch Verification/i, "missing fail-closed branch precheck");
+    assert.match(content, /before_sync/, "missing before_sync cursor saving");
+    assert.match(content, /git fetch --prune origin/, "missing fetch with prune");
+    assert.match(content, /Desktop Process Gate/i, "missing desktop process gate");
+    assert.match(content, /runtime-desktop\.yaml/, "missing runtime manifest artifact");
+    assert.match(content, /Delta-Scoped Retrieval/i, "missing delta-scoped checklist retrieval");
   });
 
   it("wdi-daily-autopilot enforces mandate verification before loop", () => {
@@ -200,10 +205,11 @@ describe("autonomous daily tier skills (Fase 4)", () => {
     assert.match(content, /builder MUST NOT commit/i, "missing builder commit prohibition");
   });
 
-  it("wdi-daily-what-to-build enforces fail-closed reviewer resolution", () => {
+  it("wdi-daily-what-to-build enforces fail-closed reviewer resolution and keeps triage un-interrupted", () => {
     const content = fs.readFileSync(path.join(KIT_SKILLS, "wdi-daily-what-to-build", "SKILL.md"), "utf8");
     assert.match(content, /fail-closed/i, "missing fail-closed reviewer resolution");
     assert.match(content, /single-string command/i, "missing single-string command specification");
+    assert.doesNotMatch(content, /Interactive Housekeeping Hook/, "interactive housekeeping hook must be removed from what-to-build");
   });
 
   it("validate.py fails when .control/custom-dispatch.yaml is tracked in git", () => {

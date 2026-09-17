@@ -64,6 +64,9 @@ git rev-parse --verify "refs/heads/<development_branch>" >/dev/null 2>&1 || git 
 - Task branches and worktrees are temporary mechanisms for isolated implementation.
 - Once a task or run branch is merged into `development_branch`, the local task worktree and branch SHOULD be pruned.
 - Intermediate task branches MUST NOT be left lingering on the remote; only the designated run branch or PR branch reaches the remote.
+- When synchronizing `development_branch`, agents SHOULD run `git fetch --prune origin` to prune stale remote-tracking references of branches already deleted on the remote.
+- For method-owned run branches (e.g. `autopilot/<mandate-id>`), once the pull request is confirmed merged into `development_branch`, the remote branch SHOULD be pruned (`git push origin --delete <branch>`). If PR merge status cannot be verified, the remote branch MUST NOT be deleted and MUST be reported as a residual remote branch.
+- Absolute branch immunity strictly applies to remote operations: an agent MUST NEVER delete or prune `primary_branch` or `development_branch` on any remote.
 
 ### Working tree isolation models
 
