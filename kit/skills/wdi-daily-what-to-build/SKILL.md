@@ -77,7 +77,7 @@ rather than inlining it into shell arguments:
 Reviewer resolution:
 - If `review_policy.peer_review` is explicitly `false`, or if `roles.reviewer` in `.control/custom-dispatch.yaml` is set
   to `none`, or if the command is invoked with `--no-review`, skip Step 5 (second opinion review) and proceed directly to Step 6/7.
-- If `.control/custom-dispatch.yaml` exists in the repo root: inspect `runners:` and `roles.reviewer`.
+- If `.control/custom-dispatch.yaml` exists in the repo root (or in the main repository root via `(git rev-parse --git-common-dir)/..` when running inside a linked git worktree): inspect `runners:` and `roles.reviewer`.
   A runner definition specifies `type:` (`auto`, `in-session`, or `shell-out`):
   - `auto` (recommended): Evaluates whether the runner's target model is reachable in-session from the active
     session profile (per the caller's global agent collaboration rules). Dispatches in-session via the `Agent`

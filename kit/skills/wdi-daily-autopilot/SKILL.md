@@ -40,7 +40,7 @@ Parse inputs unambiguously using these rules:
 
 ## 2. Resolve Runner Configuration
 
-Inspect the repository for `.control/custom-dispatch.yaml`:
+Inspect the repository for `.control/custom-dispatch.yaml` (if not found in the current working directory and running inside a linked git worktree, resolve it from the main repository root via `(git rev-parse --git-common-dir)/..`):
 - **If `.control/custom-dispatch.yaml` exists**:
   Read `runners:`, `roles:`, and `review_policy:`.
   - If `review_policy.peer_review` is explicitly `false`, or if `roles.reviewer` is set to `none`, mark peer review as bypassed.
