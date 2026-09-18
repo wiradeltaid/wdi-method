@@ -10,6 +10,15 @@ version contains every fix below it.
 
 ---
 
+## [0.6.24] - 2026-09-18
+
+### Added
+
+- **Multi-Language Global Documentation (Japanese & Simplified Chinese):** Added full-length translations for the global AI developer communities: `README.ja.md` (日本語) and `README.zh.md` (简体中文), included directly in package manifest distribution.
+- **Three-Layer Progressive Information Architecture (Preset 2):** Overhauled `README.md` and `README.id.md` into three progressive layers: Layer 1 (Beginner & Evaluator: Helicopter View AiDD vs. Vibe Coding, 10-minute Quickstart, and `/wdi-help`), Layer 2 (Practitioner & Advanced: 3 Workflow Options, Fase 4 Daily Tier, and 7 battle-tested operational rules), and Layer 3 (Contributor & Architect: Two-axis 22-skill directory, core invariants, and fixture corpus verification).
+
+**What a repo that already has the method installed does about it.** No code changes required in consumer repositories. The package distribution surface now includes global multi-lingual documentation and comprehensive operational guides.
+
 ## [0.6.23] - 2026-09-18
 
 ### Changed
