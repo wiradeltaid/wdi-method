@@ -1,586 +1,190 @@
 # WDI Method
 
-[English](README.md) | [Bahasa Indonesia](README.id.md)
+[English](README.md) | [Bahasa Indonesia](README.id.md) | [日本語](README.ja.md) | [简体中文](README.zh.md)
 
-**The review layer BMad leaves thin — documents a human reads to check a decision before code gets written, sized to what the change actually deserves.**
+**The review layer BMad leaves thin — verifiable specifications a human reads to check technical decisions before code is written, sized to what the change actually deserves.**
 
-[BMad](https://github.com/bmad-code-org/BMAD-METHOD) decides *what* to build and *how* to build it well. WDI Method wraps it — it does not replace it — and adds the part between those two decisions and the code: inventories, a use case catalogue, a component design record, and a way to choose how much of that a given change actually needs.
+[BMad](https://github.com/bmad-code-org/BMAD-METHOD) decides *what* to build and *how* to structure solutions well. WDI Method wraps it — without replacing it — providing the verifiable governance layer between high-level architectural decisions and working code: requirement registries, use case catalogues, component boundaries, automated drift validators, and unhindered autonomous daily loops.
 
-> This repository is **public and generic**. It MUST NOT carry a client name, a product name, or a
-> link to a private repository — product identity lives entirely in the repo that installs it.
-
----
-
-## Prerequisites — two engines, and both are required
-
-| Engine | What it does here | Source |
-|---|---|---|
-| **BMad Method** | Writes the documents behind G1–G4 — brief, PRD, architecture, UX | [github.com/bmad-code-org/BMAD-METHOD](https://github.com/bmad-code-org/BMAD-METHOD) |
-| **mattpocock/skills** | Cuts the work at G5 — `to-spec`, `to-tickets`; runs the Fast Path and every `wdi-autopilot` iteration — `implement` | [github.com/mattpocock/skills](https://github.com/mattpocock/skills) |
-
-**The installer refuses without either.** BMad has always been checked. The ticket engines are checked
-too, since 0.6.4: G1–G4 genuinely run without them, and every repo that relied on that learned they were
-missing inside `wdi-build` with a spec already open. `--skip-engines-check` is the escape for the two
-cases that earn it — CI, and a repo that will never reach G5.
-
-No engine skill is invoked on its own. Each has a wrapper (`wdi-*`) that checks where the project is,
-runs the engine, verifies what came back, and records it. The engine is the pen; the wrapper knows what
-page it is on.
+> This repository is **public and generic**. It MUST NOT carry a client name, a commercial product name, or a link to a private repository. Product identity lives entirely in the repository that installs it.
 
 ---
 
-## Install
+## Helicopter View: AI-Driven Development (AiDD) vs. Vibe Coding
 
-Three steps, in this order, and **step 3 refuses until steps 1 and 2 are done** — through the TUI and
-through `--yes` alike. BMad has always been checked; the engines are checked too, because every repo that
-learned they were missing learned it inside `wdi-build` with a spec already open. `--skip-engines-check`
-is the escape for the two cases that earn it: CI, and a repo that will never reach G5.
+Speculative prompting ("vibe coding") inevitably fails on multi-month production systems: AI coding agents lose context, hallucinate completion states, and blur requirement boundaries. WDI Method establishes disciplined **AI-Driven Development (AiDD)** through a three-layer architectural triad:
 
-**1. BMad Method** — in the product repo, picking the same agents you will give this installer:
+```text
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 1. Intent & Strategy: BMad Method                                       │
+│    Discovers user problems, draft product briefs, and architecture      │
+├─────────────────────────────────────────────────────────────────────────┤
+│ 2. Verifiable Review Layer: WDI Method (SSOT)                           │
+│    Governs 5 human gates, links Goal → FR → UC → Ticket → Test chains, │
+│    runs automated drift validators, and orchestrates daily loops        │
+├─────────────────────────────────────────────────────────────────────────┤
+│ 3. Slicing & Implementation: Skills Engines (mattpocock/skills)         │
+│    to-spec & to-tickets cut vertical tracer-bullets; implement runs TDD │
+└─────────────────────────────────────────────────────────────────────────┘
+```
 
+### The Golden Invariant: Documents Follow Code
+Documents are the record left behind by work that already happened. Where a decision record or requirement row contradicts the code, **the code wins and the document is corrected**. Code is never mutated to match obsolete documentation. A document merely behind the code is in its expected state and never blocks delivery unless it carries load-bearing staleness.
+
+---
+
+## 10-Minute Quickstart
+
+Install WDI Method into your product repository in three sequential steps. All prompts offer sensible defaults; pressing <kbd>Enter</kbd> accepts them.
+
+### Step 1: Install BMad Method
+Installs the discovery engine into your product repository:
 ```bash
 cd /path/to/your/product-repo
 npx bmad-method install
 ```
 
-**2. mattpocock/skills** — **into this repo**, on every agent:
-
+### Step 2: Add the Six Ticket Engines
+Install the execution engines directly into your repository (choose either "copy" or "symlink"):
 ```bash
 npx skills@latest add mattpocock/skills
 ```
+*Select all six engines driven by the method:* `to-spec`, `to-tickets`, `implement`, `tdd`, `code-review`, and `domain-modeling`.
 
-Take all six the method drives: `to-spec`, `to-tickets`, `implement`, `tdd`, `code-review`, and
-`domain-modeling`. Either install mode works — "copy" or "symlink".
+> **Why the Claude Code plugin does not count:** Upstream engines ship with `disable-model-invocation: true`. WDI Method automatically strips this flag from local copies so autonomous loops can drive them unattended. A user-level plugin cannot be edited by the repository.
 
-**The Claude Code plugin is not an alternative here, and the reason is mechanical.** `to-spec`,
-`to-tickets` and `implement` ship with `disable-model-invocation: true`, so no skill can invoke them;
-nothing outside the file lifts that flag, and a plugin's files are not this repo's to edit. WDI Method
-strips it from the copies the repo owns — which is what lets `wdi-build` invoke an engine and
-`wdi-autopilot` run an iteration with nobody watching — and re-applies that on every update, because
-`npx skills update` restores the author's file. The installer refuses without the six, and
-`--skip-engines-check` is the escape for CI and for a repo that will never reach G5.
-
-If you also have the plugin installed for your user, the repo's copies are what run; removing the
-plugin keeps `/to-spec` unambiguous.
-
-**You do not need to run `/setup-matt-pocock-skills` to get started.** Step 3 seeds `docs/agents/` with
-the two answers WDI Method actually has a requirement on, so the engines are aligned from the first
-install. Run the setup skill only to *change* something — to point at GitHub or Jira instead of local
-markdown — and keep the three invariants the seeded `issue-tracker.md` names.
-
-The seeding exists because the interview's own defaults are wrong here in one specific way: they send every
-engineering skill looking for a root `CONTEXT.md` and `docs/adr/`, and Article 3 says this method has no
-`docs/` layer for corpus or rules — `wdi-reconcile` reports both as findings. A repo that ran the setup
-before installing this package keeps its own file, and the installer names the contradiction rather than
-overwriting it.
-
-**3. WDI Method:**
-
+### Step 3: Install WDI Method
+Launches the interactive installer and configures skills across your agent platforms (Claude Code, Cursor, OpenCode, Windsurf, etc.):
 ```bash
 npx wdi-method
 ```
+*(For automated CI environments: `npx wdi-method install --yes --agents claude --product "Your Product"`)*
 
-This opens a TUI: it checks BMad, reports whether it found the ticket engines, detects install versus
-update, asks the product name and the document language, lets you pick agents, shows what it will
-write, and prints what to do next.
-
-**Every field arrives with an answer already in it, and Enter accepts it.** On an update that answer is
-what the repo already says; on a first install the product name is the folder name made readable —
-`acme-billing-portal` offers `Acme Billing Portal`. Nothing is validated as required: a prompt that
-refuses an empty submission while already holding a sensible default is asking you to retype something
-the installer knows.
-
-A value only changes when you actually answer. A run that does not mention language keeps the language the
-repo already chose, and says so.
-
-```bash
-npx wdi-method@latest update      # later, to take a newer method — @latest, or npx may reuse a cached one
-npx wdi-method verify             # check the method files are all present
+### Your First Command: `/wdi-help`
+Inside your AI coding agent (Claude Code, Cursor), invoke:
+```text
+/wdi-help
 ```
-
-**Upgrading from 0.5.x to 0.6** is two halves. `update` does the mechanical one — overwrites the kit,
-renames files whose content needs no judgment, seeds what is new — and then prints an `upgrade` line
-naming what is still in the old shape: a single `requirements.yaml`, a 14-section brief, a PRD carrying
-its FR text. The second half is a decision about content, so it belongs to a skill:
-
-```bash
-npx wdi-method@latest update --yes      # 1 — mechanical; read the `upgrade` line it prints
-# 2 — in your agent, run the wdi-upgrade skill: it moves every sentence into its new home, word for
-#     word, invents nothing, reports what it could not place, and ends in one commit.
-```
-
-Run the skill before any other skill. `wdi-help` and the validators read the new shape; a corpus half
-in the old one answers them wrongly.
-
-Non-interactive, for CI:
-
-```bash
-npx wdi-method install --yes --agents claude,codex --product "Your Product" \
-  --doc-language "Bahasa Indonesia"
-```
-
-Then invoke the **`wdi-help`** skill and ask what to do next. It reads where the project actually is and
-answers with the gate you are at, not with a menu.
+`wdi-help` inspects `.control/registry/` and answers with the exact gate your project is currently at, without guessing from conversational context.
 
 ---
 
-## What to do right after install, and right after update
+## Three Workflow Options
 
-Two questions, and the honest answer to most of them is *nothing*. `wdi-help` answers them from the
-registry at any time; this table is the same answer written down.
+WDI Method adapts its ceremony to the scale and risk of the task:
 
-### After `install`
+### Option A: Guided Delivery Track (New Initiatives & G1–G5)
+For new products, major initiatives, and architectural changes. A human reads **one rendered page** per gate and decides: *advance or refine*.
 
-| | |
-|---|---|
-| Engines missing | You never get here — `install` refuses, and names both install paths. Install them, run it again |
-| `/setup-matt-pocock-skills`? | **No.** The installer seeded `docs/agents/` already answered for this method. Run that interview only to *change* tracker |
-| So what is first? | **`wdi-init` intent `setup`** — it sets the global `mode`, and nothing has started until it is |
-| Then? | `wdi-problem` for G1. Or ask `wdi-help`, which reads the registry rather than this table |
+| Gate | Question Answered | Skill Invoked | Rendered Page You Read | Owner Decision |
+|---|---|---|---|---|
+| **G1 — Problem** | Is this problem real, whose is it, and does it earn work? | `/wdi-problem` | `.what-rendered/_product-brief/brief.md` | Approve problem framing |
+| **G2 — Product** | What do we build, and how does the interface feel? | `/wdi-product`<br>`/wdi-ux` | `.what-rendered/_prd/<slug>/prd.md` | Approve functional promises (FR) |
+| **G3 — Blueprint** | Does the whole architecture hold together? *(Once per repo)* | `/wdi-blueprint` | `.how-rendered/blueprint.md` | Approve architecture spine |
+| **G4 — Component** | How is this component built? *(Skipped at `mode: catalog`)* | `/wdi-component` | `.how-rendered/<pc>/SDD-<pc>.md` | Approve software design |
+| **G5 — Build** | Is the ticket slice built, verified, and proven? *(Per spec)* | `/wdi-build` | Test runner output (red &rarr; green) | Accept merged code |
 
-### After `update`
-
-| The summary said | Do |
-|---|---|
-| an **`upgrade`** line, naming content still in the old shape | **`wdi-upgrade`, before any other skill.** It moves every sentence into its new home, invents nothing, reports what it could not place, and ends in one commit. `wdi-help` and the validators read the new shape; a corpus half in the old one answers them wrongly |
-| **no** `upgrade` line | Nothing. The update was mechanical and complete — carry on from wherever the gates say you are |
-| `seeded docs/agents/` | Nothing. An older repo just received the engines' config, pre-answered. Read it if you like; do not run the setup interview to redo it |
-| a warning that `domain.md` still points at a root `CONTEXT.md` | Add the correction that warning names to the top of that file. It was written by the setup interview before this package was installed, and it sends every engineering skill at two paths Article 3 forbids |
-| a warning naming a **mandate** and `ad-n` | Only if you run `wdi-autopilot`. Decide whether that mandate should now park `AD-N` contradictions, and edit its `parked` list yourself — `update` never edits an authority you granted |
-
-**`wdi-upgrade` is only ever about corpus content** — a brief, a PRD, an SRS, registry rows in the old
-shape. It is not the answer to a missing engine, a missing tracker config, or anything under
-`.control/memlog/`; each of those is handled by the installer itself or by the skill that owns it.
+#### Two Knobs That Never Merge: Mode vs. Risk
+- **`mode`** sets which gates exist (`catalog` skips G4; `guarded` and `deep` mandate thorough SDD).
+- **`risk_accepted`** sets the depth of review proof required (`low`, `medium`, `high`). Merging them into a single dial either drowns simple components in bureaucracy or lets high-risk changes escape verification.
 
 ---
 
-## How to use it — the walk
+### Option B: Autonomous Daily Operations (Fase 4 Daily Tier)
+Once architecture is established, everyday engineering is a continuous daily rhythm. WDI Method provides 4 purpose-built tools:
 
-A gate is a moment where a human reads **one page** and decides. Between gates the AI works in a
-pointer-heavy working set it does not need you to read. So the walk is: run a skill, read the page it
-renders, decide — advance or refine.
+1. **`/wdi-daily-what-to-build [reviewer] <notes>`**:  
+   Turns raw manual test notes, QA observations, or bug reports into structured specifications. Classifies requirements against the corpus, drafts tickets on the development branch, and dispatches an advisory second opinion.
+2. **`/wdi-daily-autopilot [self-review] [peer] [interval]`**:  
+   Launches the autonomous engineering routine under an owner-accepted mandate. Runs an unattended loop cadence (default: `/loop 10m /wdi-autopilot`), executing TDD cycles and updating its ledger after every decision.
+3. **`/wdi-daily-what-to-test [web|mobile|desktop]`**:  
+   Post-merge physical testing coordinator. Synchronizes the development branch, prunes merged worktrees and remote branches, enforces desktop process gates, and compiles an actionable physical testing checklist from the git delta (`before_sync..HEAD`).
+4. **`/wdi-prune-or-archive [spec-id] [--archive|--prune]`**:  
+   Maintains repository hygiene by safely moving completed specifications from `.scratch/` into `.archive/specs/` or pruning them via `git rm`, while preserving 100% RTM traceability.
 
-| # | You run | You read | You decide |
-|---|---|---|---|
-| 0 | `wdi-init` intent `setup` | — | the global `mode`: how deep this product goes by default |
-| 1 | `wdi-problem` | `.what-rendered/_product-brief/brief.md` | **G1** — is this the problem, whose is it, and does it earn the work? |
-| 2 | `wdi-product` intent `prd` — `wdi-ux` first when the interface *is* the promise | `.what-rendered/_prd/<slug>/prd.md` | **G2** — is this what we build, and how does it feel? |
-| 3 | `wdi-init` intent `component` | the rows it adds to `components.yaml` | each component's `mode` and `risk_accepted` |
-| 4 | `wdi-blueprint` — `catalog`, then `platform` | `.how-rendered/blueprint.md` | **G3** — does the whole hold together? **Once per product** |
-| 5 | `wdi-component` — one component | `.how-rendered/<pc>/SDD-<pc>.md` | **G4** — is this how we build it? **Skipped at `mode: catalog`** |
-| 6 | `wdi-report` intent `estimate` | `.control/generated/estimate.md` | which candidate row becomes the next spec |
-| 7 | `wdi-build` — for that row | nothing: tickets are machine contracts. You answer `to-tickets`' quiz on granularity and blocking edges | **G5** — is it done and proven? Once per spec |
-| 8 | `wdi-report` intent `progress` | the report it writes | what has moved, what is late, what is proven |
-| 9 | `wdi-autopilot` — when you would rather review the result than walk steps 6–8 yourself | its preflight page, then its final report and ledger | one **mandate**: scope, what stays parked for you, smoke test by the agent or by you, loop interval, expiry |
+---
 
-**Unattended, on request.** `wdi-autopilot` moves owner time from the gates to two points: the mandate before,
-the review after. From the gate you name it runs the same skills, answers what they would have asked, records
-every answer in `.control/memlog/autopilot-<mandate-id>.md`, and returns at one of three stops — done,
-at capacity, or blocked. It finishes when every `FR` in scope is closed, when nothing left is runnable, or
-when the mandate expires. It needs three things from the session: permission prompts bypassed (one prompt halts the
-loop), a loop to fire it — `/loop 5m /wdi-autopilot` in Claude Code — and a way past the ticket engines'
-`disable-model-invocation`, which the preflight names: a builder that reads and follows the engine's `SKILL.md`,
-or a copy of the engines inside the repo. The validator `mandate-accept` keeps the one thing the method never
-gives up: a person, dated, at the root of every delegated acceptance.
+### Option C: Fast Path (`/implement` Directly)
+A small bugfix or polish touching no `FR`, `UC`, `AD-N`, or domain model skips every document gate and runs `/implement` directly. If the change expands to touch a functional requirement, it **stops immediately and becomes an explicit spec `S`** evaluated at G5.
 
-**One run, one cloud run.** Commits stay granular — one per ticket — and the run branch is pushed as often
-as the work needs, but none of those pushes starts a GitHub Actions run: the workflow fires **once**, at
-the end of the cycle, when the PR is marked ready for review. Until then the evidence is the local suite,
-which is free. That is what stops one unattended run over fifteen tickets from spending most of a month's
-Actions allowance in two days — a Windows runner bills at 2x the minutes and macOS at 10x, and on a private
-repository every one of those comes out of the allowance. `.constitution/method/ci-guide.md` carries the
-trigger shape and two workflow templates, `ci.yml` and `korpus.yml`.
+---
 
-**Refine, do not advance.** When a page does not convince you, run the same skill again and say what is
-wrong — it updates the document it owns. Nothing downstream exists yet, so nothing breaks. Advancing past a
-page you did not believe is how every later page inherits the doubt.
+## Practical Field Tweaks & Operational Knowledge
 
-**After the first pass**, steps 0–4 never run again for that product. The next component enters at step 5
-(or 6, at `catalog`); a new initiative enters at step 2; a small fix touching no `FR`, `UC`, `AD-N`, or
-domain model skips every gate and runs `/implement` directly — and **stops to become a spec `S`** the
-moment it touches an `FR`. `wdi-help` tells you which of these you are in; it reads the registry, not you.
+Battle-tested rules discovered across real multi-platform agent runs:
 
-### Autonomous Daily Tier (`/wdi-daily-*`)
+### 1. Builder Fixed to Coordinator (`builder: coordinator`)
+In `wdi-daily-autopilot`, `roles.builder` in `.control/custom-dispatch.yaml` is strictly fixed to `coordinator`. Delegating code implementation to subagents leads to state hallucinations (subagents falsely claiming all unit tests passed without editing a single file). The coordinating session authors code directly via TDD red-to-green cycles.
 
-For rapid daily driving with minimal friction, WDI Method provides three autonomous tier wrappers
-built on top of the shared delivery kernel:
+### 2. Independent Advisory Reviewers
+Peer reviewers (such as Terra / GPT-5.6-Terra via `kiro-cli`) must operate in read-only mode (`--trust-tools=fs_read` / `--mode plan`). Reviewers challenge edge cases and inspect diffs, but never mutate code or trigger build commands. Single-writer discipline is strictly preserved.
 
-- **`/wdi-daily-what-to-build [reviewer] <notes>`**: Turns raw manual-test notes into a classified,
-  reviewed spec or ticket. It classifies notes against the corpus, drafts the spec via `wdi-build` on
-  the development branch, and dispatches an independent second opinion before stopping.
-- **`/wdi-daily-autopilot [in-session] [peer] [interval] [--skip-peer-review]`**: Composes and
-  launches the standing daily unattended loop (`/loop 10m /wdi-autopilot`) with self code-review and
-  peer review resolved from local configuration (`.control/custom-dispatch.yaml`) or agent rules.
-- **`/wdi-daily-what-to-test [web <target>|mobile <target>|desktop]`**: Post-merge verification step.
-  Lands on the development branch, prunes merged worktrees and remote-tracking branches, manages desktop
-  process gates, cleans ephemeral smoke test logs, and assembles a physical test checklist from the
-  delivery delta (using templates in `.control/test-targets/`).
+### 3. Windows File-Locking Prevention (Process Gating)
+On Windows, background processes (running application binaries, Gradle Test Daemons, Java VMs) hold open file handles, causing `Access is denied (Exit code 5/32)` failures during compilation or worktree deletion. `wdi-daily-what-to-test` inspects and terminates lingering processes before compilation or launch.
 
-### Skill Directory (22 Skills Across Two Axes)
+### 4. Worktree Isolation Invariant
+Specification and ticket authoring takes place on `main`, but autonomous coding loops (`wdi-autopilot`) **must run inside an isolated git worktree** (`autopilot/<mandate-id>`). Never run unattended loops on a shared dirty checkout.
+
+### 5. Single Cloud CI Trigger Per PR
+Autonomous loops commit per ticket locally. Running cloud CI on every iteration quickly exhausts monthly runner allowances. Local test suites provide authoritative evidence during the loop; Cloud CI is triggered **once**, when the Pull Request is marked ready for review.
+
+### 6. Ephemeral Smoke Artifact Hygiene
+Smoke test cursors (`.work/smoke/last-sync`) and runtime manifests are machine-local. Ensure `.work/smoke/` is registered in `.gitignore` so preflight clean working tree checks never halt unexpectedly.
+
+### 7. Local Runner Configuration (`custom-dispatch.yaml`)
+Machine-specific runner commands and model flags live in `.control/custom-dispatch.yaml` (automatically gitignored). Only the template `.control/custom-dispatch.yaml.example` is committed to git.
+
+---
+
+## 22 Official Skills Directory
 
 WDI Method packages 22 official skills structured across functional domain and invocation authority:
 
 | Domain | User-Invoked (Developer Commands) | Model-Invoked / Agent-Orchestrated |
 |---|---|---|
-| **Delivery & Architecture (G1–G5)** | `/wdi-init` (G0 setup)<br>`/wdi-problem` (G1 problem & brief)<br>`/wdi-product` (G2 PRD)<br>`/wdi-ux` (G2/G3 UX & contracts)<br>`/wdi-blueprint` (G3 architecture)<br>`/wdi-component` (G4 component SDD)<br>`/wdi-build` (G5 spec & tickets) | Driven by coordinator during gate transitions |
+| **Delivery & Architecture (G1–G5)** | `/wdi-init` (G0 setup &amp; components)<br>`/wdi-problem` (G1 problem &amp; brief)<br>`/wdi-product` (G2 PRD promises)<br>`/wdi-ux` (G2/G3 user flows &amp; contracts)<br>`/wdi-blueprint` (G3 system spine)<br>`/wdi-component` (G4 component SDD)<br>`/wdi-build` (G5 spec &amp; ticket cutting) | Driven sequentially by coordinator across gate transitions |
 | **Autonomous Daily Operations** | `/wdi-daily-what-to-build` (triage notes to spec)<br>`/wdi-daily-autopilot` (autonomous routine launcher)<br>`/wdi-daily-what-to-test` (post-merge physical smoke test)<br>`/wdi-prune-or-archive` (clean or archive closed specs) | `/wdi-autopilot` (unattended loop engine driven by `/loop`) |
-| **Governance & Inspection** | `/wdi-help` (contextual gate guidance)<br>`/wdi-explain-to-me` (architecture explainer)<br>`/wdi-decision` (ADR authoring)<br>`/wdi-question` (open question tracker)<br>`/wdi-log` (activity logging)<br>`/wdi-report` (estimate & progress reporting)<br>`/wdi-reconcile` (drift audit)<br>`/wdi-review` (independent peer review)<br>`/wdi-systematic-debugging` (root-cause diagnosis)<br>`/wdi-upgrade` (corpus schema migration) | Advisory peer review & second opinion dispatch |
+| **Governance & Diagnostics** | `/wdi-help` (contextual gate guidance)<br>`/wdi-explain-to-me` (architecture explainer)<br>`/wdi-decision` (ADR authoring)<br>`/wdi-question` (open question tracker)<br>`/wdi-log` (activity logging)<br>`/wdi-report` (estimate &amp; progress reporting)<br>`/wdi-reconcile` (drift audit)<br>`/wdi-review` (independent peer review)<br>`/wdi-systematic-debugging` (root-cause diagnosis)<br>`/wdi-upgrade` (corpus schema migration) | Advisory peer review &amp; second opinion dispatch |
 
 ---
 
-## Why the steps are in this order
+## Repository Structure & Invariants
 
-- **One question per gate.** The brief answers *why*, the PRD *what*, the blueprint *the whole*, the SDD
-  *how one part*, the spec *is it done*. Every document that grew unreadable did so by answering a
-  neighbour's question too. A gate that asks one question can be passed in ten minutes.
-- **The page you read is rendered; the page the AI edits points.** A goal lives once, in
-  `goals.yaml`; the working brief says `Goals — see goals.yaml`; the rendered brief shows the goals in
-  full. So the human gets a complete document and the corpus has no copies — and the validators check
-  **drift against the code**, never whether two copies agree, because there are none to compare.
-- **Cost follows the unit of change.** G3 is once per product because the portrait is one thing. G4 is per
-  component because that is what changes when you build. G5 is per spec because that is what ships.
-  Repeating the blueprint per component was the single largest waste the earlier shape carried.
-- **Two knobs that never merge.** `mode` decides which gates *exist* for a component (`catalog` skips G4
-  outright); `risk_accepted` decides how much *proof* a gate demands. Merged into one "rigor" dial, a
-  low-risk component either drowns in ceremony or a high-risk one escapes it.
-- **Estimate before build.** Step 6 derives the candidate tasks from the promises already made —
-  `CAP` and `FR` — so nobody invents a backlog. One candidate row becomes one spec, three neighbours
-  may merge into one, and the estimate page says so about itself: it is forward-looking, never a record.
-- **The engine cuts; the wrapper frames.** `to-spec` and `to-tickets` are the best ticket-cutting
-  engine we found: vertical tracer-bullet slices, blocking edges, a quiz with the owner. What a cutter
-  cannot know, `wdi-build` supplies: that every component the spec touches passed G4; that every ticket
-  names the `UC` it `satisfies`, so `FR → UC → ticket → test` stays one chain; that a spec restates
-  promises and never makes new ones; that code is judged by the test suite going red then green, from a
-  fresh context per step, never by a builder's report; and that a closed spec leaves the registry caught
-  up and the inventories re-derived from code.
-- **Documents follow the code.** At spec close the inventories are regenerated from what was built and
-  the difference is *reported*, never patched into agreement. A record that contradicts the code is
-  corrected; code is never changed to match a record.
-
----
-
-## The file tree, and why
-
-```
+```text
 .constitution/
-  method/            the method — overwritten by every update; never edit here
-  project/           your own rules and readers — kept by every update
+  method/            The method engine — overwritten by every update; never edit here
+  project/           Product-owned rules and custom inventory readers — preserved across updates
 .control/
-  registry/          SSOT for every ROW: goals.yaml · requirements-<slug>.yaml · components.yaml
-                     usecases.yaml · specs.yaml · risks.yaml · defects.yaml · index.yaml
-  questions/         open questions, assumptions, external prerequisites — one row each
-  decisions/         DEC-N files; frozen once applied
-  generated/         machine tables: rtm · dag · status · estimate · timeline — regenerated, never edited
-.what/               what is PROMISED — the AI's working set, pointer-heavy, few files
-  _product-brief/brief.md
-  _prd/<slug>/prd.md · addendum.md
-  <pc>/SRS-<pc>.md + 02-rules · 03-domain · 04-usecases · 05-scenarios
-.how/                how it is BUILT — same discipline
-  _platform/         ARCHITECTURE-SPINE.md · c4-l2-containers.md · inventories
-  <pc>/SDD-<pc>.md + 01-ux · 02-contracts · 04-components · 05-model · 06-flows
-.what-rendered/      the human's tree: brief · _prd/<slug>/prd.md · <pc>/SRS-<pc>.md — one complete page each
-.how-rendered/       blueprint.md (root — it spans every component) · <pc>/SDD-<pc>.md
-_bmad-output/        a skill run's working output; empties as its spec closes
-.work/               scratch; empties when the task closes
-<spec_folder>/issues/  one file per ticket — the tracker's payload, not yours to read
+  registry/          Single Source of Truth: goals.yaml · specs.yaml · components.yaml
+  decisions/         Accepted decisions and owner mandates (DEC-*.md)
+  memlog/            Audit ledgers recording autonomous loop decisions
+  test-targets/      Physical testing templates (desktop.md, web.md, mobile.md)
+.scratch/            Active specification workspaces (SPEC-*.md and tickets)
+.archive/            Pruned historical specifications preserving RTM audit links
+.what/ & .how/       Working corpus documents (PRD, SRS, Blueprint, SDD)
+.what-rendered/      Rendered human deliverables (generated by validate.py / wdi-report)
 ```
 
-Three layers, and the rule that keeps them honest:
-
-| Layer | Holds | Who writes | Who reads |
-|---|---|---|---|
-| **Registry** | every row — a goal, a requirement, a component, a ticket index | the skill that owns the gate | validators, renderers, every other skill |
-| **Working documents** (`.what/`, `.how/`) | the prose that reasons — why, boundaries, what makes it different — and **pointers** at the rows | the owning skill | the AI |
-| **Rendered pages** (`*-rendered/`) | one complete page per gate, rows filled in from their homes | `validate.py --generate`, never a hand | the human, and the client |
-
-Why split the human's tree from the AI's: a document that is both the AI's working surface and the
-human's deliverable ends up serving neither — too long to point, too gappy to hand over. Why the
-registry is per initiative (`requirements-<slug>.yaml`) but goals are per product: a capability is
-declared by one feature in one PRD; a goal belongs to the product before any PRD exists. Why
-`blueprint.md` sits at the root of `.how-rendered/` and not under `_platform/`: `_platform` means
-"belongs to no component"; the blueprint spans all of them. Why rendered pages are never a skill's
-input: a skill that read a projection would be reading a copy, and the copy would start to drift the
-day someone edited it. A test in this package fails if any `SKILL.md` lists a `-rendered` path as an
-Input.
-
 ---
 
-## Why WDI Method?
+## Contributing & Architectural Foundations
 
-- **Depth separate from scrutiny.** `mode` sets how much gets written; `risk_accepted` sets how hard it
-  gets reviewed. Neither is derived from the other, so a component MAY be thin on purpose and reviewed the
-  hardest.
-- **Ground truth over plan.** Once code exists, the tables, endpoints, and screens are **derived from it**
-  — the gap between plan and reality is a finding to resolve, not an argument to have.
-- **Containers that match what actually ships.** C4's containers follow deployability, not folders, and a
-  component view is drawn for every container that carries more than one Product Component.
-- **A gate that can be skipped honestly.** `mode: catalog` skips the component gate entirely — a fast
-  default is fast because the work is genuinely gone, not nominally trimmed.
-- **Decisions that don't rot.** A `DEC-` is recorded only when the reason would not survive reading the
-  code, and it freezes the moment it is applied — a change of mind writes a new one rather than editing
-  the old.
-- **Wraps BMad, never forks it.** Every `wdi-*` skill is a wrapper around a BMad skill. Upgrading BMad
-  does not strand you, and no BMad skill is meant to be invoked directly.
+Every contribution to WDI Method must answer one question: **does this make the review layer more trustworthy, or does it merely make it thicker?**
 
----
-
-## The gap this fills
-
-A gate is only as good as the artifact it reads. Between *"the architecture is decided"* and *"the code
-is written"* there is a set of questions that decide whether a build goes straight or crooked, and they
-are all **list-shaped**:
-
-- Which use cases exist, and which of them touch money, personal data, or something irreversible?
-- Which tables exist, and which component is allowed to **write** each one?
-- Which endpoints exist, on which host, and which promise does each serve?
-- Which screens exist, in which application?
-- When a boundary fails halfway — the other side slow, absent, or lying — what does the user see?
-
-Those questions have answers inside an architecture document and a build spec. What they usually do not
-have is a **place where a person can read all of one kind at once** and notice the row that is missing,
-the table with two owners, or the endpoint nobody promised.
-
-WDI Method's whole contribution is that place, plus the discipline that keeps it honest:
-
-| | |
-|---|---|
-| **Inventories** | Tables, endpoints, and screens as three flat lists — **derived from the code**, not hand-written, so the difference between plan and reality is a finding rather than an argument |
-| **Use case catalogue** | One line per use case with its actor, the requirement it satisfies, and whether it is `critical` |
-| **SRS / SDD** | What a component promises, and how it is built — one pair per component, in human language |
-| **C4** | Context, containers, and one component view per container that carries more than one domain slice |
-| **Robustness** | For the deepest mode: boundary, control, and entity objects per critical use case, before code |
-| **Invariants** | A spine of `AD-N` rules that constrain every component, separate from the decisions that produced them |
-
----
-
-## Two knobs, never merged
-
-The reason a method like this usually fails is that it asks for the same depth everywhere, so people
-either drown in it or abandon it. WDI splits depth from scrutiny into **two independent fields**:
-
-| Field | Controls | Values |
-|---|---|---|
-| `mode` | **Document depth**, and nothing else | `catalog` · `outline` · `guarded` · `deep` |
-| `risk_accepted` | **Review intensity**, and nothing else | `low` · `medium` · `high` |
-
-| `mode` | What is written per component | G4 |
-|---|---|---|
-| `catalog` | Nothing. Code is written from the use case catalogue, the three inventories, and C4 | **skipped** |
-| `outline` | + a decision summary and the component list in the SDD, full flows for at most 3 use cases, local rules | 20 min |
-| `guarded` | + **failure behaviour for every boundary**, inherited invariants quoted verbatim, integration documents | 20 min |
-| `deep` | + robustness analysis, a contract per endpoint, data dictionary, flow diagrams, state machines | 30 min |
-
-Neither field is derived from the other, and that is the point: **a component MAY be thin on purpose and
-reviewed the hardest.** A component at `catalog` skips the component gate entirely — which is what makes
-a shallow default genuinely fast rather than nominally fast.
-
-Depth is a preference and needs no defence. Accepting risk on something that touches money, personal
-data, or an irreversible action is **not** free: it requires a recorded decision, and a validator checks
-that the decision exists.
-
-All twelve combinations are legal. The installed kit carries
-`.constitution/method/why/mode-risk-map.md`, which puts them side by side — what each cell costs at G4,
-which review lenses run, and which review traces a validator will demand.
-
----
-
-## Five gates, eighteen skills
-
-| Gate | Decides | Skill |
-|---|---|---|
-| **G1 Problem** | What the problem is, whose it is, why it earns work | `wdi-problem` |
-| **G2 Product** | What is built, and how it feels to use | `wdi-product` · optional `wdi-ux` |
-| **G3 Blueprint** | The whole portrait, once per product | `wdi-blueprint` |
-| **G4 Component** | How one component is built — **skipped at `catalog`** | `wdi-component` |
-| **G5 Release** | Whether it is done and proven | `wdi-build` |
-
-Around them: `wdi-init` (scaffold, component birth, depth and risk settings, structure maps),
-`wdi-decision`, `wdi-question`, `wdi-log`, `wdi-help`, `wdi-explain-to-me`, `wdi-autopilot`, `wdi-reconcile`, `wdi-review`, `wdi-report`,
-`wdi-systematic-debugging`, `wdi-prune-or-archive` (cleans up completed spec directories by archiving to `.archive/specs/` or pruning from disk), and `wdi-upgrade` (moves a corpus written under an older kit into the current
-shape — content moves, nothing is invented).
-
-**No BMad skill is invoked directly.** Each has a wrapper, and the wrapper is what checks position,
-verifies the result, and records what happened.
-
-### Decisions, not ADRs
-
-A decision is a `DEC-`, and **recording one is not mandatory.** The test is one sentence: *if somebody
-asks in three months why it is like this, is the answer readable from the code?* If yes, it MUST NOT be
-recorded — a register nobody trusts is worse than no register. One case is mandatory: contradicting an
-invariant on the spine.
-
-A `DEC-` freezes when it is applied. A change of mind produces a new one; it never edits the old.
-
----
-
-## The mechanical half
-
-`validate.py` runs twenty-nine named validators — `goal-has-fr`, `cites-resolve`, `no-cycles`,
-`id-allocated-once`, and the rest, each named for the thing it checks — over the registries and the
-corpus, and `inventory.py` derives the three inventories from code and reports the difference against the
-plan without patching either side. There is no validator that compares two copies of one fact, because
-the corpus keeps no copies.
-
-**The corpus is what git tracks.** A vendored dependency tree inside a gitignored folder is not this
-product's writing, and since 0.6.17 the walk skips what the repo ignores. The other half of that rule is
-`corpus-in-git`: a folder the method commits MUST NOT be ignored, so `.gitignore` cannot be used to quiet
-a finding about a file that really is yours.
-
-The validators exist because prose that nothing checks is prose that gets contradicted by the first
-person in a hurry. Every one of them also states **the state in which it does not apply** — a rule that
-demands a trace before the trace can exist is a rule that gets switched off, and a validator nobody
-reads guards nothing.
-
----
-
-## What is generic, and where your own rules live
-
-`.constitution/` holds **exactly two folders**, and the folder is the whole answer to who owns a file:
-
-| Folder | Owner | `update` | `promote` |
-|---|---|---|---|
-| `.constitution/method/` | the method | **overwritten** in full | carries it into the package |
-| **`.constitution/project/`** | you | **never touched** — seeded once when absent | never carries it, so your rules cannot be published |
-
-Everything in the room is yours: `project/constitution.md` (Articles 1, 2, 5 — scope, repo checklist,
-method ownership), `project/codebase-*-guide.md` (stack, conventions, brownfield, protected at **any**
-`status:` — `Draft` is when they actually get written), and any rule file you add.
-
-**The seam is a folder, never a marked region inside a generic file.** Prose has no merge algebra: you
-cannot "merge" your paragraph with the method's, so only a path can say unambiguously whose a file is.
-`AGENTS.md` is the one exception, and only because it is a single file with nowhere else to go.
-
-Two more things are yours, outside `.constitution/`:
-
-| Yours | Because |
-|---|---|
-| `.control/registry/index.yaml` → `product:` | The product and client name live in exactly one place |
-| `_bmad/custom/*.user.toml` | Your BMad overrides — TOML, so these genuinely merge: a string replaces, a list appends, a table merges per key |
-
-`.control/` `.what/` `.how/` are never touched by an update at all — they are your state, your promises,
-and your design.
-
-The custom room takes whole files, not marked blocks inside generic ones: `AGENTS.md` can use a marked
-block because it is *one* file, while `.constitution/` has fifty-odd, and blocks inside them would make
-an update perform surgery in every file. A file there declares `scope: project` and a one-line
-`purpose:`; to **contradict** a generic rule it must name that rule and carry the decision that allowed
-it. **An empty room is a valid state** — filling it so that it gets used is the failure the rule prevents.
-
-### Language
-
-Two settings, both free text, both defaulting to English:
-
-```yaml
-policy:
-  doc_language: "English"           # prose of working documents
-  doc_filename_language: "English"  # the slug part of a document filename
-```
-
-Write whatever names the language — `English`, `Bahasa Indonesia`, `id`. What reads the value is a model,
-and a model does not need a lookup table.
-
-Always English, and never asked: method terminology, document code prefixes (`UC-`, `DEC-`), machine
-markers (`[NEEDS CONFIRMATION]`, `[MISSING]`), and code identifiers. `.constitution/` itself is always
-English, whatever the settings say — it travels to every repo through this package.
-
----
-
-## What update does
-
-| | |
-|---|---|
-| Overwrites | everything in `.constitution/method/` · the method wrappers (19 core skills and 3 daily tier skills) · `_bmad/custom/*.toml` · the marked block in `AGENTS.md` |
-| Renames | a file whose content needs no judgment to move — `waves.yaml` → `specs.yaml`, the pre-0.5 registry names, and a pre-0.6.2 autopilot ledger to `autopilot-<mandate-id>.md`. Content is never rewritten |
-| Seeds | `docs/agents/` — the ticket engines' own config, already answered for this method, so `/setup-matt-pocock-skills` is not part of getting started. Seeded once; a file you already wrote is never touched |
-| Removes | Wrappers the method has retired — a `wdi-*` folder with a `SKILL.md` that is no longer one of the installed method skills. Each removal is printed |
-| Reports | what is still in the OLD shape, as an `upgrade` line — and names `wdi-upgrade` as the next step. The installer does not move content; that is a decision, and the skill's |
-| Keeps | All of `.constitution/project/`, plus your initiative slug and your language choice. A setting somebody already chose is not the installer's to change behind their back |
-| Never resurrects | A folder you retired. On update, absence is treated as a decision |
-| Warns, never edits | An open `wdi-autopilot` mandate written before `ad-n` was parked by default, and a `docs/agents/domain.md` still pointing at a root `CONTEXT.md`. Both are values you chose; the installer names them and leaves them alone |
-
-It prints the version it replaced, what it wrote, what it kept, and what to do next.
-
-### Moving a repo from 0.6.7 or earlier to 0.6.8
-
-Four things change for a repo already running the method. The first is the only one that can stop an
-update, and all four are mechanical.
-
-| What changed | What it means for your repo |
-|---|---|
-| **The engines must be in the repo** | `install` and `update` refuse until `to-spec`, `to-tickets`, `implement`, `tdd`, `code-review` and `domain-modeling` are here — `npx skills@latest add mattpocock/skills`. The Claude Code plugin no longer counts: three of the six ship locked against skill invocation, nothing outside the file unlocks them, and a plugin's files are not yours to edit. `--skip-engines-check` still installs without them |
-| **The engines are invoked, not handed to you** | `wdi-build` calls `to-spec`, `to-tickets`, `implement`, `tdd` and `code-review` itself, so `wdi-autopilot` can finish a spec with nobody watching. Every `update` re-unlocks the repo's copies, because `npx skills update` puts the author's lock back — and `engines-invocable` in `validate.py` goes red when it has |
-| **Thirteen BMad skills are retired at G5, and now enforced** | `bmad-spec`, `bmad-build`, `bmad-build-auto`, `bmad-code-review`, `bmad-retrospective`, `bmad-agent-dev`, `bmad-create-epics-and-stories`, `bmad-create-story`, `bmad-dev-story`, `bmad-dev-auto`, `bmad-quick-dev`, `bmad-sprint-planning`, `bmad-sprint-status`. Each is locked out of model invocation and denied in `.claude/settings.json`; typing the slash command yourself still works. `bmad-skill-register.md` carries the list and the criterion — retired only where this method has a named replacement, which is why `bmad-qa-generate-e2e-tests` and `bmad-checkpoint-preview` are not on it |
-| **A spec has one predefined home** | `.scratch/<spec-id>-<slug>/`, with `SPEC.md` and `issues/<NN>-<slug>.md` inside it. Left free, that folder name gets written a different way in every repo and traces back to nothing. A row in `specs.yaml` is now what makes an effort a spec rather than ad hoc work — the path no longer says |
-
-Run the `wdi-upgrade` skill after updating: it names what is still in the old shape, including a
-`docs/agents/issue-tracker.md` that still carries `/setup-matt-pocock-skills`' own answer, and the spec
-folders that need moving. `npx wdi-method engines` reports the engine state on its own, and
-`npx wdi-method engines --fix` repairs what can be repaired without touching anything you wrote — the
-previous config is kept as `.bak`.
-
----
-
-## Changing the method
-
-**This repository is where a method change is authored** — a guide, a template, a skill wrapper, a
-validator. It is proven here before publishing, against a fixture corpus the three registry scripts
-actually run against:
-
+### Fixture Corpus & Local Verification
+All validator and framework changes are proven against the internal fixture corpus (`tests/fixture/`). Run the complete test suite before submitting pull requests:
 ```bash
-npm test        # includes validate.py, timeline.py and inventory.py over tests/fixture/
+npm test
 ```
+The test suite enforces 100% green baselines across Python PEP 723 scripts (`validate.py`, `timeline.py`, `lifecycle.py`), platform sync, and kit integrity.
 
-The fixture is small but complete, and kept **green**, so a new finding is a regression rather than
-noise. One test plants a defect in a copy and requires the matching validator to name it — a green
-baseline is worthless if it is green because every check is broken.
-
-A consuming repo then takes the change with `npx wdi-method update`, and that is where the judgement
-half gets tested: whether a guide actually helps a person at G3 is only provable in use.
-
-`promote` — pulling the method back out of a consumer — is a **rescue tool**, not the workflow. It
-overwrites the whole kit from one copy, so it refuses to run without `--rescue`.
-[`CONTRIBUTING.md`](CONTRIBUTING.md) records why the direction was reversed and what it cost.
-
-**Patch releases are routine; minor and major are the maintainer's call.** This package overwrites files
-in repos that already hold months of work, and the version is the only signal a reader has for how
-carefully to read the diff. [`CONTRIBUTING.md`](CONTRIBUTING.md) has the detail, and
-[`AGENTS.md`](AGENTS.md) states it for agents working on the package.
+### Public Generic Package Rule
+WDI Method is published to the public npm registry. It must never leak private client names, commercial product identities, internal network credentials, or absolute filesystem paths.
 
 ---
 
-## Support and Contributing
+## License & Trademark Notice
 
-Open an [issue](https://github.com/wiradeltaid/wdi-method/issues) for a bug or a proposal. Read
-[`CONTRIBUTING.md`](CONTRIBUTING.md) before sending a pull request — it explains where a change belongs,
-how versioning works here, and what to check before publishing.
-
-[`CHANGELOG.md`](CHANGELOG.md) is what changed in each version, and what each change means for a repo
-that already has the method installed. Read it before an `update` that crosses more than a patch.
-
-## License and attribution
-
-MIT License — see [LICENSE](LICENSE). Copyright (c) 2026 Wira Delta Indonesia.
-
-- What it stores and sends: [`PRIVACY.md`](PRIVACY.md) (offline-first, zero telemetry).
-- How to report vulnerabilities: [`SECURITY.md`](SECURITY.md) (private reporting via `security@wiradelta.id` or GitHub Security Advisories).
-- Third-party components and attributions: [`NOTICE`](NOTICE).
-
-Requires Node 20+ and [uv](https://docs.astral.sh/uv/) for the Python scripts.
-
-## The name and the icon
-
-The MIT License grants broad rights over code. It says nothing about names or logos,
-and it does not oblige the studio to hand over either — so the licence above covers
-this repository's code, not the name **WDI Method**, not **Wira Delta Indonesia**,
-and not any associated visual marks or logos.
-
-You may use those names to refer to this project: "based on WDI Method", "a fork of WDI Method",
-or "compatible with WDI Method". You may not use them as the name of your own product or
-methodology, or in a way that suggests you are this project or endorsed by it.
-
-If you publish a modified distribution or fork, please give it your own name, so the
-engineers using it know whom to ask when something behaves unexpectedly. The code is yours
-to take; the name is not.
-
-[![Version](https://img.shields.io/npm/v/wdi-method?color=blue&label=version)](https://www.npmjs.com/package/wdi-method)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+- **Code License:** Distributed under the [MIT License](LICENSE).
+- **Privacy & Telemetry:** 100% offline-first. Zero telemetry, zero analytics, zero external network sockets (see [PRIVACY.md](PRIVACY.md) and [SECURITY.md](SECURITY.md)).
+- **Trademark Notice:** "Wira Delta Indonesia", "WDI Method", and the studio brand monogram are trademarks of PT Wira Delta Indonesia and are retained separately from the open-source code license.
