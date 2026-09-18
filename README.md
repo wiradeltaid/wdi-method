@@ -216,6 +216,16 @@ built on top of the shared delivery kernel:
   process gates, cleans ephemeral smoke test logs, and assembles a physical test checklist from the
   delivery delta (using templates in `.control/test-targets/`).
 
+### Skill Directory (22 Skills Across Two Axes)
+
+WDI Method packages 22 official skills structured across functional domain and invocation authority:
+
+| Domain | User-Invoked (Developer Commands) | Model-Invoked / Agent-Orchestrated |
+|---|---|---|
+| **Delivery & Architecture (G1–G5)** | `/wdi-init` (G0 setup)<br>`/wdi-problem` (G1 problem & brief)<br>`/wdi-product` (G2 PRD)<br>`/wdi-ux` (G2/G3 UX & contracts)<br>`/wdi-blueprint` (G3 architecture)<br>`/wdi-component` (G4 component SDD)<br>`/wdi-build` (G5 spec & tickets) | Driven by coordinator during gate transitions |
+| **Autonomous Daily Operations** | `/wdi-daily-what-to-build` (triage notes to spec)<br>`/wdi-daily-autopilot` (autonomous routine launcher)<br>`/wdi-daily-what-to-test` (post-merge physical smoke test)<br>`/wdi-prune-or-archive` (clean or archive closed specs) | `/wdi-autopilot` (unattended loop engine driven by `/loop`) |
+| **Governance & Inspection** | `/wdi-help` (contextual gate guidance)<br>`/wdi-explain-to-me` (architecture explainer)<br>`/wdi-decision` (ADR authoring)<br>`/wdi-question` (open question tracker)<br>`/wdi-log` (activity logging)<br>`/wdi-report` (estimate & progress reporting)<br>`/wdi-reconcile` (drift audit)<br>`/wdi-review` (independent peer review)<br>`/wdi-systematic-debugging` (root-cause diagnosis)<br>`/wdi-upgrade` (corpus schema migration) | Advisory peer review & second opinion dispatch |
+
 ---
 
 ## Why the steps are in this order

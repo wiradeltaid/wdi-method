@@ -72,6 +72,14 @@ Untuk alur kerja harian berkecepatan tinggi dengan minim interupsi:
 - **`/wdi-daily-autopilot [in-session] [peer] [interval] [--skip-peer-review]`**: Menyusun dan meluncurkan rutinitas mandat otonom (`/loop 10m /wdi-autopilot`) dengan integrasi konfigurasi runner lokal (`.control/custom-dispatch.yaml`).
 - **`/wdi-daily-what-to-test [web <target>|mobile <target>|desktop]`**: Langkah verifikasi pasca-merge. Sinkronisasi cabang development, pembersihan worktree dan branch remote yang telah dimerge, gate proses desktop untuk mencegah file-locking, penghapusan log smoke sementara, dan penyusunan checklist uji fisik berbasis delta commit (menggunakan template di `.control/test-targets/`).
 
+### Direktori 22 Skill Resmi (Klasifikasi Dua Aksis)
+
+| Bidang Kerja | Pemanggilan Langsung oleh Pengguna (*User-Invoked*) | Orkestrasi Agen / Model (*Model-Invoked*) |
+|---|---|---|
+| **Pengiriman & Arsitektur (G1–G5)** | `/wdi-init` (Setup G0)<br>`/wdi-problem` (G1 Brief masalah)<br>`/wdi-product` (G2 PRD solusi)<br>`/wdi-ux` (G2/G3 Alur UX)<br>`/wdi-blueprint` (G3 Arsitektur sistem)<br>`/wdi-component` (G4 Desain komponen)<br>`/wdi-build` (G5 Spek & pemotongan tiket) | Dijalankan oleh koordinator pada transisi gerbang |
+| **Operasi Harian Otonom** | `/wdi-daily-what-to-build` (Triage catatan uji ke spek)<br>`/wdi-daily-autopilot` (Peluncur loop otonom)<br>`/wdi-daily-what-to-test` (Verifikasi fisik pasca-merge)<br>`/wdi-prune-or-archive` (Arsip/pembersihan spek tertutup) | `/wdi-autopilot` (Mesin loop otonom via `/loop`) |
+| **Tata Kelola & Diagnostik** | `/wdi-help` (Panduan gerbang kontekstual)<br>`/wdi-explain-to-me` (Penjelas arsitektur)<br>`/wdi-decision` (Pencatatan keputusan ADR)<br>`/wdi-question` (Pelacak pertanyaan terbuka)<br>`/wdi-log` (Pencatatan aktivitas)<br>`/wdi-report` (Laporan progres & estimasi)<br>`/wdi-reconcile` (Audit deviasi kode-dokumen)<br>`/wdi-review` (Review independen)<br>`/wdi-systematic-debugging` (Investigasi akar masalah)<br>`/wdi-upgrade` (Migrasi skema korpus) | Dispatch peninjau independen & second opinion |
+
 ---
 
 ## Ketahanan Proses & Lingkungan Eksekusi
