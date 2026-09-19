@@ -32,7 +32,10 @@ closed tickets and specs, never invented from memory.
    immediately and report to the maintainer; per `.constitution/method/branch-guide.md`, MUST NOT guess
    or silently fall back to `main`.
 4. Verify the primary working tree is clean (`git status --porcelain`). If uncommitted changes exist,
-   stop and report without modifying git state.
+   stop and report without modifying git state. If the uncommitted files match known ephemeral triage scratch
+   under `.work/` (such as uncleaned `.work/wdi-daily-what-to-build/` packets or raw CLI dump logs), explicitly
+   report them as abandoned scratch from a previous run and provide the exact remediation command
+   (e.g. `Remove-Item <paths>`) rather than an ambiguous dirty tree error.
 
 ## 1. Sync (Fast-Forward Only)
 

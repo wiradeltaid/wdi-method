@@ -150,6 +150,11 @@ only on one machine. What an iteration MUST NOT do is start a metered runner: no
 marked ready, no re-run requested on a ticket that is not finished. Evidence during the run is the **local**
 suite, which `wdi-build` Phase 3 Step 2 already requires and which costs nothing. See § Cycle-end CI.
 
+**Selective Staging Discipline:** Staging MUST be strictly selective (`git add <path>`). The coordinator
+and builders MUST NOT use broad wildcard staging (`git add .`, `git add -A`, `git add --all`). Staging MUST include
+only application code, tests, `.control/`, and `.scratch/<active-spec>/`. Ephemeral execution scratch under `.work/`
+MUST NOT be staged or committed into the run branch.
+
 **Runnable** means: not listed under Blocked in `## Resume`, and not parked by the mandate. A blocked row is
 retried only when the owner unblocks it or a later change removes the cause — and the ledger row that
 recorded the block says which. A run that re-picks a blocked step spends the whole mandate window on it, and
@@ -401,10 +406,13 @@ When § The work table reaches § Finish:
    (e.g. `ci_override: local-only-approved-by: "<Person, Date>"` per `.constitution/method/ci-guide.md`),
    the run MUST NOT mark the draft PR ready (`gh pr ready`). The PR MUST remain as a Draft, no cloud runner
    is awaited, and the final output report explicitly states: *"locally verified; cloud verification intentionally deferred by mandate"*.
-5. **Cancel the loop cleanly:** in Claude Code, inspect scheduled jobs via `CronList`, identify the job firing
+5. **Clean ephemeral execution scratch:** delete all temporary scratch files under `.work/` created during
+   this mandate run (such as temporary triage outputs, diff dumps, and scratch files). Ephemeral execution scratch
+   MUST NOT survive the mandate finish or be left on the run branch.
+6. **Cancel the loop cleanly:** in Claude Code, inspect scheduled jobs via `CronList`, identify the job firing
    `/wdi-autopilot`, and call `CronDelete` on its task ID to eliminate zombie loop firings; elsewhere, call the platform's
    loop cancellation mechanism or inform the owner that the loop has completed its mandate and has nothing left to do.
-6. Write the final report as the Output below. The owner merges; the run never does.
+7. Write the final report as the Output below. The owner merges; the run never does.
 
 ## Red Flags — STOP
 
@@ -415,6 +423,7 @@ When § The work table reaches § Finish:
 - Closing a spec while the run branch's own full suite is red, or marking the PR ready while CI is red
 - **Starting a cloud run before § Finish** — a PR marked ready mid-run, a workflow dispatched to check a
   ticket, or an intermediate push left free to match a bare `on: push` trigger
+- Staging with broad wildcards (`git add .`, `git add -A`, `git add --all`) or committing ephemeral `.work/` scratch into the run branch
 - Answering the quota problem by committing less often, instead of by fixing what a push triggers
 - Spending the one cloud run on a head whose local suite was never run
 - Re-merging a branch whose merge was reverted, instead of cutting a new one

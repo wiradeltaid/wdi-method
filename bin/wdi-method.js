@@ -917,6 +917,23 @@ function ensureGitignoreSmoke(target) {
   }
 }
 
+function ensureGitignoreScratchDumps(target) {
+  const gitignorePath = path.join(target, ".gitignore");
+  const rules = [".work/*.txt", ".work/*.log", ".work/tmp/"];
+  if (fs.existsSync(gitignorePath)) {
+    const content = fs.readFileSync(gitignorePath, "utf8");
+    const lines = content.split(/\r?\n/).map((l) => l.trim());
+    const missing = rules.filter((r) => !lines.includes(r) && !lines.includes(`/${r}`));
+    if (missing.length === 0) return;
+    const separator = content.endsWith("\n") ? "" : "\n";
+    fs.writeFileSync(gitignorePath, `${content}${separator}# Ephemeral execution scratch and raw tool dumps\n${missing.join("\n")}\n`, "utf8");
+    note(`added ${missing.join(", ")} to .gitignore`);
+  } else {
+    fs.writeFileSync(gitignorePath, `# Ephemeral execution scratch and raw tool dumps\n${rules.join("\n")}\n`, "utf8");
+    note(`created .gitignore with ${rules.join(", ")}`);
+  }
+}
+
 function seedDailyTierScaffold(target) {
   const control = path.join(target, ".control");
   if (!fs.existsSync(control)) return;
@@ -949,6 +966,7 @@ function seedDailyTierScaffold(target) {
 
   ensureGitignoreCustomDispatch(target);
   ensureGitignoreSmoke(target);
+  ensureGitignoreScratchDumps(target);
 
   const localDispatchDest = path.join(control, "custom-dispatch.yaml");
   if (!fs.existsSync(localDispatchDest) && fs.existsSync(exampleSrc)) {

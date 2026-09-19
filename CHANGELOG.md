@@ -10,6 +10,18 @@ version contains every fix below it.
 
 ---
 
+## [0.6.25] - 2026-09-19
+
+### Changed
+
+- **Ephemeral Subagent Handoff Lifecycle & Mandatory Scratch Deletion:** `wdi-daily-what-to-build` mandates that subagent handoff packets, raw CLI logs, and review outputs are disposable execution scratch (not product evidence). Review outputs are strictly scoped to `<slug>-review-output.md`, and all scratch files under `.work/wdi-daily-what-to-build/` MUST be deleted upon coordinator fold-in and stamping. Raw review files MUST NOT be staged, committed, or archived into `.scratch/` or `.archive/`.
+- **Distillation Scope Extension:** `wdi-build` Phase 4 Distillation checklist explicitly requires verifying and cleaning lingering triage scratch under `.work/wdi-daily-what-to-build/` before closing a spec.
+- **Selective Staging Discipline on Autopilot:** `wdi-autopilot` explicitly prohibits broad wildcard staging (`git add .`, `git add -A`, `git add --all`). Staging is restricted to application code, tests, `.control/`, and `.scratch/<active-spec>/`. Ephemeral execution scratch under `.work/` is barred from the run branch, and mandate finish requires a clean sweep of temporary `.work/` files.
+- **Enriched Ephemeral Precondition Guidance:** `wdi-daily-what-to-test` enriches Step 0.4 halt guidance when untracked files match `.work/` scratch, providing direct remediation instructions instead of generic dirty tree errors.
+- **Scaffold Ignore for Raw Tool Dumps:** `bin/wdi-method.js` now automatically ensures `.work/*.txt`, `.work/*.log`, and `.work/tmp/` are ignored in `.gitignore` on install/update, preventing raw CLI redirection dumps from causing dirty working tree preflight halts.
+
+**What a repo that already has the method installed does about it.** Run `npx wdi-method@latest update`. It updates the daily skills with strict scratch cleanup and staging guardrails, and ensures ephemeral tool dumps in `.work/` are ignored in `.gitignore`.
+
 ## [0.6.24] - 2026-09-18
 
 ### Added

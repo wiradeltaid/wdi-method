@@ -131,6 +131,9 @@ describe("autonomous daily tier skills (Fase 4)", () => {
       assert.match(fs.readFileSync(path.join(target, ".gitignore"), "utf8"),
         /\.work\/smoke\//,
         ".gitignore missing .work/smoke/ rule");
+      assert.match(fs.readFileSync(path.join(target, ".gitignore"), "utf8"),
+        /\.work\/\*\.txt/,
+        ".gitignore missing .work/*.txt rule");
     } finally {
       fs.rmSync(target, { recursive: true, force: true });
     }
@@ -196,6 +199,7 @@ describe("autonomous daily tier skills (Fase 4)", () => {
     assert.match(content, /Desktop Process Gate/i, "missing desktop process gate");
     assert.match(content, /runtime-desktop\.yaml/, "missing runtime manifest artifact");
     assert.match(content, /Delta-Scoped Retrieval/i, "missing delta-scoped checklist retrieval");
+    assert.match(content, /abandoned scratch from a previous run/i, "missing enriched remediation for .work/ scratch");
   });
 
   it("wdi-daily-autopilot enforces mandate verification before loop", () => {
@@ -218,6 +222,8 @@ describe("autonomous daily tier skills (Fase 4)", () => {
     assert.match(content, /parallel-tickets-blocked/i, "missing parallel-tickets-blocked upfront contract");
     assert.match(content, /strictly advisory \/ read-only/i, "missing advisory/read-only mandate");
     assert.match(content, /Coordinator Stamping/i, "missing coordinator stamping clause");
+    assert.match(content, /Clean Ephemeral Review Artifacts/i, "missing clean ephemeral review artifacts clause");
+    assert.match(content, /MUST NOT be archived or moved into `?\.scratch\/`? or `?\.archive\/`?/i, "missing prohibition against archiving scratch review files");
     assert.match(content, /uv run \.constitution\/method\/scripts\/validate\.py --generate --baseline/, "missing canonical uv validation command");
 
     const reviewContent = fs.readFileSync(path.join(KIT_SKILLS, "wdi-review", "SKILL.md"), "utf8");
@@ -226,6 +232,16 @@ describe("autonomous daily tier skills (Fase 4)", () => {
     const exampleContent = fs.readFileSync(path.join(SCAFFOLD_CONTROL, "custom-dispatch.yaml.example"), "utf8");
     assert.match(exampleContent, /timeout_s:\s*600/, "custom-dispatch.yaml.example missing timeout_s example");
     assert.match(exampleContent, /--trust-tools=fs_read/, "custom-dispatch.yaml.example missing read-only flag example");
+  });
+
+  it("wdi-autopilot and wdi-build enforce selective staging and distillation of triage scratch", () => {
+    const autopilotContent = fs.readFileSync(path.join(KIT_SKILLS, "wdi-autopilot", "SKILL.md"), "utf8");
+    assert.match(autopilotContent, /Selective Staging Discipline/i, "missing selective staging discipline in wdi-autopilot");
+    assert.match(autopilotContent, /MUST NOT use broad wildcard staging/i, "missing wildcard staging prohibition in wdi-autopilot");
+    assert.match(autopilotContent, /Clean ephemeral execution scratch/i, "missing clean execution scratch in autopilot finish");
+
+    const buildContent = fs.readFileSync(path.join(KIT_SKILLS, "wdi-build", "SKILL.md"), "utf8");
+    assert.match(buildContent, /Distillation also encompasses deleting any lingering ephemeral triage scratch/i, "missing distillation requirement for triage scratch in wdi-build");
   });
 
   it("validate.py fails when .control/custom-dispatch.yaml is tracked in git", () => {

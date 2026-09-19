@@ -108,6 +108,8 @@ Reviewer resolution:
   stop and report immediately (fail-closed).
 - Dispatch execution & process discipline:
   - Cap shell-out dispatch at a hard wall-clock limit (default 600s, or `timeout_s` if defined in `custom-dispatch.yaml`).
+  - If review output is written to disk, it MUST be scoped to the slug: `.work/wdi-daily-what-to-build/<slug>-review-output.md`
+    (MUST NOT use un-scoped generic names like `terra-review-output.md` or `review.md`).
   - Run backgrounded with polling or synchronous wait. If the timeout expires, or the process exits non-zero,
     or the output file cannot be read: terminate the entire process tree by its PID (MUST NOT use process name-based
     killing). Record in the final report: `peer review: fell back to coordinator self-review after timeout/failure`.
@@ -137,6 +139,18 @@ under the coordinator's orchestration, the coordinator writes the `spec_reviewed
 ```
 The coordinator MUST NOT delegate registry stamping to external shell-out processes.
 
+### Clean Ephemeral Review Artifacts (Mandatory Deletion)
+Handoff packets, raw reviewer transcripts, and shell redirection logs generated during this triage pass are
+disposable execution scratch, NOT product evidence. Once the advisory review is evaluated, folded into the draft,
+and stamped in `specs.yaml`:
+- The coordinator MUST delete all scratch files created under `.work/wdi-daily-what-to-build/` for this `<slug>`
+  (including `<slug>-second-opinion.md`, `<slug>-review-output.md`, and any temporary CLI stdout/stderr dumps such
+  as `.work/*.txt` or `.work/*.log`).
+- Handoff packets and raw review text MUST NOT be left in the working tree, MUST NOT be staged or committed to git,
+  and MUST NOT be archived or moved into `.scratch/` or `.archive/` (distillation deletes scratch; archiving is
+  reserved for completed specification documents).
+- A triage pass MUST NOT hand off with uncleaned `.work/wdi-daily-what-to-build/` artifacts on disk.
+
 ### Validation
 Run canonical validation using `uv`:
 ```bash
@@ -151,5 +165,6 @@ uv run .constitution/method/scripts/validate.py --generate --baseline
 ## 6. Stop and hand off
 
 Report what now exists (or that the notes were green) and its file path. State explicitly whether `spec_reviewed`
-was stamped or if peer review fell back to coordinator self-review. MUST NOT commit, push, or start `wdi-autopilot`
-in this same run — state that as the next step and wait for the maintainer to request it.
+was stamped or if peer review fell back to coordinator self-review, and confirm that all ephemeral `.work/` scratch
+artifacts have been deleted. MUST NOT commit, push, or start `wdi-autopilot` in this same run — state that as the
+next step and wait for the maintainer to request it.

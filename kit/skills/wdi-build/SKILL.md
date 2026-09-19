@@ -347,6 +347,8 @@ out.
 4. **Distillation.** Every applicable row of the ownership table in `corpus-guide.md` has been landed by its
    owner. Anything durable in the spec folder leaves it now, or dies with it — **the ticket files included.**
    Their prose is working output; what survives is the index in `specs.yaml` and whatever the checklist routed.
+   Distillation also encompasses deleting any lingering ephemeral triage scratch under `.work/wdi-daily-what-to-build/`
+   for this spec. A spec MUST NOT close with uncleaned `.work/` scratch files.
 5. **RTM green.** Every traceability row for this spec is closed. New risks are in the risk register with an
    owner.
 6. Mark the spec `status: closed` in `specs.yaml`.
