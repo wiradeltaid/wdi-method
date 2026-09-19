@@ -1,6 +1,7 @@
 # WDI Method
 
-[English](README.md) | [Bahasa Indonesia](README.id.md) | [日本語](README.ja.md) | [简体中文](README.zh.md)
+[English](README.md) | [Bahasa Indonesia](README.id.md) | [日本語](README.ja.md) | [简体中文](README.zh.md)  
+[Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
 
 **BMad 所精简保留的审查层 —— 供人类在编写代码前验证技术决策的规范说明框架，根据实际变更规模匹配相应的文档粒度。**
 

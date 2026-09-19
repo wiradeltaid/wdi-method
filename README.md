@@ -1,6 +1,7 @@
 # WDI Method
 
-[English](README.md) | [Bahasa Indonesia](README.id.md) | [日本語](README.ja.md) | [简体中文](README.zh.md)
+[English](README.md) | [Bahasa Indonesia](README.id.md) | [日本語](README.ja.md) | [简体中文](README.zh.md)  
+[Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
 
 **The review layer BMad leaves thin — verifiable specifications a human reads to check technical decisions before code is written, sized to what the change actually deserves.**
 

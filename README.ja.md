@@ -1,6 +1,7 @@
 # WDI Method
 
-[English](README.md) | [Bahasa Indonesia](README.id.md) | [日本語](README.ja.md) | [简体中文](README.zh.md)
+[English](README.md) | [Bahasa Indonesia](README.id.md) | [日本語](README.ja.md) | [简体中文](README.zh.md)  
+[Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
 
 **BMadが薄く残したレビュー層 — コードを書く前に技術的な決定を人間が検証するための仕様書フレームワーク。変更規模に応じて適切な粒度を提供します。**
 

@@ -1,6 +1,7 @@
 # WDI Method
 
-[English](README.md) | [Bahasa Indonesia](README.id.md) | [日本語](README.ja.md) | [简体中文](README.zh.md)
+[English](README.md) | [Bahasa Indonesia](README.id.md) | [日本語](README.ja.md) | [简体中文](README.zh.md)  
+[Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
 
 **Lapisan tinjauan yang melengkapi BMad — spesifikasi terverifikasi yang dibaca manusia untuk memeriksa keputusan teknis sebelum kode ditulis, disesuaikan dengan skala perubahan nyata.**
 
