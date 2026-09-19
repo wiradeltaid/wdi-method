@@ -10,6 +10,19 @@ version contains every fix below it.
 
 ---
 
+## [0.6.26] - 2026-09-20
+
+### Added
+
+- **Validation Rule `spec-folder-location` in `validate.py`:** Added upfront validation that every spec in `specs.yaml` has a valid `spec_folder`. For active specs, `spec_folder` MUST be within `.scratch/<spec-id>-<slug>/` (or legacy `_bmad-output/specs/`). Specs placed inside `.work/` or other unauthorized roots (such as `docs/` or repo root) fail immediately with finding `spec-folder-location`, preventing misplaced specs from progressing through implementation before failing during lifecycle archival.
+
+### Changed
+
+- **Non-Authoritative Execution Scratch Taxonomy in `repo-guide.md`:** Clarified section heading to `## .work/ — non-authoritative execution scratch` and added explicit normative rules: `.work/` is execution scratch only and MUST NOT contain `SPEC.md`, ticket files, or any `spec_folder` target. Active specifications and ticket efforts MUST live under `.scratch/<spec-id>-<slug>/`.
+- **Deterministic Spec Location in `wdi-daily-what-to-build` & `wdi-build`:** Added explicit target contracts in `wdi-daily-what-to-build` (Step 3) and `wdi-build` (Phase 1 & Phase 2), mandating `.scratch/<spec-id>-<slug>/` and forbidding `.work/` or `docs/`. Preflight check instructs immediate correction if `spec-folder-location` fails.
+
+**What a repo that already has the method installed does about it.** Run `npx wdi-method@latest update`. It updates `validate.py`, the repo guide, and the build skills. Active specs mistakenly authored in `.work/` should be moved to `.scratch/<spec-id>-<slug>/` with `spec_folder` updated in `specs.yaml`.
+
 ## [0.6.25] - 2026-09-19
 
 ### Changed

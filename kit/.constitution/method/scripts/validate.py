@@ -973,6 +973,53 @@ def archived_spec_closed(c: Corpus, r: Result) -> None:
                        "only closed specs may be archived")
 
 
+def spec_folder_location(c: Corpus, r: Result) -> None:
+    """A spec's `spec_folder` MUST be within an allowed root.
+
+    Active specs MUST live at `.scratch/<spec-id>-<slug>/` (or legacy `_bmad-output/specs/`).
+    Closed specs may remain in `.scratch/` or be archived under `.archive/specs/<spec-id>-<slug>/`.
+    `.work/` is execution scratch only and MUST NOT be used for `spec_folder`.
+    """
+    for spec in c.spec_list:
+        sid = str(spec.get("id") or "").strip()
+        folder = str(spec.get("spec_folder") or "").strip()
+        if not folder:
+            for t in spec.get("tickets") or []:
+                if isinstance(t, dict) and str(t.get("spec_folder") or "").strip():
+                    folder = str(t.get("spec_folder")).strip()
+                    break
+        if not folder:
+            continue
+        clean = folder.replace("\\", "/").strip()
+        while clean.startswith("./"):
+            clean = clean[2:]
+        if clean.startswith("/"):
+            clean = clean.lstrip("/")
+        clean = clean.rstrip("/")
+        norm = os.path.normpath(clean).replace("\\", "/") if clean else ""
+
+        # Check for forbidden .work/ root
+        if clean == ".work" or clean.startswith(".work/") or norm == ".work" or norm.startswith(".work/"):
+            r.fail("spec-folder-location", sid,
+                   f"spec_folder `{folder}` is inside `.work/` — `.work/` is execution scratch only; "
+                   f"active specs MUST live at `.scratch/{sid}-<slug>/`")
+            continue
+
+        status = str(spec.get("status") or "").strip()
+        is_closed = status == "closed"
+
+        allowed_roots = [".scratch", "_bmad-output/specs"]
+        if is_closed:
+            allowed_roots.append(".archive/specs")
+
+        is_allowed = any(clean == a or clean.startswith(f"{a}/") or norm == a or norm.startswith(f"{a}/")
+                         for a in allowed_roots)
+        if not is_allowed:
+            allowed_desc = ", ".join(f"`{a}/`" for a in allowed_roots)
+            r.fail("spec-folder-location", sid,
+                   f"spec_folder `{folder}` is outside allowed roots ({allowed_desc})")
+
+
 PLATFORM = "_platform"
 CROSS_CUTTING = ".how/_platform/cross-cutting.md"
 # The section heading entity-one-writer looks for. A heading a SCRIPT matches is a machine-facing key, and
@@ -1904,7 +1951,7 @@ def run_checks(c: Corpus, asof: dt.date) -> Result:
     # no two copies left to compare.
     # V19 is REPEALED. It checked one line item — an `RTR-` file in .control/reports/ — and the
     # retrospective it archived was the only thing spec size `L` ever decided. Both went together.
-    for fn in (goal_has_fr, fr_has_uc, uc_scheduled, ticket_has_test, nfr_has_enforcer, refs_resolve, no_cycles, applied_dec_touches, locked_gate_passed, parallel_tickets_blocked, lc_registered, review_trace, chain_links, memlog_home, spec_names_release_prd, ticket_status_one_home, archived_spec_closed, defect_root_cause, entity_one_writer, spec_after_g4, high_risk_named, mandate_accept, cites_resolve, container_built, custom_room_declared, corpus_in_git, engines_invocable, withdrawn_recorded, id_allocated_once):
+    for fn in (goal_has_fr, fr_has_uc, uc_scheduled, ticket_has_test, nfr_has_enforcer, refs_resolve, no_cycles, applied_dec_touches, locked_gate_passed, parallel_tickets_blocked, lc_registered, review_trace, chain_links, memlog_home, spec_names_release_prd, ticket_status_one_home, archived_spec_closed, spec_folder_location, defect_root_cause, entity_one_writer, spec_after_g4, high_risk_named, mandate_accept, cites_resolve, container_built, custom_room_declared, corpus_in_git, engines_invocable, withdrawn_recorded, id_allocated_once):
         fn(c, r)
     plan_dates(c, r, asof)
     return r

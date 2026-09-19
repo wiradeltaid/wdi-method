@@ -50,6 +50,13 @@ Invoke `wdi-build` Phase 1 (open spec and author tickets via `to-spec` / `to-tic
 active development branch (`policy.development_branch`, default `main`), per the Delivery Flow standing
 exception.
 
+### Spec Location & Target Contract (`spec-folder-location`)
+The specification and its ticket files MUST land under `.scratch/<spec-id>-<slug>/` and `spec_folder`
+in `.control/registry/specs.yaml` MUST name that exact path.
+- MUST NOT place `SPEC.md` or ticket files in `.work/` or `docs/`.
+- `.work/` is reserved strictly for ephemeral execution scratch (such as `.work/wdi-daily-what-to-build/`);
+  a spec in `.work/` violates `spec-folder-location` and fails lifecycle archiving.
+
 ### Ticket Dependency Contract (Upfront `parallel-tickets-blocked`)
 Author `touches` and `blocked_by` together; do NOT defer dependency relationships until validation.
 For every pair of tickets in the same spec whose `touches` lists intersect, there MUST be a directed
@@ -61,9 +68,11 @@ Before leaving Step 3, run validator preflight:
 ```bash
 uv run .constitution/method/scripts/validate.py --check --baseline
 ```
-If `parallel-tickets-blocked` reports unsequenced tickets, add the missing `blocked_by` edge to an upstream
-ticket immediately. Findings already matching `.github/validate-baseline.txt` are pre-existing debt, not new
-blockers; only new RED findings must be repaired before dispatching review.
+If `spec-folder-location` reports an invalid `spec_folder` (e.g. under `.work/`), move the folder to
+`.scratch/<spec-id>-<slug>/` and update `specs.yaml` immediately. If `parallel-tickets-blocked` reports
+unsequenced tickets, add the missing `blocked_by` edge to an upstream ticket immediately. Findings already
+matching `.github/validate-baseline.txt` are pre-existing debt, not new blockers; only new RED findings must
+be repaired before dispatching review.
 
 **Stop at the boundary of Phase 1.** Once the spec and ticket files exist on disk, do NOT proceed into
 Phase 2 (worktree isolation and ticket implementation) or Phase 3 (closing the spec) — each of those is

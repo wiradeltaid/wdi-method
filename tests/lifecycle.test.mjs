@@ -82,6 +82,63 @@ test("archived-spec-closed: fails when an open spec points into .archive/", (t) 
   }
 });
 
+test("spec-folder-location: fails when a spec points into .work/", (t) => {
+  if (requireUv(t)) return;
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "wdi-work-fail-"));
+  fs.cpSync(FIXTURE, tmp, { recursive: true });
+  const specsYaml = path.join(tmp, ".control", "registry", "specs.yaml");
+  fs.writeFileSync(specsYaml, fs.readFileSync(specsYaml, "utf8")
+    .replace("_bmad-output/specs/spec-1-checkout/", ".work/SPEC-1-checkout/"));
+  try {
+    const out = runValidate(tmp);
+    assert.match(out, /spec-folder-location\s+SPEC-1/,
+      `spec-folder-location should fail on spec in .work/:\n${out}`);
+    assert.match(out, /is inside `\.work\/` — `\.work\/` is execution scratch only/,
+      `spec-folder-location error message should guide user:\n${out}`);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test("spec-folder-location: fails when an active spec points outside allowed roots", (t) => {
+  if (requireUv(t)) return;
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "wdi-root-fail-"));
+  fs.cpSync(FIXTURE, tmp, { recursive: true });
+  const specsYaml = path.join(tmp, ".control", "registry", "specs.yaml");
+  fs.writeFileSync(specsYaml, fs.readFileSync(specsYaml, "utf8")
+    .replace("_bmad-output/specs/spec-1-checkout/", "docs/specs/spec-1-checkout/"));
+  try {
+    const out = runValidate(tmp);
+    assert.match(out, /spec-folder-location\s+SPEC-1/,
+      `spec-folder-location should fail on spec in docs/:\n${out}`);
+    assert.match(out, /outside allowed roots/,
+      `spec-folder-location error message should mention allowed roots:\n${out}`);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test("spec-folder-location: passes when an active spec points into .scratch/", (t) => {
+  if (requireUv(t)) return;
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "wdi-scratch-pass-"));
+  fs.cpSync(FIXTURE, tmp, { recursive: true });
+  registerMoneyArea(tmp);
+  const specsYaml = path.join(tmp, ".control", "registry", "specs.yaml");
+  fs.writeFileSync(specsYaml, fs.readFileSync(specsYaml, "utf8")
+    .replace("_bmad-output/specs/spec-1-checkout/", ".scratch/SPEC-1-checkout/"));
+  const srcDir = path.join(tmp, "_bmad-output", "specs", "spec-1-checkout");
+  const destDir = path.join(tmp, ".scratch", "SPEC-1-checkout");
+  fs.mkdirSync(path.dirname(destDir), { recursive: true });
+  fs.renameSync(srcDir, destDir);
+  try {
+    const out = runValidate(tmp);
+    assert.match(out, /GREEN — no findings/,
+      `active spec in .scratch/ should validate green:\n${out}`);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
 test("archived-spec-closed: passes when a closed spec points into .archive/", (t) => {
   if (requireUv(t)) return;
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "wdi-arch-pass-"));

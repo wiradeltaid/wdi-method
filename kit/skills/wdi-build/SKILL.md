@@ -85,7 +85,7 @@ that is where they are born.
 | `fr` | The `FR` this spec satisfies. Ideally one — an `FR` is human-testable from birth |
 | `size` | `S` · `M` · `L`. MAY be raised mid-flight; MUST NOT be lowered |
 | `depends_on` | At **spec** level. A spec declaring none runs in parallel with its neighbours |
-| `spec_folder` | One per spec, not one per spec × component |
+| `spec_folder` | MUST be `.scratch/<spec-id>-<slug>/` (one per spec, not one per spec × component). MUST NOT use `.work/` or `docs/` |
 | `tickets` | Flat, one row per ticket: `id` · `component` · `satisfies: [UC]` · `blocked_by` · `touches` · test names |
 | a ticket `id` | `<spec-id>-<NN>` — `SPEC-3-01`. The engine numbers its files from `01` per feature, which is unique only inside one spec; the RTM needs a key that is unique across the corpus |
 
@@ -139,7 +139,8 @@ is here and name the prior art.
   sequenced expand → migrate in batches → contract; `delivery-flow-guide.md` owns that rule.
 - **Ticket files land under `spec_folder`, and `spec_folder` is `.scratch/<spec-id>-<slug>/`.** Their
   **shape** is the engine's — one file per ticket, numbered in dependency order, blocking edges declared
-  — and the location is ours, written in `docs/agents/issue-tracker.md` where the engines read it. The
+  — and the location is ours, written in `docs/agents/issue-tracker.md` where the engines read it. MUST
+  NOT use `.work/` or `docs/` (`spec-folder-location` enforces this). The
   id in front of the slug is not decoration: four live repos wrote that leaf four different ways, one of
   them all four inside a single repo, and a folder nothing can trace back to a row in `specs.yaml` is
   how a spec goes missing. A ticket at the repo root, or under `docs/`, or in a `.scratch/` directory

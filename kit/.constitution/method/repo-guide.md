@@ -40,10 +40,11 @@ fact and MUST NOT state the commercial one. *"Retention is 90 days"* is a techni
 *"Retention is 90 days because the client would not pay for more"* is a commercial one wearing a
 technical coat.
 
-## `.work/` — scratch that is committed
+## `.work/` — non-authoritative execution scratch
 
-`.work/` holds work in progress that has no home yet: notes while reading an unfamiliar system,
-drafts, exploratory output, a working paper for a change spanning several sessions.
+`.work/` holds execution scratch and work in progress that has no home yet: notes while reading
+an unfamiliar system, exploratory output, disposable reviewer transport, a working paper for a change
+spanning several sessions.
 
 It is **committed**, so that a session picked up on another machine finds it, and so a reviewer can
 see what a change was actually reasoning about.
@@ -55,6 +56,9 @@ pattern that drops the folder is not, because it leaves the material on one mach
 
 It is **ephemeral**, and the two together are what make its rules matter:
 
+- `.work/` is execution scratch only. It MUST NOT contain `SPEC.md`, ticket files, or any `spec_folder`
+  target. Active specification workspaces MUST live at `.scratch/<spec-id>-<slug>/` where `wdi-build`
+  and the registry track them.
 - Any durable outcome MUST be moved out before the task closes — to the corpus if it is truth, to
   `_bmad-output/` if it is a run's byproduct.
 - Obsolete scratch MUST be deleted when its task closes. `.work/` that only grows stops being
@@ -64,9 +68,10 @@ It is **ephemeral**, and the two together are what make its rules matter:
 - Nothing MUST be read from `.work/` as authority. If something there is right, it belongs
   somewhere with an owner.
 
-`.work/` MUST NOT be confused with `_bmad-output/`. That folder holds the output of skill runs, is
-never curated, and is cited by path. `.work/` holds what a human or agent wrote by hand while
-working, and is meant to empty out.
+`.work/` MUST NOT be confused with `_bmad-output/` or `.scratch/`. `_bmad-output/` holds the output of
+skill runs, is never curated, and is cited by path. `.scratch/` holds active specifications and tickets
+tracked in `specs.yaml`. `.work/` holds disposable execution scratch written by hand or during triage
+(such as `.work/wdi-daily-what-to-build/`), and is meant to empty out.
 
 ## Referring to things outside this repository
 
