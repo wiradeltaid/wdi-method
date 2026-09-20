@@ -10,6 +10,20 @@ version contains every fix below it.
 
 ---
 
+## [0.6.27] - 2026-09-20
+
+### Added
+
+- **Validation Rule `scratch-hygiene` in `validate.py`:** Added strict structural hygiene enforcement for the specification workspace root (`.scratch/`). Active specs live exclusively inside registered `.scratch/<spec-id>-<slug>/` directories. Loose files directly under `.scratch/` root (e.g. `prompt-*.txt`, `output-*.txt`, logs, transcripts) and unregistered child directories immediately fail validation with finding `scratch-hygiene`. Additionally, verifies that `.work/` contains no `SPEC.md` files.
+- **Defensive Scratch Dumps `.gitignore` Scaffolding in `bin/wdi-method.js`:** Expanded `ensureGitignoreScratchDumps()` during install and update to automatically add defensive ignore rules to consumer `.gitignore`: `.scratch/*.txt`, `.scratch/*.log`, `.scratch/*-review-output.md`, `.scratch/*-second-opinion.md`, and `.scratch/tmp/`, preventing accidental execution transport dumps from polluting git status.
+
+### Changed
+
+- **Spec Workspace vs Execution Scratch Boundaries in `repo-guide.md` & `AGENTS.md`:** Clarified that `.scratch/` is strictly a registered spec workspace (authoritative and git-tracked), NOT an informal scratchpad. Loose files and ad-hoc folders are forbidden. All subagent transport packets, raw CLI redirection dumps, and review transcripts MUST be written to `.work/<skill>/` and deleted upon completion.
+- **Skill Transport Discipline in `wdi-build`:** Explicitly added transport guardrails forbidding placing execution scratch, prompt handoffs, or tool logs in `.scratch/`.
+
+**What a repo that already has the method installed does about it.** Run `npx wdi-method@latest update`. It updates `validate.py`, the build skills, and automatically appends defensive ignore patterns to `.gitignore`. Any loose files in `.scratch/` should be deleted or moved to `.work/`.
+
 ## [0.6.26] - 2026-09-20
 
 ### Added

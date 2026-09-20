@@ -1020,6 +1020,66 @@ def spec_folder_location(c: Corpus, r: Result) -> None:
                    f"spec_folder `{folder}` is outside allowed roots ({allowed_desc})")
 
 
+def scratch_workspace_hygiene(c: Corpus, r: Result) -> None:
+    """The spec workspace root (.scratch/) MUST NOT contain loose files or unregistered directories.
+
+    Active specs live at `.scratch/<spec-id>-<slug>/` where tickets and SPEC.md are tracked.
+    Ephemeral execution scratch, tool dumps, and prompt/review logs MUST live in `.work/`
+    and MUST NOT be placed in `.scratch/`.
+    """
+    scratch_dir = c.root / ".scratch"
+    if scratch_dir.is_dir():
+        registered_names: set[str] = set()
+        for spec in c.spec_list:
+            folder = str(spec.get("spec_folder") or "").strip()
+            if not folder:
+                for t in spec.get("tickets") or []:
+                    if isinstance(t, dict) and str(t.get("spec_folder") or "").strip():
+                        folder = str(t.get("spec_folder")).strip()
+                        break
+            if not folder:
+                continue
+            clean = folder.replace("\\", "/").strip()
+            while clean.startswith("./"):
+                clean = clean[2:]
+            clean = clean.strip("/")
+            if clean == ".scratch" or clean.startswith(".scratch/"):
+                parts = clean.split("/")
+                if len(parts) >= 2:
+                    registered_names.add(parts[1])
+
+        allowable_files = {".gitkeep", "wdi-probe.md"}
+
+        try:
+            entries = sorted(scratch_dir.iterdir(), key=lambda p: p.name)
+        except OSError:
+            entries = []
+
+        for entry in entries:
+            if entry.is_file():
+                if entry.name in allowable_files:
+                    continue
+                r.fail("scratch-hygiene", f".scratch/{entry.name}",
+                       f"loose file `{entry.name}` in `.scratch/` root — execution scratch MUST live in "
+                       f"`.work/<skill>/` and MUST NOT be placed in `.scratch/`")
+            elif entry.is_dir():
+                if entry.name not in registered_names:
+                    r.fail("scratch-hygiene", f".scratch/{entry.name}",
+                           f"directory `.scratch/{entry.name}` is not registered as a `spec_folder` in "
+                           f"`.control/registry/specs.yaml` — execution scratch MUST live in `.work/<skill>/`")
+
+    work_dir = c.root / ".work"
+    if work_dir.is_dir():
+        for spec_file in work_dir.rglob("SPEC.md"):
+            try:
+                rel = spec_file.relative_to(c.root).as_posix()
+            except ValueError:
+                rel = str(spec_file)
+            r.fail("scratch-hygiene", rel,
+                   f"found `{rel}` inside `.work/` — `.work/` is execution scratch only; "
+                   f"specification files MUST NOT be placed in `.work/`")
+
+
 PLATFORM = "_platform"
 CROSS_CUTTING = ".how/_platform/cross-cutting.md"
 # The section heading entity-one-writer looks for. A heading a SCRIPT matches is a machine-facing key, and
@@ -1951,7 +2011,7 @@ def run_checks(c: Corpus, asof: dt.date) -> Result:
     # no two copies left to compare.
     # V19 is REPEALED. It checked one line item — an `RTR-` file in .control/reports/ — and the
     # retrospective it archived was the only thing spec size `L` ever decided. Both went together.
-    for fn in (goal_has_fr, fr_has_uc, uc_scheduled, ticket_has_test, nfr_has_enforcer, refs_resolve, no_cycles, applied_dec_touches, locked_gate_passed, parallel_tickets_blocked, lc_registered, review_trace, chain_links, memlog_home, spec_names_release_prd, ticket_status_one_home, archived_spec_closed, spec_folder_location, defect_root_cause, entity_one_writer, spec_after_g4, high_risk_named, mandate_accept, cites_resolve, container_built, custom_room_declared, corpus_in_git, engines_invocable, withdrawn_recorded, id_allocated_once):
+    for fn in (goal_has_fr, fr_has_uc, uc_scheduled, ticket_has_test, nfr_has_enforcer, refs_resolve, no_cycles, applied_dec_touches, locked_gate_passed, parallel_tickets_blocked, lc_registered, review_trace, chain_links, memlog_home, spec_names_release_prd, ticket_status_one_home, archived_spec_closed, spec_folder_location, scratch_workspace_hygiene, defect_root_cause, entity_one_writer, spec_after_g4, high_risk_named, mandate_accept, cites_resolve, container_built, custom_room_declared, corpus_in_git, engines_invocable, withdrawn_recorded, id_allocated_once):
         fn(c, r)
     plan_dates(c, r, asof)
     return r

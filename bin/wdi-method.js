@@ -919,7 +919,16 @@ function ensureGitignoreSmoke(target) {
 
 function ensureGitignoreScratchDumps(target) {
   const gitignorePath = path.join(target, ".gitignore");
-  const rules = [".work/*.txt", ".work/*.log", ".work/tmp/"];
+  const rules = [
+    ".work/*.txt",
+    ".work/*.log",
+    ".work/tmp/",
+    ".scratch/*.txt",
+    ".scratch/*.log",
+    ".scratch/*-review-output.md",
+    ".scratch/*-second-opinion.md",
+    ".scratch/tmp/",
+  ];
   if (fs.existsSync(gitignorePath)) {
     const content = fs.readFileSync(gitignorePath, "utf8");
     const lines = content.split(/\r?\n/).map((l) => l.trim());

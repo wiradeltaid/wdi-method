@@ -134,6 +134,12 @@ describe("autonomous daily tier skills (Fase 4)", () => {
       assert.match(fs.readFileSync(path.join(target, ".gitignore"), "utf8"),
         /\.work\/\*\.txt/,
         ".gitignore missing .work/*.txt rule");
+      assert.match(fs.readFileSync(path.join(target, ".gitignore"), "utf8"),
+        /\.scratch\/\*\.txt/,
+        ".gitignore missing .scratch/*.txt rule");
+      assert.match(fs.readFileSync(path.join(target, ".gitignore"), "utf8"),
+        /\.scratch\/\*-review-output\.md/,
+        ".gitignore missing .scratch/*-review-output.md rule");
     } finally {
       fs.rmSync(target, { recursive: true, force: true });
     }

@@ -73,6 +73,11 @@ skill runs, is never curated, and is cited by path. `.scratch/` holds active spe
 tracked in `specs.yaml`. `.work/` holds disposable execution scratch written by hand or during triage
 (such as `.work/wdi-daily-what-to-build/`), and is meant to empty out.
 
+`.scratch/` is **strictly for registered spec workspaces**. It MUST NOT be used as an informal scratchpad:
+- Loose files (such as prompt dumps, tool stdout/stderr, review packets, script logs) MUST NOT be written directly under `.scratch/`.
+- Unregistered directories MUST NOT be created under `.scratch/`. Every child directory MUST match an active or unarchived `spec_folder` in `.control/registry/specs.yaml`.
+- All temporary subagent transport files, raw reviewer outputs, and intermediate scratch MUST be written under `.work/<skill>/` and deleted once folded into the spec. `scratch-hygiene` enforces these boundaries.
+
 ## Referring to things outside this repository
 
 Engagement context — who the client is, what was agreed, what is due — lives elsewhere. This repo

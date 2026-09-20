@@ -145,6 +145,10 @@ is here and name the prior art.
   them all four inside a single repo, and a folder nothing can trace back to a row in `specs.yaml` is
   how a spec goes missing. A ticket at the repo root, or under `docs/`, or in a `.scratch/` directory
   with no row in `specs.yaml`, is drift.
+- **Execution scratch, prompt handoffs, and tool logs MUST NOT be placed in `.scratch/`.** Any raw model
+  output, multi-agent dispatch transcripts, or debug dumps MUST be written to `.work/<skill>/` and
+  deleted after distillation. The root of `.scratch/` MUST NOT contain loose files, and unregistered
+  directories MUST NOT be created there (`scratch-hygiene` enforces this).
 
 `SPEC.md` and ticket files **are not read by humans.** Both are machine contracts, and no review burden MAY be
 moved onto them. `wdi-review` MAY still be dispatched over the contract; its trace lands on the spec in

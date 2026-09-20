@@ -695,3 +695,73 @@ test("lifecycle.py --archive succeeds when validate.py findings match .github/va
   }
 });
 
+test("scratch-hygiene: fails when loose file exists directly in .scratch/", (t) => {
+  if (requireUv(t)) return;
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "wdi-scratch-loose-"));
+  fs.cpSync(FIXTURE, tmp, { recursive: true });
+  fs.mkdirSync(path.join(tmp, ".scratch"), { recursive: true });
+  fs.writeFileSync(path.join(tmp, ".scratch", "prompt-terra.txt"), "hello terra\n");
+  try {
+    const out = runValidate(tmp);
+    assert.match(out, /scratch-hygiene\s+\.scratch\/prompt-terra\.txt/,
+      `scratch-hygiene should fail on loose file in .scratch/:\n${out}`);
+    assert.match(out, /loose file `prompt-terra\.txt` in `\.scratch\/` root/,
+      `scratch-hygiene error message should guide user:\n${out}`);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test("scratch-hygiene: fails when unregistered directory exists in .scratch/", (t) => {
+  if (requireUv(t)) return;
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "wdi-scratch-unreg-"));
+  fs.cpSync(FIXTURE, tmp, { recursive: true });
+  fs.mkdirSync(path.join(tmp, ".scratch", "unregistered-dump"), { recursive: true });
+  try {
+    const out = runValidate(tmp);
+    assert.match(out, /scratch-hygiene\s+\.scratch\/unregistered-dump/,
+      `scratch-hygiene should fail on unregistered directory in .scratch/:\n${out}`);
+    assert.match(out, /directory `\.scratch\/unregistered-dump` is not registered as a `spec_folder`/,
+      `scratch-hygiene error message should guide user:\n${out}`);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test("scratch-hygiene: passes when .scratch/ only holds registered spec folders and .gitkeep", (t) => {
+  if (requireUv(t)) return;
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "wdi-scratch-pass-"));
+  fs.cpSync(FIXTURE, tmp, { recursive: true });
+  const specsYaml = path.join(tmp, ".control", "registry", "specs.yaml");
+  fs.writeFileSync(specsYaml, fs.readFileSync(specsYaml, "utf8")
+    .replace("_bmad-output/specs/spec-1-checkout/", ".scratch/spec-1-checkout/"));
+  fs.mkdirSync(path.join(tmp, ".scratch", "spec-1-checkout"), { recursive: true });
+  fs.writeFileSync(path.join(tmp, ".scratch", ".gitkeep"), "");
+  try {
+    const out = runValidate(tmp);
+    assert.doesNotMatch(out, /scratch-hygiene/,
+      `scratch-hygiene should pass on clean registered spec folder:\n${out}`);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test("scratch-hygiene: fails when SPEC.md exists inside .work/", (t) => {
+  if (requireUv(t)) return;
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "wdi-work-spec-"));
+  fs.cpSync(FIXTURE, tmp, { recursive: true });
+  const workSpecDir = path.join(tmp, ".work", "triage");
+  fs.mkdirSync(workSpecDir, { recursive: true });
+  fs.writeFileSync(path.join(workSpecDir, "SPEC.md"), "# Spec in work\n");
+  try {
+    const out = runValidate(tmp);
+    assert.match(out, /scratch-hygiene\s+\.work\/triage\/SPEC\.md/,
+      `scratch-hygiene should fail when SPEC.md is inside .work/:\n${out}`);
+    assert.match(out, /specification files MUST NOT be placed in `\.work\/`/,
+      `scratch-hygiene error message should guide user:\n${out}`);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+
