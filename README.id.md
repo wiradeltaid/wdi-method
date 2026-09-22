@@ -1,9 +1,13 @@
 # WDI Method
 
-[English](README.md) | [Bahasa Indonesia](README.id.md) | [日本語](README.ja.md) | [简体中文](README.zh.md)  
-[Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
+> Lapisan tinjauan yang melengkapi BMad — spesifikasi terverifikasi yang dibaca manusia untuk memeriksa keputusan teknis sebelum kode ditulis, disesuaikan dengan skala perubahan nyata.
 
-**Lapisan tinjauan yang melengkapi BMad — spesifikasi terverifikasi yang dibaca manusia untuk memeriksa keputusan teknis sebelum kode ditulis, disesuaikan dengan skala perubahan nyata.**
+[English](README.md) | [Bahasa Indonesia](README.id.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Português (Brasil)](README.pt-BR.md) | [Русский](README.ru.md)  
+[Website](https://wiradelta.id/wdi-method) | [Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
+
+---
+
+> **Pemberitahuan terjemahan:** Berkas ini merupakan terjemahan dari [README.md](README.md) untuk kenyamanan pembaca. Jika terdapat perbedaan makna atau penafsiran, berkas resmi berbahasa Inggris (`README.md`) yang menjadi acuan otoritatif. Seluruh dokumen teknis mendalam dan dokumen hukum dikelola dalam Bahasa Inggris.
 
 [BMad](https://github.com/bmad-code-org/BMAD-METHOD) menentukan *apa* yang dibangun dan *bagaimana* menyusun solusi dengan baik. WDI Method membungkusnya — tanpa menggantikannya — menyediakan lapisan tata kelola terverifikasi antara keputusan arsitektur tingkat tinggi dan kode aplikasi: registri kebutuhan, katalog use case, batasan komponen, validator deviasi otomatis, dan loop harian otonom yang andal.
 

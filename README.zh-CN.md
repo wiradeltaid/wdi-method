@@ -1,9 +1,13 @@
 # WDI Method
 
-[English](README.md) | [Bahasa Indonesia](README.id.md) | [日本語](README.ja.md) | [简体中文](README.zh.md)  
-[Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
+> BMad 所精简保留的审查层 —— 供人类在编写代码前验证技术决策的规范说明框架，根据实际变更规模匹配相应的文档粒度。
 
-**BMad 所精简保留的审查层 —— 供人类在编写代码前验证技术决策的规范说明框架，根据实际变更规模匹配相应的文档粒度。**
+[English](README.md) | [Bahasa Indonesia](README.id.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Português (Brasil)](README.pt-BR.md) | [Русский](README.ru.md)  
+[Website](https://wiradelta.id/wdi-method) | [Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
+
+---
+
+> **翻译说明：** 本文件是 [README.md](README.md) 的参考译文。如存在任何语义分歧或解释冲突，一律以官方英文版（README.md）为准。所有深度技术文档与法律条款均以英文维护。
 
 [BMad](https://github.com/bmad-code-org/BMAD-METHOD) 负责决定“构建*什么*”以及“*如何*架构良好解决方案”。WDI Method 对其进行封装而非替代，在高阶架构决策与生产代码之间提供可验证的治理层：需求注册表、用例目录、组件边界约束、自动化偏差验证器以及顺畅的自动化日常循环。
 

@@ -10,3 +10,8 @@ __pycache__/
 # Python bytecode. A .pyc embeds the absolute path it was compiled from.
 __pycache__/
 *.pyc
+
+# Local machine agent runner configuration & smoke artifacts
+.control/custom-dispatch.yaml
+.work/smoke/
+

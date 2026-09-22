@@ -1,9 +1,13 @@
 # WDI Method
 
-[English](README.md) | [Bahasa Indonesia](README.id.md) | [日本語](README.ja.md) | [简体中文](README.zh.md)  
-[Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
+> BMadが薄く残したレビュー層 — コードを書く前に技術的な決定を人間が検証するための仕様書フレームワーク。変更規模に応じて適切な粒度を提供します。
 
-**BMadが薄く残したレビュー層 — コードを書く前に技術的な決定を人間が検証するための仕様書フレームワーク。変更規模に応じて適切な粒度を提供します。**
+[English](README.md) | [Bahasa Indonesia](README.id.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Português (Brasil)](README.pt-BR.md) | [Русский](README.ru.md)  
+[Website](https://wiradelta.id/wdi-method) | [Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
+
+---
+
+> **翻訳に関する注意事項:** 本ファイルは [README.md](README.md) の便宜的な翻訳です。矛盾や解釈の相違がある場合は、公式の英語版（README.md）が優先されます。詳細な技術文書および法的文書はすべて英語で管理されています。
 
 [BMad](https://github.com/bmad-code-org/BMAD-METHOD) は「*何を*構築するか」と「*どのように*ソリューションを構成するか」を決定します。WDI Methodはそれを置き換えるのではなく包摂し、高レベルのアーキテクチャ上の決定と実際の動作コードとの間に検証可能なガバナンス層を提供します。これには、要件レジストリ、ユースケースカタログ、コンポーネント境界、自動ドリフト検証ツール、そして自律的なデイリーループが含まれます。
 
