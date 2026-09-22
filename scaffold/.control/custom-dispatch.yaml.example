@@ -29,7 +29,7 @@ runners: {}
 #
 # composer:
 #   type: shell-out
-#   command: 'cursor-agent --mode plan --model "composer-2.5"'
+#   command: 'cursor-agent --mode plan --model "composer-2.5[fast=false]"'
 #   timeout_s: 600
 #
 # sol:
