@@ -10,6 +10,10 @@ version contains every fix below it.
 
 ---
 
+## [Unreleased]
+
+- **npm listing:** `package.json` `description` now matches the GitHub repo description, and `keywords` are added from the repo topics, so the package is findable on npmjs.com by the same terms. Nothing changes for an installed repo.
+
 ## [0.6.27] - 2026-09-20
 
 ### Added
