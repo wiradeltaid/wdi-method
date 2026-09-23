@@ -1,6 +1,5 @@
-<!-- Sumber: ops/research/wdi-ecosystem-strategy/legal/wdi-method/security.md
-     Jangan edit berkas ini. Edit sumbernya, lalu salin ulang ke sini.
-     Disalin: 2026-09-16 -->
+<!-- Copied from the Wira Delta Indonesia legal source (wdi-method/security.md) on 2026-09-16.
+     Edit the source, then copy it here again. -->
 
 # Security policy
 
