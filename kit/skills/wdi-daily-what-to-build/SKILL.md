@@ -1,6 +1,6 @@
 ---
 name: wdi-daily-what-to-build
-description: Turn raw manual-test notes into a triaged, reviewed spec/ticket ready for wdi-autopilot to pick up in a separate session. Invoke as `/wdi-daily-what-to-build [reviewer] <your raw notes>`.
+description: Turn raw manual-test notes into a triaged, reviewed spec/ticket ready for wdi-autopilot to pick up in a separate session. Invoke as `/wdi-daily-what-to-build [reviewer] [--no-review] <your raw notes>`.
 disable-model-invocation: true
 ---
 
