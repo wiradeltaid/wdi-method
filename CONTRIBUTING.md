@@ -42,7 +42,7 @@ it thicker?**
 this package and proven against the fixture corpus before it is published.
 
 ```bash
-npm test        # includes the fixture corpus: validate.py, timeline.py, inventory.py all run
+npm test        # includes the fixture corpus: validate.py, timeline.py, inventory.py, lifecycle.py all run
 ```
 
 `tests/fixture/` is a small but complete corpus — one Product Component, two `FR`, two `UC`, an
@@ -207,7 +207,7 @@ which is how a client folder name once reached this repo through a file nobody w
 `node --test tests/*.test.mjs`. A test that mutates `kit/` MUST copy the package to a temporary directory
 first: Node runs test files in parallel, and `promote` deletes `kit/` before rewriting it.
 
-## Licensing of Contributions & Trademarks
+## Licensing of Contributions and the Name
 
 - By submitting a pull request or contribution, you agree that your contributions will be licensed under this repository's [MIT License](LICENSE).
-- Contributions do not grant ownership of the project's trademarks, names ("Wira Delta Indonesia", "WDI Method"), or visual marks (see [`README.md`](README.md) §The name and the icon).
+- Contributions do not grant any right to the project's names ("Wira Delta Indonesia", "WDI Method") or visual marks (see [`README.md`](README.md#the-name-and-the-icon) §The name and the icon).

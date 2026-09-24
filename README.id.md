@@ -1,195 +1,262 @@
 # WDI Method
 
-> Lapisan tinjauan yang melengkapi BMad — spesifikasi terverifikasi yang dibaca manusia untuk memeriksa keputusan teknis sebelum kode ditulis, disesuaikan dengan skala perubahan nyata.
+> Lapisan review di atas BMad: dokumen yang dibaca manusia untuk memeriksa keputusan teknis sebelum kode ditulis, disesuaikan dengan apa yang benar-benar dibutuhkan perubahan itu.
 
 [English](README.md) | [Bahasa Indonesia](README.id.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Português (Brasil)](README.pt-BR.md) | [Русский](README.ru.md)  
-[Website](https://wiradelta.id/wdi-method) | [Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
+[Website](https://wiradelta.id/wdi-method/docs/) | [Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
 
 ---
 
 > **Pemberitahuan terjemahan:** Berkas ini merupakan terjemahan dari [README.md](README.md) untuk kenyamanan pembaca. Jika terdapat perbedaan makna atau penafsiran, berkas resmi berbahasa Inggris (`README.md`) yang menjadi acuan otoritatif. Seluruh dokumen teknis mendalam dan dokumen hukum dikelola dalam Bahasa Inggris.
 
-[BMad](https://github.com/bmad-code-org/BMAD-METHOD) menentukan *apa* yang dibangun dan *bagaimana* menyusun solusi dengan baik. WDI Method membungkusnya — tanpa menggantikannya — menyediakan lapisan tata kelola terverifikasi antara keputusan arsitektur tingkat tinggi dan kode aplikasi: registri kebutuhan, katalog use case, batasan komponen, validator deviasi otomatis, dan loop harian otonom yang andal.
+[BMad](https://github.com/bmad-code-org/BMAD-METHOD) menulis dokumen untuk AI agent. WDI Method menambahkan dokumen yang sudah biasa dibaca banyak peran: use case, diagram C4, daftar API dan database, dan dokumen desain. WDI Method membungkus BMad tanpa menggantikannya: setiap skill WDI menyerahkan penulisan ke skill BMad, lalu memeriksa hasilnya terhadap panduan metode.
 
-> Repositori ini bersifat **publik dan generik**. Repositori ini **TIDAK BOLEH** memuat nama klien, nama produk komersial, atau tautan ke repositori privat. Identitas produk dikonfigurasi sepenuhnya di repositori yang memasangnya.
-
----
-
-## Pandangan Menyeluruh: AI-Driven Development (AiDD) vs. Vibe Coding
-
-Prompting spekulatif ("vibe coding") pasti gagal pada sistem produksi jangka panjang: AI coding agent kehilangan konteks, berhalusinasi menyatakan tugas selesai, dan mengaburkan batasan kebutuhan. WDI Method menegakkan disiplin **AI-Driven Development (AiDD)** melalui triad arsitektur tiga lapis:
-
-```text
-┌─────────────────────────────────────────────────────────────────────────┐
-│ 1. Tujuan & Strategi: BMad Method                                       │
-│    Menggali masalah pengguna, draf brief produk, dan arsitektur awal    │
-├─────────────────────────────────────────────────────────────────────────┤
-│ 2. Lapisan Tinjauan Terverifikasi: WDI Method (SSOT)                    │
-│    Mengawal 5 gerbang manusia, menghubungkan Goal → FR → UC → Ticket,   │
-│    menjalankan validator deviasi, dan memandu loop otonom harian        │
-├─────────────────────────────────────────────────────────────────────────┤
-│ 3. Pemotongan & Implementasi: Skills Engines (mattpocock/skills)        │
-│    to-spec & to-tickets memotong tracer-bullet; implement memandu TDD   │
-└─────────────────────────────────────────────────────────────────────────┘
-```
-
-### Invarian Utama: Dokumen Selalu Mengikuti Kode
-Dokumen adalah catatan yang ditinggalkan oleh pekerjaan yang sudah selesai. Jika catatan keputusan atau baris kebutuhan bertentangan dengan kode aplikasi, **kode yang menang dan dokumen yang diperbaiki**. Kode tidak boleh diubah agar cocok dengan dokumen usang. Dokumen yang tertinggal dari kode adalah keadaan wajar dan tidak boleh memblokir rilis kecuali memuat klaim basi yang menyesatkan.
+> Repositori ini bersifat **publik dan generik**. Repositori ini **TIDAK BOLEH** memuat nama klien, nama produk komersial, atau tautan ke repositori privat. Identitas produk sepenuhnya berada di repositori yang memasangnya.
 
 ---
 
-## Panduan Memulai dalam 10 Menit
+## AI-Driven Development (AiDD) vs. Vibe Coding
 
-Pasang WDI Method ke dalam repositori produk Anda melalui tiga langkah berurutan. Seluruh prompt menyediakan jawaban default yang dapat disetujui dengan menekan <kbd>Enter</kbd>.
+Vibe coding juga memakai spesifikasi, tetapi tidak konsisten: setiap sesi prompt bisa berbeda, dokumennya tidak terstruktur, dan prosesnya tidak dijaga tetap sistematis. Akibatnya efisiensi dan efektivitas jauh lebih rendah, dan ada risiko nyata menumpuk technical debt. Itulah alasan sebuah framework dibutuhkan.
+
+Di WDI Method, AI-Driven Development (AiDD) berjalan dalam satu urutan: janji dicatat sebagai FR dan use case, lalu gerbang, lalu spec dipotong menjadi tiket dengan `to-spec` dan `to-tickets`, lalu setiap tiket dibangun dengan test lebih dulu, lalu satu PR yang di-review dan di-merge pemilik.
+
+Tiga lapisan menjalankan pekerjaannya:
+
+| Lapisan | Siapa | Yang Dikerjakan |
+|---|---|---|
+| 1. Dokumen untuk agent | [BMad](https://github.com/bmad-code-org/BMAD-METHOD) | Menulis product brief, PRD, UX, dan architecture spine, masing-masing lewat skill BMad |
+| 2. Lapisan review | WDI Method | Membungkus skill tersebut, menambahkan dokumen yang dibaca peran lain, menjalankan lima gerbang manusia, menghubungkan Goal → FR → UC → Ticket → Test, dan memeriksa drift pada korpus |
+| 3. Tiket dan kode | Engine ([mattpocock/skills](https://github.com/mattpocock/skills)) | `to-spec` dan `to-tickets` memotong spec menjadi tiket vertikal; `implement` membangun setiap tiket dengan test lebih dulu |
+
+### Dokumen Mengikuti Kode
+
+Dokumen yang tertinggal dari kode adalah keadaan wajar, bukan cacat. Bila pemilik memilih kode daripada dokumen, dokumennya yang diperbaiki. Dokumen yang mendahului kode, misalnya spec yang belum dibangun, juga wajar.
+
+---
+
+## Pasang dalam 3 Langkah
+
+### Prasyarat
+
+- Node.js 20 atau lebih baru.
+- Git.
+- [uv](https://docs.astral.sh/uv/), untuk menjalankan validator Python 3.11+ milik metode ini.
+- Platform agent: Claude Code, Cursor, Codex, dan platform agent lainnya.
+
+Jalankan ketiga langkah secara berurutan. Installer berhenti bila langkah 1 atau langkah 2 belum dikerjakan. Semua prompt menyediakan jawaban default; tekan <kbd>Enter</kbd> untuk menerimanya.
 
 ### Langkah 1: Pasang BMad Method
-Memasang mesin perumusan masalah ke repositori produk Anda:
 ```bash
-cd /path/ke/repo-produk-anda
+cd /path/to/your/product-repo
 npx bmad-method install
 ```
 
-### Langkah 2: Tambahkan Enam Engine Tiket
-Pasang engine eksekusi langsung ke repositori produk (pilih "copy" atau "symlink"):
+### Langkah 2: Tambahkan Enam Engine
+Pasang engine ke repositori Anda (pilih "copy" atau "symlink"):
 ```bash
 npx skills@latest add mattpocock/skills
 ```
-*Pilih seluruh 6 engine yang dikendalikan oleh method:* `to-spec`, `to-tickets`, `implement`, `tdd`, `code-review`, dan `domain-modeling`.
+*Pilih keenam engine yang dijalankan metode ini:* `to-spec`, `to-tickets`, `implement`, `tdd`, `code-review`, dan `domain-modeling`.
 
-> **Kenapa plugin Claude Code tidak mencukupi:** Engine hulu membawa flag `disable-model-invocation: true`. WDI Method secara otomatis mencopot flag ini dari salinan lokal agar loop otonom dapat menjalankannya tanpa pengawasan manusia. Plugin tingkat pengguna tidak dapat dimodifikasi oleh repositori.
+> **Mengapa Plugin Claude Code Tidak Cukup:** Tiga dari enam engine (`to-spec`, `to-tickets`, `implement`) dirilis dengan `disable-model-invocation: true`. Setiap install dan update, WDI Method menghapus baris itu dari salinan di repo Anda, supaya `wdi-build` dan `wdi-autopilot` bisa menjalankannya. Plugin tingkat pengguna tidak bisa diubah, jadi installer berhenti sampai engine ada di repo. `--skip-engines-check` melewati pemeriksaan ini.
 
 ### Langkah 3: Pasang WDI Method
-Membuka installer interaktif dan menyinkronkan skill ke platform agent Anda (Claude Code, Cursor, OpenCode, Windsurf, dll.):
+Membuka installer interaktif dan menaruh skill di tempat yang dibaca setiap platform agent Anda:
 ```bash
 npx wdi-method
 ```
-*(Untuk lingkungan otomasi CI: `npx wdi-method install --yes --agents claude --product "Nama Produk"`)*
+*(Non-interaktif: `npx wdi-method install --yes --agents claude-code --product "Your Product"`)*
+
+> **Yang diubah installer di BMad:** Installer juga mematikan pemanggilan oleh model untuk 13 skill build dan sprint BMad yang digantikan engine, dan menambahkan aturan deny yang sama ke `.claude/settings.json`. Anda tetap bisa menjalankannya dengan mengetik perintahnya.
 
 ### Perintah Pertama Anda: `/wdi-help`
-Di dalam AI coding agent Anda (Claude Code, Cursor), jalankan:
+Di dalam coding agent Anda, jalankan:
 ```text
 /wdi-help
 ```
-`wdi-help` memeriksa folder `.control/registry/` dan langsung memberi tahu gerbang mana yang sedang aktif tanpa menebak dari riwayat percakapan.
+`wdi-help` membaca `.control/registry/` dan memberi tahu gerbang tempat proyek Anda berada, spec yang terbuka, dan skill berikutnya, tanpa menebak dari percakapan.
 
 ---
 
-## Tiga Opsi Alur Kerja
+## Tiga Pilihan Alur Kerja
 
-WDI Method menyesuaikan tata kelolanya dengan skala dan risiko pekerjaan:
+WDI Method menyesuaikan seremoninya dengan skala dan risiko pekerjaan.
 
-### Opsi A: Alur Pengiriman Terarah (Inisiatif Baru & Gerbang G1–G5)
-Untuk produk baru, inisiatif besar, dan perubahan arsitektur. Manusia membaca **satu halaman ter-render** per gerbang dan memutuskan: *lanjut atau perbaiki*.
+### Opsi A: Jalur Delivery Terpandu (G1 sampai G5)
+Untuk produk baru, inisiatif besar, dan perubahan arsitektur. Anda memulai setiap skill gerbang; agent menyebut skill berikutnya dan menunggu.
 
-| Gerbang | Pertanyaan yang Dijawab | Skill yang Dijalankan | Halaman yang Dibaca | Keputusan Pemilik |
+**Satu Keputusan per Gerbang.** Setiap gerbang memutuskan satu hal. Di G1 sampai G4 Anda membaca satu halaman terender; di G5 Anda membaca baris RTM spec. Anda menjawab daftar periksa singkat, dan satu jawaban "tidak" pada pertanyaan bertanda bintang menahan gerbang.
+
+| Gerbang | Yang Diputuskan | Skill | Yang Anda Baca | Keputusan Pemilik |
 |---|---|---|---|---|
-| **G1 — Problem** | Apakah masalah ini nyata, milik siapa, dan layak dikerjakan? | `/wdi-problem` | `.what-rendered/_product-brief/brief.md` | Setujui rumusan masalah |
-| **G2 — Product** | Apa yang kita bangun, dan bagaimana alur pengalamannya? | `/wdi-product`<br>`/wdi-ux` | `.what-rendered/_prd/<slug>/prd.md` | Setujui janji fungsional (FR) |
-| **G3 — Blueprint** | Apakah keseluruhan arsitektur terhubung utuh? *(Sekali per repo)* | `/wdi-blueprint` | `.how-rendered/blueprint.md` | Setujui pondasi arsitektur |
-| **G4 — Component** | Bagaimana komponen teknis dibangun? *(Dilewati pada `mode: catalog`)* | `/wdi-component` | `.how-rendered/<pc>/SDD-<pc>.md` | Setujui desain perangkat lunak |
-| **G5 — Build** | Apakah irisan tiket selesai, terverifikasi, dan terbukti? *(Per spek)* | `/wdi-build` | Bukti runner pengujian (merah &rarr; hijau) | Terima kode yang dimerge |
+| **G1 Problem** | Apa masalahnya, milik siapa, dan mengapa layak dikerjakan | `/wdi-problem` | `.what-rendered/_product-brief/brief.md` | Setujui rumusan masalah |
+| **G2 Product** | Apa yang dibangun, dan bagaimana rasanya dipakai | `/wdi-product`<br>`/wdi-ux` (opsional) | `.what-rendered/_prd/<slug>/prd.md` | Setujui janji fungsional (FR) |
+| **G3 Blueprint** | Gambaran utuh produk, sekali per produk | `/wdi-blueprint` | `.how-rendered/blueprint.md` | Setujui architecture spine |
+| **G4 Component** | Bagaimana satu komponen dibangun (dilewati pada `mode: catalog`) | `/wdi-component` | `.how-rendered/<pc>/SDD-<pc>.md` | Setujui desain perangkat lunak |
+| **G5 Release** | Apakah sudah selesai dan terbukti | `/wdi-build` | Baris RTM spec di `.control/generated/` dan bukti test setiap tiket | Terima spec sebagai selesai, atau kembalikan |
 
-#### Dua Tombol yang Tidak Pernah Digabung: Mode vs. Risiko
-- **`mode`** menentukan gerbang mana yang wajib ada (`catalog` melewati G4; `guarded` dan `deep` mewajibkan SDD menyeluruh).
-- **`risk_accepted`** menentukan kedalaman bukti verifikasi yang diminta (`low`, `medium`, `high`). Menggabungkannya menjadi satu tombol "rigor" akan membebani komponen kecil dengan birokrasi atau meloloskan perubahan berisiko tinggi tanpa pengujian.
+**Perbaiki, Jangan Lanjutkan.** Satu jawaban "tidak" pada pertanyaan daftar periksa bertanda bintang (★) menahan gerbang. Perbaiki dokumennya lalu jalankan gerbang lagi; jangan menyetujuinya dengan rencana memperbaikinya nanti.
+
+#### Dua Parameter yang Tidak Boleh Digabung
+- **`mode`** menentukan kedalaman dokumen setiap komponen. `catalog` (default): tidak ada dokumen di luar blueprint, dan G4 dilewati. `outline`: alur lengkap untuk paling banyak 3 use case, aturan bisnis lokal, dan ringkasan keputusan. `guarded`: menambah bagian `Failure Behaviour` untuk setiap batas dan dokumen integrasi pihak ketiga. `deep`: menambah analisis robustness, kontrak per endpoint, kamus data, diagram alur, dan state machine.
+- **`risk_accepted`** menentukan seberapa keras review. `high` (Anda menerima banyak risiko): lensa dasar structure dan prose. `medium`: menambah lensa edge case. `low`: menambah lensa edge case, dan kode butuh dua reviewer yang bukan builder.
+
+Bila satu field mengatur keduanya, satu-satunya cara mendapat dokumen tipis adalah menulis risiko yang lebih besar daripada yang sebenarnya Anda terima.
 
 ---
 
-### Opsi B: Operasi Harian Otonom (Fase 4 Daily Tier)
-Setelah arsitektur ditegakkan, rekayasa sehari-hari adalah ritme kerja harian. WDI Method menyediakan 4 perkakas praktis:
+### Opsi B: Operasi Harian Otonom (Daily Tier)
+Setelah arsitektur siap, pekerjaan sehari-hari berjalan sebagai ritme harian lewat empat skill yang Anda ketik di dalam agent:
 
-1. **`/wdi-daily-what-to-build [reviewer] <notes>`**:  
-   Mengubah catatan uji manual, umpan balik QA, atau laporan bug menjadi spesifikasi teknis terstruktur. Mengklasifikasikan kebutuhan terhadap korpus, menyusun draf tiket di cabang development, dan meminta second opinion independen read-only.
-2. **`/wdi-daily-autopilot [self-review] [peer] [interval]`**:  
-   Meluncurkan rutinitas otonom di bawah mandat yang disetujui pemilik produk. Berjalan tanpa interupsi dengan ritme loop (default: `/loop 10m /wdi-autopilot`), menjalankan siklus TDD dan memperbarui ledger setelah setiap keputusan.
-3. **`/wdi-daily-what-to-test [web|mobile|desktop]`**:  
-   Koordinator pengujian fisik pasca-merge. Sinkronisasi cabang development, pembersihan worktree dan branch remote yang telah dimerge, pencegahan file-lock desktop, dan penyusunan checklist uji fisik berbasis delta commit (`before_sync..HEAD`).
-4. **`/wdi-prune-or-archive [spec-id] [--archive|--prune]`**:  
-   Menjaga kebersihan repositori dengan memindahkan spesifikasi tertutup dari `.scratch/` ke `.archive/specs/` atau membersihkan folder fisik via `git rm`, dengan preservasi 100% jejak audit RTM.
+1. **`/wdi-daily-what-to-build [reviewer] <notes>`**  
+   Mengubah catatan uji manual, temuan QA, atau laporan bug menjadi spec atau tiket yang sudah ditinjau di development branch, untuk run autopilot berikutnya. Skill ini berhenti di situ: tidak pernah melakukan commit, push, atau memulai autopilot.
+2. **`/wdi-daily-autopilot [self-review] [peer] [interval] [--skip-peer-review]`**  
+   Memeriksa mandat yang sudah diterima dan menjalankan preflight bila belum ada, menentukan reviewer dari konfigurasi lokal, lalu memulai loop (default `/loop 10m /wdi-autopilot`). Loop bekerja di branch `autopilot/<mandate-id>`, menulis kode dengan test lebih dulu, mencatat setiap keputusan di ledger-nya, dan berakhir dengan satu PR yang siap di-review. Pemilik yang melakukan merge.
+3. **`/wdi-daily-what-to-test [web <target> | mobile <target> | desktop]`**  
+   Sesudah merge: menyinkronkan development branch, memangkas branch dan worktree yang sudah di-merge, menyiapkan aplikasi untuk uji manual, dan menyusun checklist dari tiket yang ditutup sejak sinkronisasi terakhir (`before_sync..HEAD`). Tanpa argumen, skill ini hanya menyinkronkan, memangkas, dan menyusun checklist.
+4. **`/wdi-prune-or-archive [--spec <id> | --all-closed] [--archive | --prune] [--dry-run]`**  
+   Memindahkan spec yang sudah ditutup dari `.scratch/` ke `.archive/specs/`, atau menghapusnya dengan `git rm`, lewat `lifecycle.py` yang memeriksa dulu dan membatalkan perubahan bila gagal. Baris spec tetap di `specs.yaml`. Tanpa argumen, skill ini bertanya.
 
 ---
 
 ### Opsi C: Jalur Cepat (`/implement` Langsung)
-Perbaikan bug kecil atau penyesuaian kosmetik yang tidak menyentuh `FR`, `UC`, `AD-N`, atau domain model dapat melewati seluruh gerbang dokumen dan menjalankan `/implement` langsung. Jika perubahan meluas menyentuh kebutuhan fungsional, proses **wajib berhenti seketika dan dijadikan spek eksplisit `S`** yang dievaluasi pada Gerbang G5.
+Sebuah perbaikan boleh melewati semua gerbang bila tidak mengubah FR, UC, AD-N, atau domain model, paling banyak satu tiket, dan tidak menyentuh uang, data pribadi, atau integrasi pihak ketiga. Anda menjalankan `/implement` langsung, tanpa skill pembungkus. Bila ternyata menyentuh FR, pekerjaan berhenti dan menjadi spec ukuran S (paling banyak 3 tiket) yang dijalankan lewat `wdi-build`.
 
 ---
 
-## Panduan Lapangan Praktis & Pengetahuan Operasional
+## Aturan Lapangan
 
-Aturan teruji lapangan yang ditemukan dari eksekusi nyata pada berbagai platform agen:
+Aturan operasional dari menjalankan loop coding otonom di repositori produk nyata:
 
-### 1. Builder Mutlak Koordinator (`builder: coordinator`)
-Pada `wdi-daily-autopilot`, konfigurasi `roles.builder` di `.control/custom-dispatch.yaml` wajib disetel ke `coordinator`. Mendelegasikan koding ke subagent memicu halusinasi status (subagent melapor seluruh tes lulus tanpa mengubah satu berkas pun). Koordinator sesi aktif menulis kode langsung melalui siklus TDD merah ke hijau.
+### 1. Builder Tetap di Koordinator (`builder: coordinator`)
+Di `wdi-daily-autopilot`, `roles.builder` di `.control/custom-dispatch.yaml` ditetapkan ke `coordinator`. Menyerahkan penulisan kode ke subagent menghasilkan laporan selesai yang palsu (subagent mengaku test lulus tanpa mengubah satu file pun). Sesi koordinator menulis kodenya sendiri, dengan test lebih dulu.
 
-### 2. Peninjau Sejawat Bersifat Penasihat Read-Only
-Peninjau independen (seperti Terra / GPT-5.6-Terra via `kiro-cli`) wajib dijalankan dalam mode baca saja (`--trust-tools=fs_read` / `--mode plan`). Peninjau memeriksa kasus batas dan diff kode, tetapi dilarang mengubah berkas atau memicu proses build panjang. Disiplin penulis tunggal tetap terjaga.
+### 2. Reviewer Hanya Membaca
+Peer reviewer berjalan dalam mode hanya membaca. Mereka menguji edge case dan membaca diff, tetapi tidak pernah mengubah kode atau menjalankan build; hanya sesi koordinator yang menulis. Pada `risk_accepted: low`, permintaan melewati peer review ditolak, karena kode di sana butuh dua reviewer yang bukan builder.
 
-### 3. Pencegahan File-Locking Windows (Process Gating)
-Di sistem operasi Windows, proses latar belakang (aplikasi yang sedang berjalan, Gradle Test Daemon, Java VM) menahan handle terbuka pada berkas biner, memicu kegagalan `Access is denied (Exit code 5/32)` saat kompilasi atau penghapusan worktree. `wdi-daily-what-to-test` memeriksa dan mematikan proses aktif sebelum proses build atau peluncuran dimulai.
+### 3. File Lock di Windows (Desktop Process Gate)
+Di Windows, binary aplikasi yang sedang berjalan atau daemon build di latar belakang menahan handle file tetap terbuka, sehingga build ulang atau penghapusan worktree gagal dengan `Access is denied`. Dengan target `desktop`, `wdi-daily-what-to-test` memeriksa apakah binary aplikasi masih berjalan sebelum build ulang. Aplikasi hanya ditutup bila dijalankan oleh smoke run sebelumnya; selain itu skill melaporkan PID dan berhenti, supaya Anda menutupnya sendiri. Proses tidak pernah dihentikan paksa.
 
-### 4. Invarian Isolasi Worktree
-Penyusunan spek dan tiket dilakukan di cabang `main`, namun tahap penulisan kode dan loop otonom (`wdi-autopilot`) **wajib berjalan di git worktree terpisah** (`autopilot/<mandate-id>`). Jangan pernah menjalankan loop tanpa pengawasan di working tree utama yang kotor.
+### 4. Loop Berjalan di Branch Sendiri
+Penulisan spec dan tiket dilakukan di development branch. Loop berjalan di branch-nya sendiri, `autopilot/<mandate-id>`, di worktree terisolasi atau checkout bersih yang hanya dipakai run itu. Loop tidak pernah berjalan di checkout bersama atau yang kotor.
 
-### 5. Satu Pemicu Cloud CI Per PR
-Loop otonom membuat commit lokal per tiket. Menjalankan Cloud CI di setiap iterasi lokal akan menghabiskan kuota runner bulanan dengan cepat. Rangkaian tes lokal menyediakan bukti authoritative selama loop; Cloud CI dipicu **satu kali**, saat Pull Request ditandai siap ditinjau (*ready for review*).
+### 5. Satu Cloud CI Run per Run Autopilot
+Loop melakukan commit per tiket, dan rangkaian test lokal menjadi bukti selama run. Cloud CI berjalan sekali per run autopilot, di akhir: saat satu-satunya PR ditandai siap di-review, atau saat workflow dijalankan sekali secara manual. Push selama run tidak memicu cloud run.
 
-### 6. Kebersihan Artefak Smoke Sementara
-Kursor uji smoke (`.work/smoke/last-sync`) dan manifes runtime bersifat lokal per mesin. Pastikan `.work/smoke/` didaftarkan di `.gitignore` agar pemeriksaan kebersihan working tree preflight tidak pernah gagal secara tak terduga.
-
-### 7. Konfigurasi Runner Lokal Mesin (`custom-dispatch.yaml`)
-Perintah runner khusus mesin dan model flag disimpan di `.control/custom-dispatch.yaml` (otomatis di-ignore git). Hanya templat `.control/custom-dispatch.yaml.example` yang dilacak ke git.
+### 6. File Smoke Khusus Mesin Lokal
+Kursor smoke (`.work/smoke/last-sync`) dan manifes runtime milik satu mesin. Installer menambahkan `.work/smoke/` ke `.gitignore`, jadi file smoke khusus mesin lokal tidak pernah membuat working tree kotor.
 
 ---
 
-## Direktori 22 Skill Resmi
+## Konfigurasi (`custom-dispatch.yaml`)
 
-WDI Method menyediakan 22 skill resmi yang terstruktur berdasarkan bidang kerja dan wewenang pemanggilan:
+Perintah runner dan flag model khusus mesin disimpan di `.control/custom-dispatch.yaml`. Installer membuatnya dari `.control/custom-dispatch.yaml.example` bila belum ada, lalu menambahkannya ke `.gitignore`; hanya contohnya yang di-commit.
 
-| Bidang Kerja | Pemanggilan Langsung Pengguna (Slash Command) | Orkestrasi Model / Agen Otomatis |
+Runner yang ditunjuk sebagai reviewer WAJIB hanya membaca. Flag hanya membaca per CLI: `claude --permission-mode plan`, `kiro-cli --trust-tools=fs_read`, `cursor-agent --mode plan`. Semua contoh runner di templat memakainya.
+
+---
+
+## Direktori Skill (22)
+
+WDI Method memasang 22 skill: 7 skill gerbang, 5 untuk daily tier (termasuk `wdi-autopilot`), dan 10 yang bisa Anda jalankan kapan saja.
+
+Cara sebuah skill dimulai:
+- **Anda mengetiknya**: empat skill daily tier, `wdi-build`, dan `wdi-explain-to-me` (membawa `disable-model-invocation: true`).
+- **Anda mengetiknya, atau agent menyebutnya dan menunggu izin Anda**: skill lainnya.
+- **Agent boleh menjalankannya sendiri (hanya membaca)**: `wdi-help`.
+- **Dijalankan `/loop` di bawah mandat yang diterima**: `wdi-autopilot`. Di bawah mandat, `wdi-autopilot` juga menjalankan skill lain.
+
+| Skill | Yang Dikerjakan | Cara Mulai |
 |---|---|---|
-| **Pengiriman &amp; Arsitektur (G1–G5)** | `/wdi-init` (Setup G0 &amp; komponen)<br>`/wdi-problem` (G1 brief masalah)<br>`/wdi-product` (G2 PRD solusi)<br>`/wdi-ux` (G2/G3 alur UX &amp; kontrak)<br>`/wdi-blueprint` (G3 arsitektur sistem)<br>`/wdi-component` (G4 desain komponen SDD)<br>`/wdi-build` (G5 pemotongan tiket spek) | Dijalankan berurutan oleh koordinator pada transisi gerbang |
-| **Operasi Harian Otonom** | `/wdi-daily-what-to-build` (triage catatan uji ke spek)<br>`/wdi-daily-autopilot` (peluncur loop mandat otonom)<br>`/wdi-daily-what-to-test` (verifikasi fisik pasca-merge)<br>`/wdi-prune-or-archive` (arsip/pembersihan spek tertutup) | `/wdi-autopilot` (mesin loop mandat via `/loop`) |
-| **Tata Kelola &amp; Diagnostik** | `/wdi-help` (panduan gerbang kontekstual)<br>`/wdi-explain-to-me` (penjelas arsitektur sistem)<br>`/wdi-decision` (pencatatan keputusan teknis ADR)<br>`/wdi-question` (pelacak pertanyaan terbuka)<br>`/wdi-log` (pencatatan aktivitas audit)<br>`/wdi-report` (laporan progres &amp; estimasi)<br>`/wdi-reconcile` (audit deviasi kode-dokumen)<br>`/wdi-review` (peninjauan independen)<br>`/wdi-systematic-debugging` (investigasi akar masalah)<br>`/wdi-upgrade` (migrasi skema korpus) | Dispatch peninjau independen dan second opinion |
+| **Skill gerbang** | | |
+| `/wdi-init` | Sebelum G1 dan di akhir G2: menyiapkan registri, komponen, `mode` dan `risk_accepted`, dua peta struktur, pemeriksaan engine, dan pembaca inventaris. | Anda mengetiknya, atau agent menyebutnya |
+| `/wdi-problem` | G1. Menjalankan skill product brief BMad, lalu memeriksa brief terhadap panduan metode. Tidak pernah menulis brief sendiri. | Anda mengetiknya, atau agent menyebutnya |
+| `/wdi-product` | G2. Menjalankan skill PRD BMad untuk PRD baru atau janji yang berubah, lalu memeriksanya terhadap panduan PRD. Tidak pernah menulis PRD sendiri. | Anda mengetiknya, atau agent menyebutnya |
+| `/wdi-ux` | Opsional, bersama G2. Menjalankan skill UX BMad dan menaruh hasil desain di tempatnya. Tidak pernah menulis isi UX sendiri. | Anda mengetiknya, atau agent menyebutnya |
+| `/wdi-blueprint` | G3, sekali per produk. Gambaran utuh produk: use case, aktor, domain model, aturan bisnis, glosarium, architecture spine, C4, serta inventaris API, tabel, dan layar. | Anda mengetiknya, atau agent menyebutnya |
+| `/wdi-component` | G4. Kedalaman satu komponen, sedalam `mode`-nya dan tidak lebih. Dilewati pada `mode: catalog`. | Anda mengetiknya, atau agent menyebutnya |
+| `/wdi-build` | G5. Satu spec dari dibuka sampai ditutup: Anda menjalankan `to-spec` dan `to-tickets`, setiap tiket sampai PR hijau, lalu spec ditutup. Tidak pernah melakukan merge. | Anda mengetiknya |
+| **Daily tier** | | |
+| `/wdi-daily-what-to-build` | Mengubah catatan uji manual menjadi spec atau tiket yang sudah ditinjau untuk run autopilot berikutnya. Berhenti sebelum kode, commit, atau push. | Anda mengetiknya |
+| `/wdi-daily-autopilot` | Memeriksa mandat yang sudah diterima (menjalankan preflight bila belum ada), menentukan reviewer dari konfigurasi lokal, lalu memulai loop, default setiap 10 menit. | Anda mengetiknya |
+| `/wdi-autopilot` | Loop-nya sendiri: mengerjakan semua FR di bawah satu mandat yang diterima, di satu branch dengan satu PR, dan menulis setiap keputusan ke satu ledger. | Dijalankan `/loop` di bawah mandat yang diterima |
+| `/wdi-daily-what-to-test` | Sesudah merge: menyinkronkan development branch, memangkas branch dan worktree yang sudah di-merge, menyiapkan aplikasi untuk uji manual, dan menyusun checklist dari tiket yang ditutup. | Anda mengetiknya |
+| `/wdi-prune-or-archive` | Memindahkan spec yang sudah ditutup ke `.archive/specs/` atau menghapusnya dengan `git rm`, lewat `lifecycle.py` yang memeriksa dulu dan membatalkan perubahan bila gagal. Baris spec tetap di `specs.yaml`. | Anda mengetiknya |
+| **Kapan saja** | | |
+| `/wdi-help` | Membaca registri status dan memberi tahu gerbang saat ini, spec yang terbuka, dan skill berikutnya. | Agent boleh menjalankannya sendiri (hanya membaca) |
+| `/wdi-explain-to-me` | Membaca dulu sebelum Anda memutuskan: menyelidiki, lalu memberi ringkasan dalam enam bagian tetap. Tidak menulis file. | Anda mengetiknya |
+| `/wdi-decision` | Membuka, menerima, dan menerapkan keputusan bernomor (`DEC-`), lalu membawanya ke dokumen yang diaturnya. | Anda mengetiknya, atau agent menyebutnya |
+| `/wdi-question` | Mencatat hal yang belum bisa diputuskan ke salah satu dari empat daftar di `.control/questions/`, dan menutupnya saat jawaban datang. | Anda mengetiknya, atau agent menyebutnya |
+| `/wdi-log` | Mencatat rapat yang sudah selesai atau fakta non-teknis yang membatasi apa yang boleh dibangun. | Anda mengetiknya, atau agent menyebutnya |
+| `/wdi-report` | Angka tentang proyek: progres, estimasi, baris tugas untuk tracker, atau brief atau PRD yang berdiri sendiri. Tidak pernah mengarang angka. | Anda mengetiknya, atau agent menyebutnya |
+| `/wdi-reconcile` | Sebelum gerbang atau sesudah sekumpulan perubahan: melaporkan drift antara `.what`, `.how`, `.control`, dan aturan metode. Hanya membaca. | Anda mengetiknya, atau agent menyebutnya |
+| `/wdi-review` | Meninjau dokumen korpus mana pun, dan wajib dijalankan sebelum gerbang untuk spine, SRS, SDD, dan SPEC. Lensanya mengikuti `risk_accepted`. Bukan untuk review kode. | Anda mengetiknya, atau agent menyebutnya |
+| `/wdi-systematic-debugging` | Untuk bug, test yang gagal, atau build yang gagal, sebelum perbaikan diusulkan: cari akar masalah dan uji satu hipotesis setiap kali. | Anda mengetiknya, atau agent menyebutnya |
+| `/wdi-upgrade` | Tepat sesudah `wdi-method update`: memindahkan dokumen dan file registri yang masih berbentuk lama ke bentuk baru, lalu memastikan validasi hijau. | Anda mengetiknya, atau agent menyebutnya |
 
 ---
 
-## Struktur Repositori & Invarian
+## Struktur Repositori
 
 ```text
 .constitution/
-  method/            Mesin method — ditimpa setiap pembaruan; jangan pernah diedit langsung
-  project/           Aturan produk dan reader inventori khusus — dipertahankan saat pembaruan
+  method/                  The method itself: overwritten by every update; never edit here
+  project/                 Product-owned rules and inventory readers: kept across updates
 .control/
-  registry/          Sumber Kebenaran Tunggal: goals.yaml · specs.yaml · components.yaml
-  decisions/         Keputusan yang diterima dan mandat pemilik (DEC-*.md)
-  memlog/            Ledger audit yang mencatat keputusan loop otonom
-  test-targets/      Templat pengujian fisik (desktop.md, web.md, mobile.md)
-.scratch/            Ruang kerja spesifikasi aktif (SPEC-*.md dan tiket)
-.archive/            Spesifikasi historis yang diarsipkan dengan preservasi link RTM
-.what/ & .how/       Dokumen kerja korpus (PRD, SRS, Blueprint, SDD)
-.what-rendered/      Hasil render dokumen manusia (dibangkitkan oleh validate.py / wdi-report)
+  registry/                The registries: index.yaml · goals.yaml · specs.yaml · components.yaml
+  generated/               Status and RTM projections written by validate.py (never by hand)
+  decisions/               Decisions and owner mandates (DEC-*.md)
+  memlog/                  Ledgers recording autonomous loop decisions
+  test-targets/            Hand-testing templates (desktop.md, web.md, mobile.md)
+.scratch/<spec-id>-<slug>/ Active spec workspaces (SPEC.md and tickets)
+.archive/                  Archived closed specs
+.what/ & .how/             Working corpus documents (brief, PRD, SRS, blueprint, SDD)
+.what-rendered/            Rendered pages for G1 and G2 (generated)
+.how-rendered/             Rendered pages for G3 and G4 (generated)
+.work/                     Scratch that empties when a task closes
 ```
 
 ---
 
-## Panduan Kontribusi & Fondasi Arsitektur
+## Kontribusi
 
-Setiap kontribusi ke WDI Method harus menjawab satu pertanyaan kunci: **apakah perubahan ini membuat lapisan tinjauan lebih dapat dipercaya, atau hanya membuatnya lebih tebal?**
+Setiap kontribusi ke WDI Method menjawab satu pertanyaan: **apakah perubahan ini membuat lapisan review lebih dapat dipercaya, atau hanya membuatnya lebih tebal?** Lihat [CONTRIBUTING.md](CONTRIBUTING.md).
 
-### Fixture Corpus & Verifikasi Lokal
-Seluruh perubahan validator dan framework wajib dibuktikan terhadap fixture corpus internal (`tests/fixture/`). Jalankan seluruh rangkaian tes sebelum mengajukan pull request:
+### Fixture Corpus dan Verifikasi Lokal
+Perubahan validator dan metode dibuktikan terhadap fixture corpus (`tests/fixture/`). Jalankan rangkaian test sebelum membuka pull request:
 ```bash
 npm test
 ```
-Suite pengujian menegakkan baseline 100% hijau pada script Python PEP 723 (`validate.py`, `timeline.py`, `lifecycle.py`), sinkronisasi platform, dan integritas kit.
+Rangkaian test menjalankan empat script Python PEP 723 (`validate.py`, `timeline.py`, `inventory.py`, `lifecycle.py`) terhadap fixture, lalu memeriksa registri platform, file yang diterima setiap platform, dan integritas kit.
 
 ### Aturan Paket Publik Generik
-WDI Method dipublikasikan ke registri npm publik. Repositori ini tidak boleh memuat nama klien privat, identitas produk komersial, kredensial jaringan internal, atau path absolut sistem berkas mesin lokal.
+WDI Method dipublikasikan ke registri npm publik. Paket ini tidak boleh memuat nama klien privat, identitas produk komersial, kredensial, atau path absolut sistem file.
 
 ---
 
-## Lisensi & Merek Dagang
+## Lisensi dan Privasi
 
-- **Lisensi Kode:** Didistribusikan di bawah [MIT License](LICENSE).
-- **Privasi & Telemetri:** 100% offline-first. Bebas telemetri, bebas analitik, bebas soket jaringan luar (lihat [PRIVACY.md](PRIVACY.md) dan [SECURITY.md](SECURITY.md)).
-- **Merek Dagang:** Nama "Wira Delta Indonesia", "WDI Method", dan simbol monogram studio adalah merek dagang sah milik PT Wira Delta Indonesia dan terpisah dari lisensi terbuka kode.
+- **Lisensi kode:** [MIT License](LICENSE).
+- **Privasi:** WDI Method sendiri tidak melakukan panggilan jaringan; coding agent Anda tetap berkomunikasi dengan penyedia modelnya. Lihat [PRIVACY.md](PRIVACY.md) dan [SECURITY.md](SECURITY.md).
+
+## The name and the icon
+
+Naskah berbahasa Inggris di bawah ini yang berlaku.
+
+The MIT License grants broad rights over the code. It says nothing about names or logos,
+and it does not oblige the studio to hand over either — so the licence above covers this
+repository's code, not the name **WDI Method**, not **Wira Delta Indonesia**, and not any
+associated visual marks or logos.
+
+You may use those names to refer to this project: "based on WDI Method", "a fork of WDI Method",
+or "compatible with WDI Method". You may not use them as the name of your own product or
+methodology, or in a way that suggests you are this project or endorsed by it.
+
+If you publish a modified distribution or fork, please give it your own name, so the
+engineers using it know whom to ask when something behaves unexpectedly. The code is yours
+to take; the name is not.
+
+---
+
+Kami memakai metode yang sama di proyek klien. [Hubungi Wira Delta Indonesia](https://wiradelta.id/id/#contact).
