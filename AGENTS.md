@@ -30,8 +30,8 @@ has to do about it. `CONTRIBUTING.md` carries the same rule for humans.
 ## Language
 
 Everything in this repository is **English** — the installer's interface included, and so is every
-commit message. The interface comes from us, which is the same reason `.constitution/` and the eighteen
-wrappers are English.
+commit message. The interface comes from us, which is the same reason `.constitution/` and the twenty-two
+skills are English.
 
 What MAY be another language is the **working documents of a product**, and that is decided per repo by
 `policy.doc_language`. This package MUST NOT assume an answer: a sentence like *"prose in this repo is

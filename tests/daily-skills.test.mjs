@@ -17,7 +17,7 @@ const DAILY_SKILLS = [
   "wdi-daily-what-to-test",
 ];
 
-describe("autonomous daily tier skills (Fase 4)", () => {
+describe("autonomous daily tier skills", () => {
   it("kit/skills/ carries all daily and lifecycle skills with valid SKILL.md", () => {
     for (const name of DAILY_SKILLS) {
       const skillDir = path.join(KIT_SKILLS, name);

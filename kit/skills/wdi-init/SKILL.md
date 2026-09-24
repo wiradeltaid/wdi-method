@@ -1,11 +1,11 @@
 ---
 name: wdi-init
-description: Use for anything that must exist before work can start or continue — scaffolding the registries at install, birthing Product Components after G2, setting or changing a component's mode, setting or reviewing its risk_accepted, refreshing the two structure maps, and writing this product's inventory readers. Six intents. Never writes .what/ or .how/ content beyond a skeleton.
+description: Use for anything that must exist before work can start or continue — scaffolding the registries at install, birthing Product Components after G2, setting or changing a component's mode, setting or reviewing its risk_accepted, refreshing the two structure maps, repairing the engines after an install or update, and writing this product's inventory readers. Seven intents. Never writes .what/ or .how/ content beyond a skeleton.
 ---
 
 # WDI Init
 
-Six intents, one skill, because all six answer the same question: **what has to exist before the
+Seven intents, one skill, because all seven answer the same question: **what has to exist before the
 next piece of work makes sense?** A registry row, a folder pair, a depth setting, a risk note, a map
 of where things are, a reader that can see this product's code.
 

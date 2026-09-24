@@ -107,7 +107,7 @@ method. G1–G4 run without the engines; `wdi-build` and the Fast Path do not.
 | `wdi-method update` printed an `upgrade` line | `wdi-upgrade`, before any other skill — it moves content into the new shape, never invents it, one commit |
 | You do not know where you are | `wdi-help` |
 
-## Eighteen skills
+## Twenty-two skills
 
 Named for the **gate they serve**, so *"which skill do I run"* is answered by *"which gate am I at"*.
 
@@ -140,6 +140,15 @@ Named for the **gate they serve**, so *"which skill do I run"* is answered by *"
 | `wdi-report` | An estimate at the start · progress periodically · before a client update |
 | `wdi-init` intents `mode` · `risk` · `structure` | Any time |
 | `wdi-ux` | Any time after a PRD exists, if UX is being used |
+
+**Daily tier** — four more, started only when the owner types them (`disable-model-invocation: true`):
+
+| Skill | Its trigger |
+|---|---|
+| `wdi-daily-what-to-build` | Hand-testing notes to turn into a reviewed spec or ticket. Stops before code, commit, or push |
+| `wdi-daily-autopilot` | Start the daily loop: checks for an accepted mandate (preflight if none), resolves reviewers, launches `/loop` over `wdi-autopilot` |
+| `wdi-daily-what-to-test` | After a merge: sync, prune merged branches, prepare the app, build the hand-test checklist |
+| `wdi-prune-or-archive` | Closed specs to archive or prune, through `lifecycle.py` |
 
 ## Who writes what — WDI and BMad
 
