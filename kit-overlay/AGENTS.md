@@ -135,7 +135,7 @@ derived from the other: one component MAY be thin on purpose and reviewed the ha
 `.constitution/method/document/delivery-flow-guide.md` owns both;
 `.constitution/method/why/rationale.md` says why they are separate.
 
-## The five gates and the eighteen skills
+## The five gates and the twenty-two skills
 
 | Gate | Decides | Skill |
 |---|---|---|
@@ -145,14 +145,17 @@ derived from the other: one component MAY be thin on purpose and reviewed the ha
 | **G4 Component** | How one component is built — **skipped at `catalog`** | `wdi-component` |
 | **G5 Release** | Whether it is done and proven | `wdi-build` |
 
-Before G1 and at the tail of G2: `wdi-init`, five intents — `setup` · `component` · `mode` · `risk` ·
-`structure`.
+Before G1 and at the tail of G2: `wdi-init`, seven intents — `setup` · `engines` · `component` · `mode` ·
+`risk` · `structure` · `readers`.
 
 Any time: `wdi-decision` · `wdi-question` · `wdi-log` · `wdi-help` · `wdi-explain-to-me` · `wdi-reconcile` · `wdi-review` ·
-`wdi-report` · `wdi-systematic-debugging`.
+`wdi-report` · `wdi-systematic-debugging` · `wdi-upgrade` (right after `wdi-method update`).
 
 When the owner asks for it: `wdi-autopilot` — one mandate the owner accepts, then every skill above runs
 unattended and every decision lands in one ledger. It is never the default next step.
+
+The daily tier, started only when the owner types it: `wdi-daily-what-to-build` · `wdi-daily-autopilot` ·
+`wdi-daily-what-to-test` · `wdi-prune-or-archive`. That is eighteen core skills and four daily ones.
 
 **No BMad skill is invoked directly.** Each has a wrapper, and the wrapper is what checks position,
 verifies the result, and lands the memlog.

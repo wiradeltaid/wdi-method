@@ -1,6 +1,6 @@
 ---
 name: wdi-daily-autopilot
-description: Compose and launch the autonomous daily loop routine (default 10m interval) with self code-review and peer-review runners resolved from local configuration. Invoke as `/wdi-daily-autopilot [in-session] [peer] [interval] [--skip-peer-review]`.
+description: Compose and launch the autonomous daily loop routine (default 10m interval) with self code-review and peer-review runners resolved from local configuration. Invoke as `/wdi-daily-autopilot [self-review] [peer] [interval] [--skip-peer-review|--no-review]` (`[self-review]` alias `[in-session]`).
 disable-model-invocation: true
 ---
 
@@ -18,7 +18,8 @@ from local configuration or agent rules, and launches the execution via `/loop <
 - `[interval]` — optional loop interval matching `^\d+[smhd]$` (e.g., `5m`, `10m`, `15m`). Defaults
   to `10m` when omitted.
 - `--skip-peer-review` / `--no-review` — bypasses the secondary peer review pass. MUST NOT disable
-  coordinator self code-review, TDD cycles, or automated test suites.
+  coordinator self code-review, TDD cycles, or automated test suites, and is refused when any touched
+  component has `risk_accepted: low` (§2 Guardrail).
 
 ## 0. Precondition
 
@@ -49,7 +50,7 @@ Inspect the repository for `.control/custom-dispatch.yaml` (if not found in the 
   - If `roles.deep_analyst` is `none`, document review and architecture analysis are handled by the main reviewer or
     coordinator directly, without dispatching a separate deep analyst process.
   - `roles.builder` is fixed to `coordinator`: the coordinating session implements code directly inside the active run worktree (ensuring tight TDD cycles, direct verification, and eliminating delegation/handoff hallucinations). Coding delegation (whether `in-session` subagents or external builder runners) is prohibited in the daily routine.
-    Guardrail: coordinator direct implementation MUST NOT eliminate independent peer review for components whose `risk_accepted` is not `low`; `roles.reviewer` MUST NOT be set to `none` in such cases.
+    Guardrail: coordinator direct implementation MUST NOT eliminate independent peer review when any component the mandate touches has `risk_accepted: low`. There `low` is the hardest review: `wdi-build` Step 3 requires a two-reviewer panel of agents that are not the builder (`delivery-flow-guide.md`). The coordinator MUST NOT honour a peer-review bypass (`roles.reviewer: none`, `review_policy.peer_review: false`, `--skip-peer-review`, or `--no-review`) when any touched component has `risk_accepted: low`: stop and report which components block it (fail-closed). When every touched component is `medium` or `high`, the bypass is allowed, and the choice MUST be recorded in the mandate text (step 4) and in the ledger.
   - Resolve runner dispatch by `type:` for reviewer and deep analyst:
     - `auto`: Evaluates whether the runner's target model is reachable in-session from the active
       session profile (per the caller's global agent collaboration rules). Dispatches in-session via `Agent`

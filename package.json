@@ -1,8 +1,24 @@
 {
   "name": "wdi-method",
-  "version": "0.6.27",
+  "version": "0.6.28",
   "description": "The review layer for AI coding agents: human review gates that check technical decisions before Claude Code, Cursor, or Codex write the code. Wraps BMad.",
-  "keywords": ["bmad", "bmad-method", "ai-coding", "coding-agents", "claude-code", "cursor", "codex", "spec-driven-development", "software-delivery", "code-review", "ai-governance", "agentic-workflow", "c4-model", "use-case", "documentation"],
+  "keywords": [
+    "bmad",
+    "bmad-method",
+    "ai-coding",
+    "coding-agents",
+    "claude-code",
+    "cursor",
+    "codex",
+    "spec-driven-development",
+    "software-delivery",
+    "code-review",
+    "ai-governance",
+    "agentic-workflow",
+    "c4-model",
+    "use-case",
+    "documentation"
+  ],
   "type": "module",
   "bin": {
     "wdi-method": "bin/wdi-method.js"

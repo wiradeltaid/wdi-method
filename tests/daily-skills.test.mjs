@@ -17,7 +17,7 @@ const DAILY_SKILLS = [
   "wdi-daily-what-to-test",
 ];
 
-describe("autonomous daily tier skills (Fase 4)", () => {
+describe("autonomous daily tier skills", () => {
   it("kit/skills/ carries all daily and lifecycle skills with valid SKILL.md", () => {
     for (const name of DAILY_SKILLS) {
       const skillDir = path.join(KIT_SKILLS, name);
@@ -248,6 +248,51 @@ describe("autonomous daily tier skills (Fase 4)", () => {
 
     const buildContent = fs.readFileSync(path.join(KIT_SKILLS, "wdi-build", "SKILL.md"), "utf8");
     assert.match(buildContent, /Distillation also encompasses deleting any lingering ephemeral triage scratch/i, "missing distillation requirement for triage scratch in wdi-build");
+  });
+
+  // PI-07. delivery-flow-guide.md makes `risk_accepted: low` the HARDEST review — a two-reviewer panel
+  // on the code, reviewers who are not the builder — so a peer-review bypass is what `low` forbids, not
+  // what it permits. The template and the launcher once said the opposite. Both texts are checked for
+  // the direction of the sentence, because a guardrail that names the right field backwards reads fine.
+  it("reviewer: none is forbidden at risk_accepted: low and allowed only at medium or high", () => {
+    const guide = fs.readFileSync(
+      path.join(ROOT, "kit", ".constitution", "method", "document", "delivery-flow-guide.md"), "utf8");
+    assert.match(guide, /\| `low` \|[^\n]*two-reviewer panel is \*\*required\*\*/,
+      "delivery-flow-guide.md no longer requires the two-reviewer panel at low — this test encodes that rule");
+
+    const example = fs.readFileSync(path.join(SCAFFOLD_CONTROL, "custom-dispatch.yaml.example"), "utf8");
+    const launcher = fs.readFileSync(path.join(KIT_SKILLS, "wdi-daily-autopilot", "SKILL.md"), "utf8");
+    for (const [name, text] of [["custom-dispatch.yaml.example", example], ["wdi-daily-autopilot", launcher]]) {
+      // One line per sentence: comment markers and wraps gone, and a dot inside `code` (roles.reviewer)
+      // no longer reads as the end of a sentence.
+      const flat = text.replace(/#\s*/g, " ").replace(/\s+/g, " ").replace(/`[^`]*`/g, (m) => m.replace(/\./g, "_"));
+      assert.doesNotMatch(flat, /unless all touched components have risk_accepted: `?low`?/i,
+        `${name} still permits reviewer: none when every touched component is low (the reversed guardrail)`);
+      assert.doesNotMatch(flat, /whose `?risk_accepted`? is not `?low`?/i,
+        `${name} still scopes the peer-review guardrail to components that are NOT low (the reversed guardrail)`);
+      assert.match(flat, /MUST NOT [^.]*none[^.]*risk_accepted: `?low`?/i,
+        `${name} must forbid reviewer: none when any touched component is risk_accepted: low`);
+      assert.match(flat, /`?medium`? or `?high`?[^.]*recorded/i,
+        `${name} must allow the bypass only at medium or high, and require the choice to be recorded`);
+    }
+  });
+
+  // PI-08. An example runner the owner may copy into roles.reviewer MUST be read-only. For `claude` that
+  // is `--permission-mode plan`; `--dangerously-skip-permissions` is the edit flag.
+  it("every example runner in custom-dispatch.yaml.example is read-only", () => {
+    const example = fs.readFileSync(path.join(SCAFFOLD_CONTROL, "custom-dispatch.yaml.example"), "utf8");
+    const commands = [...example.matchAll(/command:\s*'([^']+)'/g)].map((m) => m[1]);
+    assert.ok(commands.length >= 5, `expected the five example runners, found ${commands.length}`);
+    for (const command of commands) {
+      assert.doesNotMatch(command, /--dangerously-skip-permissions|--force\b|--trust-all-tools|(^|\s)-a(\s|$)/,
+        `example runner is not read-only: ${command}`);
+      const cli = command.split(/\s+/)[0];
+      const readOnly = { claude: /--permission-mode plan/, "kiro-cli": /--trust-tools=fs_read/, "cursor-agent": /--mode plan/ }[cli];
+      assert.ok(readOnly, `example runner uses a CLI with no known read-only flag: ${cli}`);
+      assert.match(command, readOnly, `example ${cli} runner lacks its read-only flag: ${command}`);
+    }
+    const flat = example.replace(/#\s*/g, " ").replace(/\s+/g, " ");
+    assert.match(flat, /--permission-mode plan`? for `?claude/, "the read-only note must name the claude flag");
   });
 
   it("validate.py fails when .control/custom-dispatch.yaml is tracked in git", () => {

@@ -10,9 +10,56 @@ version contains every fix below it.
 
 ---
 
-## [Unreleased]
+## [0.6.28] - 2026-09-24
 
-- **npm listing:** `package.json` `description` now matches the GitHub repo description, and `keywords` are added from the repo topics, so the package is findable on npmjs.com by the same terms. Nothing changes for an installed repo.
+A patch, but **read the reviewer change below before you update**: it changes what the daily autopilot
+will accept.
+
+### Changed: behaviour
+
+- **The peer-review guardrail pointed the wrong way, and now follows `delivery-flow-guide.md`.** The
+  dispatch template and `wdi-daily-autopilot` allowed `reviewer: none` only when every touched component
+  was `risk_accepted: low`, and required a reviewer everywhere else. The guide says the opposite: `low` is
+  the hardest review, with a two-reviewer panel on the code (`wdi-build` Step 3). Now a peer-review bypass
+  (`roles.reviewer: none`, `review_policy.peer_review: false`, `--skip-peer-review`, `--no-review`) is
+  **refused** when any touched component is `low`: `wdi-daily-autopilot` stops and names the components.
+  At `medium` or `high` the bypass is allowed and the choice is recorded in the mandate text and the ledger.
+  A new test checks the direction of both sentences; it was seen failing against the old text.
+- **Example reviewer runners are read-only.** The `sonnet` and `opus` examples in
+  `custom-dispatch.yaml.example` used `--dangerously-skip-permissions`; they now use
+  `--permission-mode plan`. The template names the read-only flag per CLI: `claude --permission-mode plan`,
+  `kiro-cli --trust-tools=fs_read`, `cursor-agent --mode plan`. A test fails on any example runner without it.
+  The composer example also pins `composer-2.5[fast=false]` (landed on `main` after 0.6.27).
+
+### Changed: text
+
+- **Method block (`AGENTS.md` / `CLAUDE.md` in your repo):** "the eighteen skills" is now "the twenty-two
+  skills"; `wdi-init` has seven intents (`engines` and `readers` were missing); `wdi-upgrade` joins "Any
+  time"; the four daily tier skills are listed. The same count is carried into `method/README.md`,
+  `why/README.md` (new daily tier table), `why/portability.md`, `method-glossary.md`, and `wdi-init`
+  ("Seven intents").
+- **Skill frontmatter:** `wdi-daily-autopilot` now states `[self-review] [peer] [interval]
+  [--skip-peer-review|--no-review]`, as its body already did; `wdi-daily-what-to-build` names `--no-review`.
+  OpenCode command pointers read these descriptions, so they change on update.
+- **`wdi-prune-or-archive`** runs `lifecycle.py --dry-run` through `uv run`, never bare `python`.
+- **README and its nine translations** rewritten to match what the package does: G5 is Release, G3 is once
+  per product, four `mode` values and three `risk_accepted` values as the guide defines them, a "Decides"
+  column and G5 read from RTM rows, the Fast Path limits (one ticket, no money, personal data, or third
+  party), the daily command syntax copied from the skills, six field rules plus a Configuration section,
+  a skills directory with "How It Starts", prerequisites (Node.js 20+, Git, uv), a neutral note that the
+  installer turns off model invocation for 13 BMad build and sprint skills and adds deny rules to
+  `.claude/settings.json`, and "The name and the icon" in place of the trademark line. The "Fase 4" label
+  is gone; the daily tier is "Autonomous Daily Operations (Daily Tier)".
+- **npm listing:** `package.json` `description` now matches the GitHub repo description, and `keywords`
+  are added from the repo topics.
+
+**What a repo that already has the method installed does about it.** Run
+`npx wdi-method@latest update --yes`. The method block in `AGENTS.md`, `CLAUDE.md`, and the other platform
+files changes, and so do the skills above. `.control/custom-dispatch.yaml.example` is replaced, but your
+own `.control/custom-dispatch.yaml` is **not** touched: if it copied the old `sonnet` or `opus` runner for
+a reviewer, change `--dangerously-skip-permissions` to `--permission-mode plan` yourself. If you run the
+daily autopilot with `reviewer: none` or `--skip-peer-review` on a component at `risk_accepted: low`, it
+now stops: give it a reviewer, or raise that component's `risk_accepted` with `wdi-init` intent `risk`.
 
 ## [0.6.27] - 2026-09-20
 
