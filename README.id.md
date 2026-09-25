@@ -9,7 +9,7 @@
 
 > **Pemberitahuan terjemahan:** Berkas ini merupakan terjemahan dari [README.md](README.md) untuk kenyamanan pembaca. Jika terdapat perbedaan makna atau penafsiran, berkas resmi berbahasa Inggris (`README.md`) yang menjadi acuan otoritatif. Seluruh dokumen teknis mendalam dan dokumen hukum dikelola dalam Bahasa Inggris.
 
-[BMad](https://github.com/bmad-code-org/BMAD-METHOD) menulis dokumen untuk AI agent. WDI Method menambahkan dokumen yang sudah biasa dibaca banyak peran: use case, diagram C4, daftar API dan database, dan dokumen desain. WDI Method membungkus BMad tanpa menggantikannya: setiap skill WDI menyerahkan penulisan ke skill BMad, lalu memeriksa hasilnya terhadap panduan metode.
+[BMad](https://github.com/bmad-code-org/BMAD-METHOD) menulis dokumen untuk AI agent. WDI Method menambahkan dokumen yang sudah biasa dibaca banyak peran: use case, diagram C4, daftar API dan database, dan dokumen desain. WDI Method membungkus BMad tanpa menggantikannya: skill untuk brief, PRD, UX, dan arsitektur (`wdi-problem`, `wdi-product`, `wdi-ux`, dan `wdi-blueprint` untuk architecture spine) menyerahkan penulisan ke skill BMad, lalu memeriksa hasilnya terhadap panduan metode.
 
 > Repositori ini bersifat **publik dan generik**. Repositori ini **TIDAK BOLEH** memuat nama klien, nama produk komersial, atau tautan ke repositori privat. Identitas produk sepenuhnya berada di repositori yang memasangnya.
 
@@ -162,7 +162,8 @@ Runner yang ditunjuk sebagai reviewer WAJIB hanya membaca. Flag hanya membaca pe
 WDI Method memasang 22 skill: 7 skill gerbang, 5 untuk daily tier (termasuk `wdi-autopilot`), dan 10 yang bisa Anda jalankan kapan saja.
 
 Cara sebuah skill dimulai:
-- **Anda mengetiknya**: empat skill daily tier, `wdi-build`, dan `wdi-explain-to-me` (membawa `disable-model-invocation: true`).
+- **Anda mengetiknya**: empat skill daily tier dan `wdi-explain-to-me` (membawa `disable-model-invocation: true`).
+- **Anda mengetiknya, atau `wdi-autopilot` menjalankannya di bawah mandat yang diterima**: `wdi-build`. Skill ini tidak membawa flag `disable-model-invocation`, karena `wdi-autopilot` harus bisa memanggilnya; aturan bahwa agent tidak memulainya sendiri ada di Method policy yang ditulis installer ke `CLAUDE.md` dan `AGENTS.md`.
 - **Anda mengetiknya, atau agent menyebutnya dan menunggu izin Anda**: skill lainnya.
 - **Agent boleh menjalankannya sendiri (hanya membaca)**: `wdi-help`.
 - **Dijalankan `/loop` di bawah mandat yang diterima**: `wdi-autopilot`. Di bawah mandat, `wdi-autopilot` juga menjalankan skill lain.
@@ -176,7 +177,7 @@ Cara sebuah skill dimulai:
 | `/wdi-ux` | Opsional, bersama G2. Menjalankan skill UX BMad dan menaruh hasil desain di tempatnya. Tidak pernah menulis isi UX sendiri. | Anda mengetiknya, atau agent menyebutnya |
 | `/wdi-blueprint` | G3, sekali per produk. Gambaran utuh produk: use case, aktor, domain model, aturan bisnis, glosarium, architecture spine, C4, serta inventaris API, tabel, dan layar. | Anda mengetiknya, atau agent menyebutnya |
 | `/wdi-component` | G4. Kedalaman satu komponen, sedalam `mode`-nya dan tidak lebih. Dilewati pada `mode: catalog`. | Anda mengetiknya, atau agent menyebutnya |
-| `/wdi-build` | G5. Satu spec dari dibuka sampai ditutup: Anda menjalankan `to-spec` dan `to-tickets`, setiap tiket sampai PR hijau, lalu spec ditutup. Tidak pernah melakukan merge. | Anda mengetiknya |
+| `/wdi-build` | G5. Satu spec dari dibuka sampai ditutup: Anda menjalankan `to-spec` dan `to-tickets`, setiap tiket sampai PR hijau, lalu spec ditutup. Tidak pernah melakukan merge. | Anda mengetiknya, atau `wdi-autopilot` menjalankannya |
 | **Daily tier** | | |
 | `/wdi-daily-what-to-build` | Mengubah catatan uji manual menjadi spec atau tiket yang sudah ditinjau untuk run autopilot berikutnya. Berhenti sebelum kode, commit, atau push. | Anda mengetiknya |
 | `/wdi-daily-autopilot` | Memeriksa mandat yang sudah diterima (menjalankan preflight bila belum ada), menentukan reviewer dari konfigurasi lokal, lalu memulai loop, default setiap 10 menit. | Anda mengetiknya |

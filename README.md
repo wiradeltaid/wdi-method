@@ -7,7 +7,7 @@
 
 ---
 
-[BMad](https://github.com/bmad-code-org/BMAD-METHOD) writes documents for AI agents. WDI Method adds documents that many roles already read: use cases, C4 diagrams, API and database lists, and design documents. It wraps BMad without replacing it: each WDI skill hands the writing to a BMad skill, then checks the result against the method's guides.
+[BMad](https://github.com/bmad-code-org/BMAD-METHOD) writes documents for AI agents. WDI Method adds documents that many roles already read: use cases, C4 diagrams, API and database lists, and design documents. It wraps BMad without replacing it: the brief, PRD, UX, and architecture skills (`wdi-problem`, `wdi-product`, `wdi-ux`, and `wdi-blueprint` for the spine) hand the writing to a BMad skill, then check the result against the method's guides.
 
 > This repository is **public and generic**. It MUST NOT carry a client name, a commercial product name, or a link to a private repository. Product identity lives entirely in the repository that installs it.
 
@@ -160,7 +160,8 @@ A runner named as a reviewer MUST be read-only. The read-only flag per CLI: `cla
 WDI Method installs 22 skills: 7 gate skills, 5 for the daily tier (including `wdi-autopilot`), and 10 you run any time.
 
 How a skill starts:
-- **You type it**: the four daily tier skills, `wdi-build`, and `wdi-explain-to-me` (they carry `disable-model-invocation: true`).
+- **You type it**: the four daily tier skills and `wdi-explain-to-me` (they carry `disable-model-invocation: true`).
+- **You type it, or `wdi-autopilot` runs it under an accepted mandate**: `wdi-build`. It carries no `disable-model-invocation` flag, because `wdi-autopilot` has to invoke it; the rule that agents do not start it on their own is in the Method policy the installer writes into `CLAUDE.md` and `AGENTS.md`.
 - **You type it, or the agent names it and waits for your go-ahead**: the other skills.
 - **The agent may run it on its own (read-only)**: `wdi-help`.
 - **Fired by `/loop` under an accepted mandate**: `wdi-autopilot`. Under a mandate, `wdi-autopilot` also runs the other skills.
@@ -174,7 +175,7 @@ How a skill starts:
 | `/wdi-ux` | Optional, with G2. Runs BMad's UX skill and files the design results where they belong. Never writes UX content itself. | You type it, or the agent names it |
 | `/wdi-blueprint` | G3, once per product. The whole-product picture: use cases, actors, domain model, business rules, glossary, the architecture spine, C4, and the API, table, and screen inventories. | You type it, or the agent names it |
 | `/wdi-component` | G4. The depth of one component, as deep as its `mode` and no deeper. Skipped at `mode: catalog`. | You type it, or the agent names it |
-| `/wdi-build` | G5. One spec from open to closed: you run `to-spec` and `to-tickets`, each ticket goes to a green PR, then the spec closes. It never merges. | You type it |
+| `/wdi-build` | G5. One spec from open to closed: you run `to-spec` and `to-tickets`, each ticket goes to a green PR, then the spec closes. It never merges. | You type it, or `wdi-autopilot` runs it |
 | **Daily tier** | | |
 | `/wdi-daily-what-to-build` | Turns hand-testing notes into a reviewed spec or ticket for a later autopilot run. Stops before code, commit, or push. | You type it |
 | `/wdi-daily-autopilot` | Checks for an accepted mandate (runs the preflight if there is none), resolves reviewers from local config, and starts the loop, every 10 minutes by default. | You type it |

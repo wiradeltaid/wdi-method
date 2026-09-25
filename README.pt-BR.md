@@ -9,7 +9,7 @@
 
 > **Aviso de tradução:** Este arquivo é uma tradução de [README.md](README.md) fornecida apenas para fins de conveniência. Em caso de divergências ou conflitos de interpretação, a versão oficial em inglês (`README.md`) prevalece como fonte autoritativa. Toda a documentação técnica aprofundada e documentos jurídicos são mantidos em inglês.
 
-O [BMad](https://github.com/bmad-code-org/BMAD-METHOD) escreve documentos para agentes de IA. O WDI Method adiciona documentos que muitos papéis já leem: casos de uso, diagramas C4, listas de API e de banco de dados, e documentos de design. Ele envolve o BMad sem substituí-lo: cada habilidade do WDI entrega a redação a uma habilidade do BMad e depois verifica o resultado com base nos guias do método.
+O [BMad](https://github.com/bmad-code-org/BMAD-METHOD) escreve documentos para agentes de IA. O WDI Method adiciona documentos que muitos papéis já leem: casos de uso, diagramas C4, listas de API e de banco de dados, e documentos de design. Ele envolve o BMad sem substituí-lo: as habilidades do brief, do PRD, da UX e da arquitetura (`wdi-problem`, `wdi-product`, `wdi-ux` e `wdi-blueprint` para a espinha dorsal) entregam a redação a uma habilidade do BMad e depois verificam o resultado com base nos guias do método.
 
 > Este repositório é **público e genérico**. NÃO DEVE conter nome de cliente, nome de produto comercial nem link para um repositório privado. A identidade do produto fica inteiramente no repositório que o instala.
 
@@ -162,7 +162,8 @@ Um runner indicado como revisor DEVE ser somente leitura. A flag de somente leit
 O WDI Method instala 22 habilidades: 7 habilidades de gate, 5 para o daily tier (incluindo `wdi-autopilot`) e 10 que você executa a qualquer momento.
 
 Como uma habilidade é iniciada:
-- **Você a digita**: as quatro habilidades do daily tier, `wdi-build` e `wdi-explain-to-me` (elas trazem `disable-model-invocation: true`).
+- **Você a digita**: as quatro habilidades do daily tier e `wdi-explain-to-me` (elas trazem `disable-model-invocation: true`).
+- **Você a digita, ou `wdi-autopilot` a executa sob um mandato aceito**: `wdi-build`. Ela não traz a flag `disable-model-invocation`, porque `wdi-autopilot` precisa invocá-la; a regra de que agentes não a iniciam por conta própria está na Method policy que o instalador escreve em `CLAUDE.md` e `AGENTS.md`.
 - **Você a digita, ou o agente a indica e espera sua autorização**: as demais habilidades.
 - **O agente pode executá-la por conta própria (somente leitura)**: `wdi-help`.
 - **Disparada por `/loop` sob um mandato aceito**: `wdi-autopilot`. Sob um mandato, `wdi-autopilot` também executa as demais habilidades.
@@ -176,7 +177,7 @@ Como uma habilidade é iniciada:
 | `/wdi-ux` | Opcional, junto com G2. Executa a habilidade de UX do BMad e arquiva os resultados de design onde eles pertencem. Nunca escreve conteúdo de UX ela mesma. | Você a digita, ou o agente a indica |
 | `/wdi-blueprint` | G3, uma vez por produto. O quadro completo do produto: casos de uso, atores, modelo de domínio, regras de negócio, glossário, a espinha dorsal da arquitetura, C4 e os inventários de API, tabelas e telas. | Você a digita, ou o agente a indica |
 | `/wdi-component` | G4. A profundidade de um componente, tão profunda quanto o seu `mode` e não mais. Pulada com `mode: catalog`. | Você a digita, ou o agente a indica |
-| `/wdi-build` | G5. Uma especificação de aberta a fechada: você executa `to-spec` e `to-tickets`, cada ticket chega a um PR verde e depois a especificação é fechada. Nunca faz merge. | Você a digita |
+| `/wdi-build` | G5. Uma especificação de aberta a fechada: você executa `to-spec` e `to-tickets`, cada ticket chega a um PR verde e depois a especificação é fechada. Nunca faz merge. | Você a digita, ou `wdi-autopilot` a executa |
 | **Daily tier** | | |
 | `/wdi-daily-what-to-build` | Transforma anotações de testes manuais em uma especificação ou um ticket revisado para uma execução posterior do autopilot. Para antes de código, commit ou push. | Você a digita |
 | `/wdi-daily-autopilot` | Verifica se há um mandato aceito (executa o preflight se não houver), resolve os revisores a partir da configuração local e inicia o loop, a cada 10 minutos por padrão. | Você a digita |
