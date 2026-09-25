@@ -9,7 +9,7 @@
 
 > **Übersetzungshinweis:** Diese Datei ist eine Übersetzung von [README.md](README.md) und dient ausschließlich Informationszwecken. Bei Widersprüchen oder Auslegungsunterschieden ist die offizielle englische Originalfassung (`README.md`) maßgeblich. Alle tiefergehenden technischen Dokumentationen und rechtlichen Bedingungen werden auf Englisch geführt.
 
-[BMad](https://github.com/bmad-code-org/BMAD-METHOD) schreibt Dokumente für KI-Agenten. WDI Method fügt Dokumente hinzu, die viele Rollen bereits lesen: Use Cases, C4-Diagramme, API- und Datenbanklisten sowie Designdokumente. Es umschließt BMad, ohne es zu ersetzen: Jeder WDI-Skill übergibt das Schreiben an einen BMad-Skill und prüft das Ergebnis anschließend anhand der Leitfäden der Methode.
+[BMad](https://github.com/bmad-code-org/BMAD-METHOD) schreibt Dokumente für KI-Agenten. WDI Method fügt Dokumente hinzu, die viele Rollen bereits lesen: Use Cases, C4-Diagramme, API- und Datenbanklisten sowie Designdokumente. Es umschließt BMad, ohne es zu ersetzen: Die Skills für Brief, PRD, UX und Architektur (`wdi-problem`, `wdi-product`, `wdi-ux` und `wdi-blueprint` für das Rückgrat) übergeben das Schreiben an einen BMad-Skill und prüfen das Ergebnis anschließend anhand der Leitfäden der Methode.
 
 > Dieses Repository ist **öffentlich und generisch**. Es DARF KEINEN Kundennamen, keinen kommerziellen Produktnamen und keinen Link zu einem privaten Repository enthalten. Die Produktidentität liegt vollständig in dem Repository, das es installiert.
 
@@ -162,7 +162,8 @@ Ein als Reviewer benannter Runner MUSS nur Lesezugriff haben. Das Flag für Lese
 WDI Method installiert 22 Skills: 7 Gate-Skills, 5 für das Daily Tier (einschließlich `wdi-autopilot`) und 10, die Sie jederzeit ausführen.
 
 Wie ein Skill startet:
-- **Sie tippen ihn ein**: die vier Daily-Tier-Skills, `wdi-build` und `wdi-explain-to-me` (sie tragen `disable-model-invocation: true`).
+- **Sie tippen ihn ein**: die vier Daily-Tier-Skills und `wdi-explain-to-me` (sie tragen `disable-model-invocation: true`).
+- **Sie tippen ihn ein, oder `wdi-autopilot` führt ihn unter einem akzeptierten Mandat aus**: `wdi-build`. Er trägt kein `disable-model-invocation`-Flag, weil `wdi-autopilot` ihn aufrufen muss; die Regel, dass Agenten ihn nicht von sich aus starten, steht in der Method policy, die der Installer in `CLAUDE.md` und `AGENTS.md` schreibt.
 - **Sie tippen ihn ein, oder der Agent nennt ihn und wartet auf Ihre Freigabe**: die übrigen Skills.
 - **Der Agent darf ihn selbstständig ausführen (nur Lesezugriff)**: `wdi-help`.
 - **Ausgelöst durch `/loop` unter einem akzeptierten Mandat**: `wdi-autopilot`. Unter einem Mandat führt `wdi-autopilot` auch die übrigen Skills aus.
@@ -176,7 +177,7 @@ Wie ein Skill startet:
 | `/wdi-ux` | Optional, zusammen mit G2. Führt den UX-Skill von BMad aus und legt die Designergebnisse dort ab, wo sie hingehören. Schreibt nie selbst UX-Inhalte. | Sie tippen ihn ein, oder der Agent nennt ihn |
 | `/wdi-blueprint` | G3, einmal pro Produkt. Das Gesamtbild des Produkts: Use Cases, Akteure, Domänenmodell, Geschäftsregeln, Glossar, das Architektur-Rückgrat, C4 sowie die API-, Tabellen- und Bildschirminventare. | Sie tippen ihn ein, oder der Agent nennt ihn |
 | `/wdi-component` | G4. Die Tiefe einer Komponente, so tief wie ihr `mode` und nicht tiefer. Übersprungen bei `mode: catalog`. | Sie tippen ihn ein, oder der Agent nennt ihn |
-| `/wdi-build` | G5. Eine Spezifikation von offen bis geschlossen: Sie führen `to-spec` und `to-tickets` aus, jedes Ticket geht bis zu einem grünen PR, dann wird die Spezifikation geschlossen. Es merged nie. | Sie tippen ihn ein |
+| `/wdi-build` | G5. Eine Spezifikation von offen bis geschlossen: Sie führen `to-spec` und `to-tickets` aus, jedes Ticket geht bis zu einem grünen PR, dann wird die Spezifikation geschlossen. Es merged nie. | Sie tippen ihn ein, oder `wdi-autopilot` führt ihn aus |
 | **Daily Tier** | | |
 | `/wdi-daily-what-to-build` | Wandelt Notizen aus manuellen Tests in eine geprüfte Spezifikation oder ein geprüftes Ticket für einen späteren Autopilot-Lauf um. Hält vor Code, Commit oder Push an. | Sie tippen ihn ein |
 | `/wdi-daily-autopilot` | Prüft, ob ein akzeptiertes Mandat vorliegt (führt den Preflight aus, wenn keines vorliegt), ermittelt die Reviewer aus der lokalen Konfiguration und startet die Schleife, standardmäßig alle 10 Minuten. | Sie tippen ihn ein |

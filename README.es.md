@@ -9,7 +9,7 @@
 
 > **Aviso de traducción:** Este archivo es una traducción de [README.md](README.md) sólo para fines de conveniencia. En caso de discrepancia o conflicto de interpretación, la versión oficial en inglés (`README.md`) prevalece como autorizada. Toda la documentación técnica profunda y los documentos legales se mantienen en inglés.
 
-[BMad](https://github.com/bmad-code-org/BMAD-METHOD) escribe documentos para agentes de IA. WDI Method añade documentos que muchos roles ya leen: casos de uso, diagramas C4, listas de API y de base de datos, y documentos de diseño. Envuelve a BMad sin reemplazarlo: cada skill de WDI delega la redacción a una skill de BMad y después verifica el resultado contra las guías del método.
+[BMad](https://github.com/bmad-code-org/BMAD-METHOD) escribe documentos para agentes de IA. WDI Method añade documentos que muchos roles ya leen: casos de uso, diagramas C4, listas de API y de base de datos, y documentos de diseño. Envuelve a BMad sin reemplazarlo: las skills del brief, el PRD, la UX y la arquitectura (`wdi-problem`, `wdi-product`, `wdi-ux` y `wdi-blueprint` para la espina dorsal) delegan la redacción a una skill de BMad y después verifican el resultado contra las guías del método.
 
 > Este repositorio es **público y genérico**. NO DEBE incluir un nombre de cliente, un nombre de producto comercial ni un enlace a un repositorio privado. La identidad del producto vive por completo en el repositorio que lo instala.
 
@@ -162,7 +162,8 @@ Un runner nombrado como revisor DEBE ser de solo lectura. El flag de solo lectur
 WDI Method instala 22 skills: 7 skills de compuerta, 5 del daily tier (incluida `wdi-autopilot`) y 10 que usted ejecuta en cualquier momento.
 
 Cómo se inicia una skill:
-- **Usted la escribe**: las cuatro skills del daily tier, `wdi-build` y `wdi-explain-to-me` (llevan `disable-model-invocation: true`).
+- **Usted la escribe**: las cuatro skills del daily tier y `wdi-explain-to-me` (llevan `disable-model-invocation: true`).
+- **Usted la escribe, o `wdi-autopilot` la ejecuta bajo un mandato aceptado**: `wdi-build`. No lleva el flag `disable-model-invocation`, porque `wdi-autopilot` tiene que invocarla; la regla de que los agentes no la inician por su cuenta está en la Method policy que el instalador escribe en `CLAUDE.md` y `AGENTS.md`.
 - **Usted la escribe, o el agente la nombra y espera su aprobación**: las demás skills.
 - **El agente puede ejecutarla por sí mismo (solo lectura)**: `wdi-help`.
 - **Disparada por `/loop` bajo un mandato aceptado**: `wdi-autopilot`. Bajo un mandato, `wdi-autopilot` también ejecuta las demás skills.
@@ -176,7 +177,7 @@ Cómo se inicia una skill:
 | `/wdi-ux` | Opcional, junto con G2. Ejecuta la skill de UX de BMad y archiva los resultados de diseño donde corresponden. Nunca escribe contenido de UX ella misma. | Usted la escribe, o el agente la nombra |
 | `/wdi-blueprint` | G3, una vez por producto. La imagen completa del producto: casos de uso, actores, modelo de dominio, reglas de negocio, glosario, la espina dorsal de la arquitectura, C4 y los inventarios de API, tablas y pantallas. | Usted la escribe, o el agente la nombra |
 | `/wdi-component` | G4. La profundidad de un componente, tan profunda como su `mode` y no más. Se omite con `mode: catalog`. | Usted la escribe, o el agente la nombra |
-| `/wdi-build` | G5. Una especificación de abierta a cerrada: usted ejecuta `to-spec` y `to-tickets`, cada ticket llega a un PR en verde y después la especificación se cierra. Nunca fusiona. | Usted la escribe |
+| `/wdi-build` | G5. Una especificación de abierta a cerrada: usted ejecuta `to-spec` y `to-tickets`, cada ticket llega a un PR en verde y después la especificación se cierra. Nunca fusiona. | Usted la escribe, o `wdi-autopilot` la ejecuta |
 | **Daily tier** | | |
 | `/wdi-daily-what-to-build` | Convierte notas de pruebas manuales en una especificación o un ticket revisado para una ejecución posterior del autopilot. Se detiene antes del código, el commit o el push. | Usted la escribe |
 | `/wdi-daily-autopilot` | Comprueba si hay un mandato aceptado (ejecuta el preflight si no lo hay), resuelve los revisores desde la configuración local e inicia el bucle, cada 10 minutos por defecto. | Usted la escribe |

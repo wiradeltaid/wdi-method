@@ -9,7 +9,7 @@
 
 > **Avis de traduction :** Ce fichier est une traduction de [README.md](README.md) fournie uniquement à titre indicatif. En cas de divergence ou de conflit d'interprétation, la version officielle en langue anglaise (`README.md`) prévaut. L'ensemble de la documentation technique approfondie et des documents juridiques est maintenu en anglais.
 
-[BMad](https://github.com/bmad-code-org/BMAD-METHOD) écrit des documents pour les agents IA. WDI Method ajoute des documents que de nombreux rôles lisent déjà : cas d'utilisation, diagrammes C4, listes d'API et de base de données, et documents de conception. Il englobe BMad sans le remplacer : chaque compétence WDI confie la rédaction à une compétence BMad, puis vérifie le résultat par rapport aux guides de la méthode.
+[BMad](https://github.com/bmad-code-org/BMAD-METHOD) écrit des documents pour les agents IA. WDI Method ajoute des documents que de nombreux rôles lisent déjà : cas d'utilisation, diagrammes C4, listes d'API et de base de données, et documents de conception. Il englobe BMad sans le remplacer : les compétences du brief, du PRD, de l'UX et de l'architecture (`wdi-problem`, `wdi-product`, `wdi-ux` et `wdi-blueprint` pour la colonne vertébrale) confient la rédaction à une compétence BMad, puis vérifient le résultat par rapport aux guides de la méthode.
 
 > Ce dépôt est **public et générique**. Il NE DOIT contenir aucun nom de client, aucun nom de produit commercial ni aucun lien vers un dépôt privé. L'identité du produit réside entièrement dans le dépôt qui l'installe.
 
@@ -162,7 +162,8 @@ Un runner désigné comme relecteur DOIT être en lecture seule. Le flag de lect
 WDI Method installe 22 compétences : 7 compétences de gate, 5 pour le daily tier (dont `wdi-autopilot`) et 10 que vous exécutez à tout moment.
 
 Comment une compétence démarre :
-- **Vous la tapez** : les quatre compétences du daily tier, `wdi-build` et `wdi-explain-to-me` (elles portent `disable-model-invocation: true`).
+- **Vous la tapez** : les quatre compétences du daily tier et `wdi-explain-to-me` (elles portent `disable-model-invocation: true`).
+- **Vous la tapez, ou `wdi-autopilot` l'exécute sous un mandat accepté** : `wdi-build`. Elle ne porte pas le flag `disable-model-invocation`, car `wdi-autopilot` doit l'invoquer ; la règle selon laquelle les agents ne la lancent pas d'eux-mêmes figure dans la Method policy que l'installateur écrit dans `CLAUDE.md` et `AGENTS.md`.
 - **Vous la tapez, ou l'agent la nomme et attend votre feu vert** : les autres compétences.
 - **L'agent peut l'exécuter de lui-même (lecture seule)** : `wdi-help`.
 - **Déclenchée par `/loop` sous un mandat accepté** : `wdi-autopilot`. Sous un mandat, `wdi-autopilot` exécute aussi les autres compétences.
@@ -176,7 +177,7 @@ Comment une compétence démarre :
 | `/wdi-ux` | Optionnelle, avec G2. Exécute la compétence UX de BMad et range les résultats de conception là où ils doivent aller. N'écrit jamais de contenu UX elle-même. | Vous la tapez, ou l'agent la nomme |
 | `/wdi-blueprint` | G3, une fois par produit. La vue d'ensemble du produit : cas d'utilisation, acteurs, modèle de domaine, règles métier, glossaire, la colonne vertébrale de l'architecture, C4, et les inventaires d'API, de tables et d'écrans. | Vous la tapez, ou l'agent la nomme |
 | `/wdi-component` | G4. La profondeur d'un composant, aussi profonde que son `mode` et pas davantage. Ignorée avec `mode: catalog`. | Vous la tapez, ou l'agent la nomme |
-| `/wdi-build` | G5. Une spécification de l'ouverture à la clôture : vous exécutez `to-spec` et `to-tickets`, chaque ticket aboutit à une PR au vert, puis la spécification est clôturée. Elle ne fusionne jamais. | Vous la tapez |
+| `/wdi-build` | G5. Une spécification de l'ouverture à la clôture : vous exécutez `to-spec` et `to-tickets`, chaque ticket aboutit à une PR au vert, puis la spécification est clôturée. Elle ne fusionne jamais. | Vous la tapez, ou `wdi-autopilot` l'exécute |
 | **Daily tier** | | |
 | `/wdi-daily-what-to-build` | Transforme des notes de tests manuels en une spécification ou un ticket révisé pour une exécution ultérieure de l'autopilot. S'arrête avant le code, le commit ou le push. | Vous la tapez |
 | `/wdi-daily-autopilot` | Vérifie l'existence d'un mandat accepté (exécute le preflight s'il n'y en a pas), détermine les relecteurs à partir de la configuration locale et lance la boucle, toutes les 10 minutes par défaut. | Vous la tapez |

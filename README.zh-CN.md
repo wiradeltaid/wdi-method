@@ -9,7 +9,7 @@
 
 > **翻译说明：** 本文件是 [README.md](README.md) 的参考译文。如存在任何语义分歧或解释冲突，一律以官方英文版（README.md）为准。所有深度技术文档与法律条款均以英文维护。
 
-[BMad](https://github.com/bmad-code-org/BMAD-METHOD) 为 AI 代理编写文档。WDI Method 补充了许多角色本来就会阅读的文档：用例、C4 图、API 与数据库清单，以及设计文档。它封装 BMad 而不替代它：每个 WDI 技能把写作交给一个 BMad 技能，然后按照本方法的指南检查结果。
+[BMad](https://github.com/bmad-code-org/BMAD-METHOD) 为 AI 代理编写文档。WDI Method 补充了许多角色本来就会阅读的文档：用例、C4 图、API 与数据库清单，以及设计文档。它封装 BMad 而不替代它：简报、PRD、UX 和架构技能（`wdi-problem`、`wdi-product`、`wdi-ux`，以及负责架构主干的 `wdi-blueprint`）把写作交给一个 BMad 技能，然后按照本方法的指南检查结果。
 
 > 本仓库是**公开且通用的**。它不得（MUST NOT）包含客户名称、商业产品名称或指向私有仓库的链接。产品身份完全存放在安装它的仓库中。
 
@@ -162,7 +162,8 @@ WDI Method 根据任务的规模和风险调整流程的繁简程度。
 WDI Method 安装 22 个技能：7 个关卡技能，5 个日常层（daily tier）技能（包括 `wdi-autopilot`），以及 10 个可随时运行的技能。
 
 技能如何启动：
-- **由你输入**：四个日常层技能、`wdi-build` 和 `wdi-explain-to-me`（它们带有 `disable-model-invocation: true`）。
+- **由你输入**：四个日常层技能和 `wdi-explain-to-me`（它们带有 `disable-model-invocation: true`）。
+- **由你输入，或在已接受的授权下由 `wdi-autopilot` 运行**：`wdi-build`。它不带 `disable-model-invocation` 标志，因为 `wdi-autopilot` 必须能调用它；代理不会自行启动它的规则，写在安装器写入 `CLAUDE.md` 和 `AGENTS.md` 的 Method policy 中。
 - **由你输入，或由代理指出并等待你同意**：其他技能。
 - **代理可以自行运行（只读）**：`wdi-help`。
 - **在已接受的授权下由 `/loop` 触发**：`wdi-autopilot`。在授权下，`wdi-autopilot` 也会运行其他技能。
@@ -176,7 +177,7 @@ WDI Method 安装 22 个技能：7 个关卡技能，5 个日常层（daily tier
 | `/wdi-ux` | 可选，随 G2 进行。运行 BMad 的 UX 技能，并把设计结果归档到应在的位置。从不自己编写 UX 内容。 | 由你输入，或由代理指出 |
 | `/wdi-blueprint` | G3，每个产品一次。产品的整体图景：用例、参与者、领域模型、业务规则、术语表、架构主干、C4，以及 API、数据表和界面清单。 | 由你输入，或由代理指出 |
 | `/wdi-component` | G4。一个组件的深度，深到其 `mode` 要求为止，不再更深。在 `mode: catalog` 下跳过。 | 由你输入，或由代理指出 |
-| `/wdi-build` | G5。一份规格说明从打开到关闭：你运行 `to-spec` 和 `to-tickets`，每个工单达到一个绿色的 PR，然后规格说明关闭。它从不合并。 | 由你输入 |
+| `/wdi-build` | G5。一份规格说明从打开到关闭：你运行 `to-spec` 和 `to-tickets`，每个工单达到一个绿色的 PR，然后规格说明关闭。它从不合并。 | 由你输入，或由 `wdi-autopilot` 运行 |
 | **日常层** | | |
 | `/wdi-daily-what-to-build` | 把手工测试笔记转化为一份经过审查的规格说明或工单，供之后的 autopilot 运行使用。在代码、提交或推送之前停止。 | 由你输入 |
 | `/wdi-daily-autopilot` | 检查是否有已接受的授权（没有则运行预检），从本地配置解析审查者，然后启动循环，默认每 10 分钟一次。 | 由你输入 |

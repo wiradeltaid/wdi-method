@@ -9,7 +9,7 @@
 
 > **번역 안내:** 본 문서는 편의를 위해 [README.md](README.md)를 번역한 참고용 문서입니다. 내용상 상충이나 해석의 차이가 있을 경우 영문 공식 문서(`README.md`)가 우선합니다. 세부 기술 문서 및 법적 문서는 영어로 관리됩니다.
 
-[BMad](https://github.com/bmad-code-org/BMAD-METHOD)는 AI 에이전트를 위한 문서를 작성합니다. WDI Method는 여러 역할의 사람들이 이미 읽고 있는 문서를 추가합니다. 유스케이스, C4 다이어그램, API 및 데이터베이스 목록, 설계 문서입니다. WDI Method는 BMad를 대체하지 않고 감쌉니다. 각 WDI 스킬은 작성을 BMad 스킬에 맡긴 뒤, 그 결과를 이 방법론의 가이드에 비추어 확인합니다.
+[BMad](https://github.com/bmad-code-org/BMAD-METHOD)는 AI 에이전트를 위한 문서를 작성합니다. WDI Method는 여러 역할의 사람들이 이미 읽고 있는 문서를 추가합니다. 유스케이스, C4 다이어그램, API 및 데이터베이스 목록, 설계 문서입니다. WDI Method는 BMad를 대체하지 않고 감쌉니다. 브리프, PRD, UX, 아키텍처 스킬(`wdi-problem`, `wdi-product`, `wdi-ux`, 스파인의 경우 `wdi-blueprint`)은 작성을 BMad 스킬에 맡긴 뒤, 그 결과를 이 방법론의 가이드에 비추어 확인합니다.
 
 > 본 저장소는 **공개 및 범용**입니다. 고객명, 상용 제품명 또는 비공개 저장소로 연결되는 링크를 포함해서는 안 됩니다(MUST NOT). 제품의 정체성은 전적으로 이 패키지를 설치하는 저장소에 있습니다.
 
@@ -162,7 +162,8 @@ Windows에서는 실행 중인 앱 바이너리나 백그라운드 빌드 데몬
 WDI Method는 22개의 스킬을 설치합니다. 게이트 스킬 7개, daily tier 스킬 5개(`wdi-autopilot` 포함), 언제든 실행할 수 있는 스킬 10개입니다.
 
 스킬이 시작되는 방식:
-- **사용자가 입력**: 네 개의 daily tier 스킬, `wdi-build`, `wdi-explain-to-me`(이들은 `disable-model-invocation: true`를 가집니다).
+- **사용자가 입력**: 네 개의 daily tier 스킬과 `wdi-explain-to-me`(이들은 `disable-model-invocation: true`를 가집니다).
+- **사용자가 입력하거나, 수락된 위임 아래에서 `wdi-autopilot`가 실행**: `wdi-build`. `wdi-autopilot`가 이를 호출해야 하므로 `disable-model-invocation` 플래그를 가지지 않습니다. 에이전트가 스스로 이를 시작하지 않는다는 규칙은 설치 프로그램이 `CLAUDE.md`와 `AGENTS.md`에 쓰는 Method policy에 있습니다.
 - **사용자가 입력하거나, 에이전트가 알려 주고 사용자의 승인을 기다림**: 나머지 스킬.
 - **에이전트가 스스로 실행할 수 있음(읽기 전용)**: `wdi-help`.
 - **수락된 위임 아래에서 `/loop`가 실행**: `wdi-autopilot`. 위임 아래에서는 `wdi-autopilot`가 다른 스킬도 실행합니다.
@@ -176,7 +177,7 @@ WDI Method는 22개의 스킬을 설치합니다. 게이트 스킬 7개, daily t
 | `/wdi-ux` | 선택, G2와 함께. BMad의 UX 스킬을 실행하고 설계 결과를 제자리에 정리합니다. UX 내용을 직접 쓰지 않습니다. | 사용자가 입력하거나, 에이전트가 알려 줌 |
 | `/wdi-blueprint` | G3, 제품당 한 번. 제품 전체 그림: 유스케이스, 액터, 도메인 모델, 비즈니스 규칙, 용어집, 아키텍처 스파인, C4, 그리고 API, 테이블, 화면 인벤토리. | 사용자가 입력하거나, 에이전트가 알려 줌 |
 | `/wdi-component` | G4. 하나의 컴포넌트의 깊이로, 그 `mode`가 요구하는 만큼만 깊게 쓰고 그 이상은 쓰지 않습니다. `mode: catalog`에서는 건너뜁니다. | 사용자가 입력하거나, 에이전트가 알려 줌 |
-| `/wdi-build` | G5. 하나의 사양을 열림부터 닫힘까지: 사용자가 `to-spec`과 `to-tickets`를 실행하고, 각 티켓이 녹색 PR에 도달한 뒤 사양이 닫힙니다. 병합은 하지 않습니다. | 사용자가 입력 |
+| `/wdi-build` | G5. 하나의 사양을 열림부터 닫힘까지: 사용자가 `to-spec`과 `to-tickets`를 실행하고, 각 티켓이 녹색 PR에 도달한 뒤 사양이 닫힙니다. 병합은 하지 않습니다. | 사용자가 입력하거나, `wdi-autopilot`가 실행 |
 | **Daily tier** | | |
 | `/wdi-daily-what-to-build` | 수동 테스트 메모를 이후의 autopilot 실행을 위한 검토된 사양이나 티켓으로 바꿉니다. 코드, 커밋, 푸시 전에 멈춥니다. | 사용자가 입력 |
 | `/wdi-daily-autopilot` | 수락된 위임이 있는지 확인하고(없으면 사전 점검 실행), 로컬 설정에서 검토자를 정하고, 기본적으로 10분마다 도는 루프를 시작합니다. | 사용자가 입력 |
