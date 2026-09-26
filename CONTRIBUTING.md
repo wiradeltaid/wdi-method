@@ -99,7 +99,7 @@ version (`npx wdi-method --help` prints it). A feature request needs: what gap i
 — the product repo where you hit that gap.
 
 **Security issues:** DO NOT report security vulnerabilities via public GitHub Issues. Send them privately
-through GitHub Security Advisories or to [`security@wiradelta.id`](mailto:security@wiradelta.id) (see
+through GitHub Security Advisories or to [`security@wiradelta.com`](mailto:security@wiradelta.com) (see
 [`SECURITY.md`](SECURITY.md)).
 
 ## Pull request guidelines

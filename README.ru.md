@@ -3,7 +3,7 @@
 > Слой проверки поверх BMad: документы, которые человек читает, чтобы проверить технические решения до написания кода, в объёме, которого изменение действительно требует.
 
 [English](README.md) | [Bahasa Indonesia](README.id.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Português (Brasil)](README.pt-BR.md) | [Русский](README.ru.md)  
-[Website](https://wiradelta.id/wdi-method/docs/) | [Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
+[Website](https://wiradelta.com/wdi-method/docs/) | [Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
 
 ---
 
@@ -260,4 +260,4 @@ to take; the name is not.
 
 ---
 
-Мы используем тот же метод в клиентских проектах. [Связаться с Wira Delta Indonesia](https://wiradelta.id/#contact).
+Мы используем тот же метод в клиентских проектах. [Связаться с Wira Delta Indonesia](https://wiradelta.com/studio/#contact).
