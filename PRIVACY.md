@@ -4,7 +4,7 @@
 # Privacy
 
 **Last updated:** 2026-09-16  
-**Publisher:** PT Wira Delta Indonesia (`wiradelta.id`)  
+**Publisher:** PT Wira Delta Indonesia (`wiradelta.com`)  
 
 WDI Method is an offline, local-first command-line tool. It runs entirely on your local machine, maintains zero telemetry servers, and collects no personal data or usage metrics.
 
@@ -46,4 +46,4 @@ Because all data lives in your repository's git tree, you retain complete sovere
 ## 4. How to remove data and contact us
 
 - **Removal:** To remove WDI Method from a project, delete the `.constitution/`, `.control/`, and `.scratch/` directories and remove the method block from `AGENTS.md`.
-- **Inquiries:** For questions regarding this privacy commitment, contact [`support@wiradelta.id`](mailto:support@wiradelta.id).
+- **Inquiries:** For questions regarding this privacy commitment, contact [`support@wiradelta.com`](mailto:support@wiradelta.com).

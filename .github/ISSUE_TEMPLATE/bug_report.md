@@ -7,7 +7,7 @@ assignees: ''
 ---
 
 > **Security Vulnerabilities:** DO NOT report security vulnerabilities via public issues.
-> Please submit them privately via GitHub Security Advisories or email `security@wiradelta.id` (see [SECURITY.md](https://github.com/wiradeltaid/wdi-method/blob/main/SECURITY.md)).
+> Please submit them privately via GitHub Security Advisories or email `security@wiradelta.com` (see [SECURITY.md](https://github.com/wiradeltaid/wdi-method/blob/main/SECURITY.md)).
 
 **Describe the bug**
 A clear and concise description of what the bug is.

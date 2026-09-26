@@ -22,7 +22,7 @@ WDI Method is a command-line tool (CLI) designed to structure architecture and e
 
 Report security issues privately through either of these channels:
 1. **GitHub Security Advisories (Recommended):** Open the *Security* tab at <https://github.com/wiradeltaid/wdi-method> and select *Report a vulnerability*.
-2. **Security Email:** Send technical details to [`security@wiradelta.id`](mailto:security@wiradelta.id).
+2. **Security Email:** Send technical details to [`security@wiradelta.com`](mailto:security@wiradelta.com).
 
 Please include a description of the vulnerability, minimal reproduction steps, and the affected `wdi-method` version (`npx wdi-method --version`). You will receive an acknowledgement within 48 business hours.
 

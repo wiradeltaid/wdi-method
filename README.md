@@ -3,7 +3,7 @@
 > A review layer on top of BMad: documents a human reads to check technical decisions before code is written, sized to what the change actually deserves.
 
 [English](README.md) | [Bahasa Indonesia](README.id.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Português (Brasil)](README.pt-BR.md) | [Русский](README.ru.md)  
-[Website](https://wiradelta.id/wdi-method/docs/) | [Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
+[Website](https://wiradelta.com/wdi-method/docs/) | [Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
 
 ---
 
@@ -256,4 +256,4 @@ to take; the name is not.
 
 ---
 
-We use the same method on client projects. [Contact Wira Delta Indonesia](https://wiradelta.id/#contact).
+We use the same method on client projects. [Contact Wira Delta Indonesia](https://wiradelta.com/studio/#contact).

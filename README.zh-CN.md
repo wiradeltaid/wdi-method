@@ -3,7 +3,7 @@
 > 构建在 BMad 之上的审查层：在编写代码之前，由人阅读文档来检查技术决策，文档规模与变更实际所需相匹配。
 
 [English](README.md) | [Bahasa Indonesia](README.id.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Português (Brasil)](README.pt-BR.md) | [Русский](README.ru.md)  
-[Website](https://wiradelta.id/wdi-method/docs/) | [Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
+[Website](https://wiradelta.com/wdi-method/docs/) | [Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
 
 ---
 
@@ -260,4 +260,4 @@ to take; the name is not.
 
 ---
 
-我们在客户项目中也使用同样的方法。[联系 Wira Delta Indonesia](https://wiradelta.id/#contact)。
+我们在客户项目中也使用同样的方法。[联系 Wira Delta Indonesia](https://wiradelta.com/studio/#contact)。

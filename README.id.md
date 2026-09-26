@@ -3,7 +3,7 @@
 > Lapisan review di atas BMad: dokumen yang dibaca manusia untuk memeriksa keputusan teknis sebelum kode ditulis, disesuaikan dengan apa yang benar-benar dibutuhkan perubahan itu.
 
 [English](README.md) | [Bahasa Indonesia](README.id.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Português (Brasil)](README.pt-BR.md) | [Русский](README.ru.md)  
-[Website](https://wiradelta.id/wdi-method/docs/) | [Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
+[Website](https://wiradelta.com/wdi-method/docs/) | [Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
 
 ---
 
@@ -260,4 +260,4 @@ to take; the name is not.
 
 ---
 
-Kami memakai metode yang sama di proyek klien. [Hubungi Wira Delta Indonesia](https://wiradelta.id/id/#contact).
+Kami memakai metode yang sama di proyek klien. [Hubungi Wira Delta Indonesia](https://wiradelta.com/id/studio/#contact).

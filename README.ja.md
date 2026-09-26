@@ -3,7 +3,7 @@
 > BMad の上に載るレビュー層です。コードを書く前に、技術的な決定を人が読んで確認するための文書を、その変更に実際に見合う規模で用意します。
 
 [English](README.md) | [Bahasa Indonesia](README.id.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Português (Brasil)](README.pt-BR.md) | [Русский](README.ru.md)  
-[Website](https://wiradelta.id/wdi-method/docs/) | [Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
+[Website](https://wiradelta.com/wdi-method/docs/) | [Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
 
 ---
 
@@ -260,4 +260,4 @@ to take; the name is not.
 
 ---
 
-私たちはクライアントのプロジェクトでも同じメソッドを使っています。[Wira Delta Indonesia に問い合わせる](https://wiradelta.id/#contact)。
+私たちはクライアントのプロジェクトでも同じメソッドを使っています。[Wira Delta Indonesia に問い合わせる](https://wiradelta.com/studio/#contact)。

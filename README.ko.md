@@ -3,7 +3,7 @@
 > BMad 위에 얹는 검토 계층입니다. 코드를 작성하기 전에 사람이 읽고 기술적 결정을 확인하는 문서를, 변경이 실제로 필요로 하는 규모에 맞춰 제공합니다.
 
 [English](README.md) | [Bahasa Indonesia](README.id.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Português (Brasil)](README.pt-BR.md) | [Русский](README.ru.md)  
-[Website](https://wiradelta.id/wdi-method/docs/) | [Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
+[Website](https://wiradelta.com/wdi-method/docs/) | [Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
 
 ---
 
@@ -260,4 +260,4 @@ to take; the name is not.
 
 ---
 
-저희는 고객 프로젝트에도 같은 방법론을 사용합니다. [Wira Delta Indonesia에 문의하기](https://wiradelta.id/#contact).
+저희는 고객 프로젝트에도 같은 방법론을 사용합니다. [Wira Delta Indonesia에 문의하기](https://wiradelta.com/studio/#contact).
