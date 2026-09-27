@@ -10,6 +10,19 @@ version contains every fix below it.
 
 ---
 
+## [0.6.29] - 2026-09-27
+
+A patch. No behaviour changes.
+
+### Changed: text
+
+- Public documentation links now point to wiradelta.com.
+
+**What a repo that already has the method installed does about it.** Nothing beyond
+`npx wdi-method@latest update --yes` — this is a docs-link fix with no effect on generated files.
+
+---
+
 ## [0.6.28] - 2026-09-24
 
 A patch, but **read the reviewer change below before you update**: it changes what the daily autopilot
