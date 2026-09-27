@@ -2,16 +2,14 @@
 
 > Lapisan review di atas BMad: dokumen yang dibaca manusia untuk memeriksa keputusan teknis sebelum kode ditulis, disesuaikan dengan apa yang benar-benar dibutuhkan perubahan itu.
 
-[English](README.md) | [Bahasa Indonesia](README.id.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Português (Brasil)](README.pt-BR.md) | [Русский](README.ru.md)  
-[Website](https://wiradelta.com/wdi-method/docs/) | [Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
+[English](../README.md) | [Bahasa Indonesia](README.id.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Português (Brasil)](README.pt-BR.md) | [Русский](README.ru.md)  
+[Website](https://wiradelta.com/wdi-method/docs/) | [Changelog](../CHANGELOG.md) | [Contributing](../CONTRIBUTING.md) | [License](../LICENSE) | [Security](../SECURITY.md) | [Privacy](../PRIVACY.md)
 
 ---
 
-> **Pemberitahuan terjemahan:** Berkas ini merupakan terjemahan dari [README.md](README.md) untuk kenyamanan pembaca. Jika terdapat perbedaan makna atau penafsiran, berkas resmi berbahasa Inggris (`README.md`) yang menjadi acuan otoritatif. Seluruh dokumen teknis mendalam dan dokumen hukum dikelola dalam Bahasa Inggris.
+> **Pemberitahuan terjemahan:** Berkas ini merupakan terjemahan dari [README.md](../README.md) untuk kenyamanan pembaca. Jika terdapat perbedaan makna atau penafsiran, berkas resmi berbahasa Inggris (`README.md`) yang menjadi acuan otoritatif. Seluruh dokumen teknis mendalam dan dokumen hukum dikelola dalam Bahasa Inggris.
 
 [BMad](https://github.com/bmad-code-org/BMAD-METHOD) menulis dokumen untuk AI agent. WDI Method menambahkan dokumen yang sudah biasa dibaca banyak peran: use case, diagram C4, daftar API dan database, dan dokumen desain. WDI Method membungkus BMad tanpa menggantikannya: skill untuk brief, PRD, UX, dan arsitektur (`wdi-problem`, `wdi-product`, `wdi-ux`, dan `wdi-blueprint` untuk architecture spine) menyerahkan penulisan ke skill BMad, lalu memeriksa hasilnya terhadap panduan metode.
-
-> Repositori ini bersifat **publik dan generik**. Repositori ini **TIDAK BOLEH** memuat nama klien, nama produk komersial, atau tautan ke repositori privat. Identitas produk sepenuhnya berada di repositori yang memasangnya.
 
 ---
 
@@ -222,7 +220,7 @@ Cara sebuah skill dimulai:
 
 ## Kontribusi
 
-Setiap kontribusi ke WDI Method menjawab satu pertanyaan: **apakah perubahan ini membuat lapisan review lebih dapat dipercaya, atau hanya membuatnya lebih tebal?** Lihat [CONTRIBUTING.md](CONTRIBUTING.md).
+Setiap kontribusi ke WDI Method menjawab satu pertanyaan: **apakah perubahan ini membuat lapisan review lebih dapat dipercaya, atau hanya membuatnya lebih tebal?** Lihat [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ### Fixture Corpus dan Verifikasi Lokal
 Perubahan validator dan metode dibuktikan terhadap fixture corpus (`tests/fixture/`). Jalankan rangkaian test sebelum membuka pull request:
@@ -238,8 +236,8 @@ WDI Method dipublikasikan ke registri npm publik. Paket ini tidak boleh memuat n
 
 ## Lisensi dan Privasi
 
-- **Lisensi kode:** [MIT License](LICENSE).
-- **Privasi:** WDI Method sendiri tidak melakukan panggilan jaringan; coding agent Anda tetap berkomunikasi dengan penyedia modelnya. Lihat [PRIVACY.md](PRIVACY.md) dan [SECURITY.md](SECURITY.md).
+- **Lisensi kode:** [MIT License](../LICENSE).
+- **Privasi:** WDI Method sendiri tidak melakukan panggilan jaringan; coding agent Anda tetap berkomunikasi dengan penyedia modelnya. Lihat [PRIVACY.md](../PRIVACY.md) dan [SECURITY.md](../SECURITY.md).
 
 ## The name and the icon
 

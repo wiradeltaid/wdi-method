@@ -92,7 +92,7 @@ describe("autonomous daily tier skills", () => {
 
   it("README.md and README.id.md document the daily tier skills", () => {
     const readme = fs.readFileSync(path.join(ROOT, "README.md"), "utf8");
-    const readmeId = fs.readFileSync(path.join(ROOT, "README.id.md"), "utf8");
+    const readmeId = fs.readFileSync(path.join(ROOT, "translations", "README.id.md"), "utf8");
     for (const name of DAILY_SKILLS) {
       assert.match(readme, new RegExp(name), `README.md is missing documentation for ${name}`);
       assert.match(readmeId, new RegExp(name), `README.id.md is missing documentation for ${name}`);

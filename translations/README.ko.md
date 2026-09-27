@@ -2,16 +2,14 @@
 
 > BMad 위에 얹는 검토 계층입니다. 코드를 작성하기 전에 사람이 읽고 기술적 결정을 확인하는 문서를, 변경이 실제로 필요로 하는 규모에 맞춰 제공합니다.
 
-[English](README.md) | [Bahasa Indonesia](README.id.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Português (Brasil)](README.pt-BR.md) | [Русский](README.ru.md)  
-[Website](https://wiradelta.com/wdi-method/docs/) | [Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
+[English](../README.md) | [Bahasa Indonesia](README.id.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Português (Brasil)](README.pt-BR.md) | [Русский](README.ru.md)  
+[Website](https://wiradelta.com/wdi-method/docs/) | [Changelog](../CHANGELOG.md) | [Contributing](../CONTRIBUTING.md) | [License](../LICENSE) | [Security](../SECURITY.md) | [Privacy](../PRIVACY.md)
 
 ---
 
-> **번역 안내:** 본 문서는 편의를 위해 [README.md](README.md)를 번역한 참고용 문서입니다. 내용상 상충이나 해석의 차이가 있을 경우 영문 공식 문서(`README.md`)가 우선합니다. 세부 기술 문서 및 법적 문서는 영어로 관리됩니다.
+> **번역 안내:** 본 문서는 편의를 위해 [README.md](../README.md)를 번역한 참고용 문서입니다. 내용상 상충이나 해석의 차이가 있을 경우 영문 공식 문서(`README.md`)가 우선합니다. 세부 기술 문서 및 법적 문서는 영어로 관리됩니다.
 
 [BMad](https://github.com/bmad-code-org/BMAD-METHOD)는 AI 에이전트를 위한 문서를 작성합니다. WDI Method는 여러 역할의 사람들이 이미 읽고 있는 문서를 추가합니다. 유스케이스, C4 다이어그램, API 및 데이터베이스 목록, 설계 문서입니다. WDI Method는 BMad를 대체하지 않고 감쌉니다. 브리프, PRD, UX, 아키텍처 스킬(`wdi-problem`, `wdi-product`, `wdi-ux`, 스파인의 경우 `wdi-blueprint`)은 작성을 BMad 스킬에 맡긴 뒤, 그 결과를 이 방법론의 가이드에 비추어 확인합니다.
-
-> 본 저장소는 **공개 및 범용**입니다. 고객명, 상용 제품명 또는 비공개 저장소로 연결되는 링크를 포함해서는 안 됩니다(MUST NOT). 제품의 정체성은 전적으로 이 패키지를 설치하는 저장소에 있습니다.
 
 ---
 
@@ -222,7 +220,7 @@ WDI Method는 22개의 스킬을 설치합니다. 게이트 스킬 7개, daily t
 
 ## 기여
 
-WDI Method에 대한 모든 기여는 한 가지 질문에 답합니다. **이것이 검토 계층을 더 신뢰할 수 있게 만드는가, 아니면 더 두껍게만 만드는가?** [CONTRIBUTING.md](CONTRIBUTING.md)를 참고하세요.
+WDI Method에 대한 모든 기여는 한 가지 질문에 답합니다. **이것이 검토 계층을 더 신뢰할 수 있게 만드는가, 아니면 더 두껍게만 만드는가?** [CONTRIBUTING.md](../CONTRIBUTING.md)를 참고하세요.
 
 ### 픽스처 코퍼스와 로컬 검증
 검증기와 방법론의 변경은 픽스처 코퍼스(`tests/fixture/`)에 대해 입증합니다. 풀 리퀘스트를 열기 전에 테스트 스위트를 실행하세요.
@@ -238,8 +236,8 @@ WDI Method는 공개 npm 레지스트리에 게시됩니다. 비공개 고객명
 
 ## 라이선스와 개인정보
 
-- **코드 라이선스:** [MIT License](LICENSE).
-- **개인정보:** WDI Method 자체는 네트워크 호출을 하지 않습니다. 다만 코딩 에이전트는 여전히 모델 제공자와 통신합니다. [PRIVACY.md](PRIVACY.md)와 [SECURITY.md](SECURITY.md)를 참고하세요.
+- **코드 라이선스:** [MIT License](../LICENSE).
+- **개인정보:** WDI Method 자체는 네트워크 호출을 하지 않습니다. 다만 코딩 에이전트는 여전히 모델 제공자와 통신합니다. [PRIVACY.md](../PRIVACY.md)와 [SECURITY.md](../SECURITY.md)를 참고하세요.
 
 ## The name and the icon
 

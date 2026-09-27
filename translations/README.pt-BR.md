@@ -2,16 +2,14 @@
 
 > Uma camada de revisão sobre o BMad: documentos que um humano lê para verificar decisões técnicas antes de o código ser escrito, dimensionados para o que a mudança realmente merece.
 
-[English](README.md) | [Bahasa Indonesia](README.id.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Português (Brasil)](README.pt-BR.md) | [Русский](README.ru.md)  
-[Website](https://wiradelta.com/wdi-method/docs/) | [Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
+[English](../README.md) | [Bahasa Indonesia](README.id.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Português (Brasil)](README.pt-BR.md) | [Русский](README.ru.md)  
+[Website](https://wiradelta.com/wdi-method/docs/) | [Changelog](../CHANGELOG.md) | [Contributing](../CONTRIBUTING.md) | [License](../LICENSE) | [Security](../SECURITY.md) | [Privacy](../PRIVACY.md)
 
 ---
 
-> **Aviso de tradução:** Este arquivo é uma tradução de [README.md](README.md) fornecida apenas para fins de conveniência. Em caso de divergências ou conflitos de interpretação, a versão oficial em inglês (`README.md`) prevalece como fonte autoritativa. Toda a documentação técnica aprofundada e documentos jurídicos são mantidos em inglês.
+> **Aviso de tradução:** Este arquivo é uma tradução de [README.md](../README.md) fornecida apenas para fins de conveniência. Em caso de divergências ou conflitos de interpretação, a versão oficial em inglês (`README.md`) prevalece como fonte autoritativa. Toda a documentação técnica aprofundada e documentos jurídicos são mantidos em inglês.
 
 O [BMad](https://github.com/bmad-code-org/BMAD-METHOD) escreve documentos para agentes de IA. O WDI Method adiciona documentos que muitos papéis já leem: casos de uso, diagramas C4, listas de API e de banco de dados, e documentos de design. Ele envolve o BMad sem substituí-lo: as habilidades do brief, do PRD, da UX e da arquitetura (`wdi-problem`, `wdi-product`, `wdi-ux` e `wdi-blueprint` para a espinha dorsal) entregam a redação a uma habilidade do BMad e depois verificam o resultado com base nos guias do método.
-
-> Este repositório é **público e genérico**. NÃO DEVE conter nome de cliente, nome de produto comercial nem link para um repositório privado. A identidade do produto fica inteiramente no repositório que o instala.
 
 ---
 
@@ -222,7 +220,7 @@ Como uma habilidade é iniciada:
 
 ## Contribuição
 
-Toda contribuição ao WDI Method responde a uma pergunta: **isto torna a camada de revisão mais confiável, ou apenas a torna mais grossa?** Veja [CONTRIBUTING.md](CONTRIBUTING.md).
+Toda contribuição ao WDI Method responde a uma pergunta: **isto torna a camada de revisão mais confiável, ou apenas a torna mais grossa?** Veja [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ### Fixture Corpus e Verificação Local
 Mudanças nos validadores e no método são comprovadas contra o fixture corpus (`tests/fixture/`). Execute a suíte antes de abrir um pull request:
@@ -238,8 +236,8 @@ O WDI Method é publicado no registro público do npm. Ele nunca deve conter nom
 
 ## Licença e Privacidade
 
-- **Licença do código:** [Licença MIT](LICENSE).
-- **Privacidade:** O WDI Method em si não faz chamadas de rede; seu agente de codificação continua se comunicando com o provedor do modelo. Veja [PRIVACY.md](PRIVACY.md) e [SECURITY.md](SECURITY.md).
+- **Licença do código:** [Licença MIT](../LICENSE).
+- **Privacidade:** O WDI Method em si não faz chamadas de rede; seu agente de codificação continua se comunicando com o provedor do modelo. Veja [PRIVACY.md](../PRIVACY.md) e [SECURITY.md](../SECURITY.md).
 
 ## The name and the icon
 

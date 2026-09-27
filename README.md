@@ -2,14 +2,12 @@
 
 > A review layer on top of BMad: documents a human reads to check technical decisions before code is written, sized to what the change actually deserves.
 
-[English](README.md) | [Bahasa Indonesia](README.id.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Português (Brasil)](README.pt-BR.md) | [Русский](README.ru.md)  
+[English](README.md) | [Bahasa Indonesia](translations/README.id.md) | [简体中文](translations/README.zh-CN.md) | [日本語](translations/README.ja.md) | [한국어](translations/README.ko.md) | [Español](translations/README.es.md) | [Deutsch](translations/README.de.md) | [Français](translations/README.fr.md) | [Português (Brasil)](translations/README.pt-BR.md) | [Русский](translations/README.ru.md)  
 [Website](https://wiradelta.com/wdi-method/docs/) | [Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
 
 ---
 
 [BMad](https://github.com/bmad-code-org/BMAD-METHOD) writes documents for AI agents. WDI Method adds documents that many roles already read: use cases, C4 diagrams, API and database lists, and design documents. It wraps BMad without replacing it: the brief, PRD, UX, and architecture skills (`wdi-problem`, `wdi-product`, `wdi-ux`, and `wdi-blueprint` for the spine) hand the writing to a BMad skill, then check the result against the method's guides.
-
-> This repository is **public and generic**. It MUST NOT carry a client name, a commercial product name, or a link to a private repository. Product identity lives entirely in the repository that installs it.
 
 ---
 

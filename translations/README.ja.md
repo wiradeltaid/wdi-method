@@ -2,16 +2,14 @@
 
 > BMad の上に載るレビュー層です。コードを書く前に、技術的な決定を人が読んで確認するための文書を、その変更に実際に見合う規模で用意します。
 
-[English](README.md) | [Bahasa Indonesia](README.id.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Português (Brasil)](README.pt-BR.md) | [Русский](README.ru.md)  
-[Website](https://wiradelta.com/wdi-method/docs/) | [Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
+[English](../README.md) | [Bahasa Indonesia](README.id.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Português (Brasil)](README.pt-BR.md) | [Русский](README.ru.md)  
+[Website](https://wiradelta.com/wdi-method/docs/) | [Changelog](../CHANGELOG.md) | [Contributing](../CONTRIBUTING.md) | [License](../LICENSE) | [Security](../SECURITY.md) | [Privacy](../PRIVACY.md)
 
 ---
 
-> **翻訳に関する注意事項:** 本ファイルは [README.md](README.md) の便宜的な翻訳です。矛盾や解釈の相違がある場合は、公式の英語版（README.md）が優先されます。詳細な技術文書および法的文書はすべて英語で管理されています。
+> **翻訳に関する注意事項:** 本ファイルは [README.md](../README.md) の便宜的な翻訳です。矛盾や解釈の相違がある場合は、公式の英語版（README.md）が優先されます。詳細な技術文書および法的文書はすべて英語で管理されています。
 
 [BMad](https://github.com/bmad-code-org/BMAD-METHOD) は AI エージェント向けの文書を書きます。WDI Method は、多くの役割の人がすでに読んでいる文書を追加します。ユースケース、C4 図、API とデータベースの一覧、設計文書です。WDI Method は BMad を置き換えずに包み込みます。ブリーフ、PRD、UX、アーキテクチャのスキル（`wdi-problem`、`wdi-product`、`wdi-ux`、スパインについては `wdi-blueprint`）は執筆を BMad のスキルに任せ、その結果をこのメソッドのガイドに照らして確認します。
-
-> 本リポジトリは**パブリックかつ汎用**です。クライアント名、商用製品名、プライベートリポジトリへのリンクを含めてはなりません（MUST NOT）。製品のアイデンティティは、本パッケージをインストールするリポジトリ側にすべて置かれます。
 
 ---
 
@@ -222,7 +220,7 @@ WDI Method は 22 個のスキルをインストールします。ゲートの�
 
 ## コントリビューション
 
-WDI Method へのすべてのコントリビューションは、一つの問いに答えます。**これはレビュー層をより信頼できるものにするのか、それとも厚くするだけなのか？** [CONTRIBUTING.md](CONTRIBUTING.md) を参照してください。
+WDI Method へのすべてのコントリビューションは、一つの問いに答えます。**これはレビュー層をより信頼できるものにするのか、それとも厚くするだけなのか？** [CONTRIBUTING.md](../CONTRIBUTING.md) を参照してください。
 
 ### フィクスチャコーパスとローカル検証
 検証ツールとメソッドの変更は、フィクスチャコーパス（`tests/fixture/`）に対して証明します。プルリクエストを開く前にテストスイートを実行してください。
@@ -238,8 +236,8 @@ WDI Method は公開の npm レジストリで公開されています。プラ�
 
 ## ライセンスとプライバシー
 
-- **コードのライセンス:** [MIT License](LICENSE)。
-- **プライバシー:** WDI Method 自体はネットワーク通信を行いません。ただし、コーディングエージェントはそのモデル提供元と通信します。[PRIVACY.md](PRIVACY.md) と [SECURITY.md](SECURITY.md) を参照してください。
+- **コードのライセンス:** [MIT License](../LICENSE)。
+- **プライバシー:** WDI Method 自体はネットワーク通信を行いません。ただし、コーディングエージェントはそのモデル提供元と通信します。[PRIVACY.md](../PRIVACY.md) と [SECURITY.md](../SECURITY.md) を参照してください。
 
 ## The name and the icon
 

@@ -2,16 +2,14 @@
 
 > Une couche de révision au-dessus de BMad : des documents qu'un humain lit pour vérifier les décisions techniques avant l'écriture du code, dimensionnés selon ce que le changement mérite réellement.
 
-[English](README.md) | [Bahasa Indonesia](README.id.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Português (Brasil)](README.pt-BR.md) | [Русский](README.ru.md)  
-[Website](https://wiradelta.com/wdi-method/docs/) | [Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
+[English](../README.md) | [Bahasa Indonesia](README.id.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Português (Brasil)](README.pt-BR.md) | [Русский](README.ru.md)  
+[Website](https://wiradelta.com/wdi-method/docs/) | [Changelog](../CHANGELOG.md) | [Contributing](../CONTRIBUTING.md) | [License](../LICENSE) | [Security](../SECURITY.md) | [Privacy](../PRIVACY.md)
 
 ---
 
-> **Avis de traduction :** Ce fichier est une traduction de [README.md](README.md) fournie uniquement à titre indicatif. En cas de divergence ou de conflit d'interprétation, la version officielle en langue anglaise (`README.md`) prévaut. L'ensemble de la documentation technique approfondie et des documents juridiques est maintenu en anglais.
+> **Avis de traduction :** Ce fichier est une traduction de [README.md](../README.md) fournie uniquement à titre indicatif. En cas de divergence ou de conflit d'interprétation, la version officielle en langue anglaise (`README.md`) prévaut. L'ensemble de la documentation technique approfondie et des documents juridiques est maintenu en anglais.
 
 [BMad](https://github.com/bmad-code-org/BMAD-METHOD) écrit des documents pour les agents IA. WDI Method ajoute des documents que de nombreux rôles lisent déjà : cas d'utilisation, diagrammes C4, listes d'API et de base de données, et documents de conception. Il englobe BMad sans le remplacer : les compétences du brief, du PRD, de l'UX et de l'architecture (`wdi-problem`, `wdi-product`, `wdi-ux` et `wdi-blueprint` pour la colonne vertébrale) confient la rédaction à une compétence BMad, puis vérifient le résultat par rapport aux guides de la méthode.
-
-> Ce dépôt est **public et générique**. Il NE DOIT contenir aucun nom de client, aucun nom de produit commercial ni aucun lien vers un dépôt privé. L'identité du produit réside entièrement dans le dépôt qui l'installe.
 
 ---
 
@@ -222,7 +220,7 @@ Comment une compétence démarre :
 
 ## Contribution
 
-Chaque contribution à WDI Method répond à une question : **cela rend-il la couche de révision plus digne de confiance, ou seulement plus épaisse ?** Voir [CONTRIBUTING.md](CONTRIBUTING.md).
+Chaque contribution à WDI Method répond à une question : **cela rend-il la couche de révision plus digne de confiance, ou seulement plus épaisse ?** Voir [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ### Fixture Corpus et Vérification Locale
 Les modifications des validateurs et de la méthode sont démontrées sur le fixture corpus (`tests/fixture/`). Exécutez la suite avant d'ouvrir une pull request :
@@ -238,8 +236,8 @@ WDI Method est publié sur le registre npm public. Il ne doit jamais contenir de
 
 ## Licence et Confidentialité
 
-- **Licence du code :** [Licence MIT](LICENSE).
-- **Confidentialité :** WDI Method lui-même n'effectue aucun appel réseau ; votre agent de codage communique toujours avec son fournisseur de modèle. Voir [PRIVACY.md](PRIVACY.md) et [SECURITY.md](SECURITY.md).
+- **Licence du code :** [Licence MIT](../LICENSE).
+- **Confidentialité :** WDI Method lui-même n'effectue aucun appel réseau ; votre agent de codage communique toujours avec son fournisseur de modèle. Voir [PRIVACY.md](../PRIVACY.md) et [SECURITY.md](../SECURITY.md).
 
 ## The name and the icon
 
