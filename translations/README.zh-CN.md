@@ -2,16 +2,14 @@
 
 > 构建在 BMad 之上的审查层：在编写代码之前，由人阅读文档来检查技术决策，文档规模与变更实际所需相匹配。
 
-[English](README.md) | [Bahasa Indonesia](README.id.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Português (Brasil)](README.pt-BR.md) | [Русский](README.ru.md)  
-[Website](https://wiradelta.com/wdi-method/docs/) | [Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [License](LICENSE) | [Security](SECURITY.md) | [Privacy](PRIVACY.md)
+[English](../README.md) | [Bahasa Indonesia](README.id.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Português (Brasil)](README.pt-BR.md) | [Русский](README.ru.md)  
+[Website](https://wiradelta.com/wdi-method/docs/) | [Changelog](../CHANGELOG.md) | [Contributing](../CONTRIBUTING.md) | [License](../LICENSE) | [Security](../SECURITY.md) | [Privacy](../PRIVACY.md)
 
 ---
 
-> **翻译说明：** 本文件是 [README.md](README.md) 的参考译文。如存在任何语义分歧或解释冲突，一律以官方英文版（README.md）为准。所有深度技术文档与法律条款均以英文维护。
+> **翻译说明：** 本文件是 [README.md](../README.md) 的参考译文。如存在任何语义分歧或解释冲突，一律以官方英文版（README.md）为准。所有深度技术文档与法律条款均以英文维护。
 
 [BMad](https://github.com/bmad-code-org/BMAD-METHOD) 为 AI 代理编写文档。WDI Method 补充了许多角色本来就会阅读的文档：用例、C4 图、API 与数据库清单，以及设计文档。它封装 BMad 而不替代它：简报、PRD、UX 和架构技能（`wdi-problem`、`wdi-product`、`wdi-ux`，以及负责架构主干的 `wdi-blueprint`）把写作交给一个 BMad 技能，然后按照本方法的指南检查结果。
-
-> 本仓库是**公开且通用的**。它不得（MUST NOT）包含客户名称、商业产品名称或指向私有仓库的链接。产品身份完全存放在安装它的仓库中。
 
 ---
 
@@ -222,7 +220,7 @@ WDI Method 安装 22 个技能：7 个关卡技能，5 个日常层（daily tier
 
 ## 贡献
 
-对 WDI Method 的每项贡献都回答一个问题：**这是让审查层更值得信赖，还是只让它更厚重？** 参见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+对 WDI Method 的每项贡献都回答一个问题：**这是让审查层更值得信赖，还是只让它更厚重？** 参见 [CONTRIBUTING.md](../CONTRIBUTING.md)。
 
 ### 固定测试语料库与本地验证
 验证器和方法的变更要在固定测试语料库（`tests/fixture/`）上得到证明。在发起拉取请求之前运行测试套件：
@@ -238,8 +236,8 @@ WDI Method 发布在公共 npm 仓库上。它绝不能包含私有客户名称�
 
 ## 许可证与隐私
 
-- **代码许可证：** [MIT 许可证](LICENSE)。
-- **隐私：** WDI Method 本身不发起任何网络调用；你的编码代理仍会与其模型提供方通信。参见 [PRIVACY.md](PRIVACY.md) 和 [SECURITY.md](SECURITY.md)。
+- **代码许可证：** [MIT 许可证](../LICENSE)。
+- **隐私：** WDI Method 本身不发起任何网络调用；你的编码代理仍会与其模型提供方通信。参见 [PRIVACY.md](../PRIVACY.md) 和 [SECURITY.md](../SECURITY.md)。
 
 ## The name and the icon
 

@@ -10,6 +10,30 @@ version contains every fix below it.
 
 ---
 
+## [0.6.30] - 2026-09-27
+
+A patch. No behaviour changes.
+
+### Changed: text
+
+- **README: removed the contributor-only notice.** The "this repository is public and generic"
+  callout in `README.md` and all nine translations was a rule for contributors and agents, not
+  information for a reader of the package — it already lives in `CONTRIBUTING.md` and now also in
+  `AGENTS.md`. Deleted from every README.
+- **The npm package now ships only the English README (translations stay on GitHub).** npm always
+  packs any root file whose name starts with `readme`, regardless of `package.json`'s `files` list —
+  which is how a translation (`README.zh-CN.md`) ended up as the registry's `readmeFilename` instead
+  of `README.md`. The nine translations moved to `translations/` (a plain subdirectory, not swept by
+  that rule) and their cross-links were updated; `README.md`'s language row now points there. npm
+  resolves the relative links on npmjs.com against the `repository` field, so they still open the
+  right file on GitHub.
+
+**What a repo that already has the method installed does about it.** Nothing beyond
+`npx wdi-method@latest update --yes` — this package's own README and npm packaging, not anything the
+installer writes into a consuming repo.
+
+---
+
 ## [0.6.29] - 2026-09-27
 
 A patch. No behaviour changes.

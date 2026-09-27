@@ -60,7 +60,9 @@ npm test
 git grep -ilE "<client>|<product>" -- kit kit-overlay scaffold bin lib README.md tests
 ```
 
-The second command MUST return nothing. This repository is public.
+The second command MUST return nothing. This repository is public and generic: it MUST NOT contain
+a client name, a product name, or a link to a private repository — see `CONTRIBUTING.md`'s public-repo
+rule.
 
 ## Two things update MUST never do
 
