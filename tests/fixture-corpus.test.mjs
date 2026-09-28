@@ -1479,3 +1479,297 @@ test("lc-registered error message includes guidance to use touches: [] for non-c
     `lc-registered error did not carry the guidance for corpus-only tickets:\n${out}`);
 });
 
+
+// ---------------------------------------------------------------------------------------------
+// Installed skill trees and session scratch are not the product's own claims.
+//
+// `INSTALLED` used to be a hand-kept list of three hosts, and it only ever grew after somebody went
+// red: `.claude/`, then `.agents/`, then `.agent/`. The installer supports many more (`lib/platforms.mjs`),
+// so every product installed for any other host carried findings on files it did not write and may
+// not edit. A pattern cannot fall behind a list.
+const DANGLING = "Money lives in `src/lib/money.ts`.\n";
+
+test("cites-resolve skips a BMad or wdi skill tree under ANY host, not only the three it once listed", (t) => {
+  if (requireUv(t)) return;
+  const tmp = installedTree();
+  try {
+    for (const host of [".kiro", ".cline", ".trae"]) {
+      for (const skill of ["bmad-project-context", "wdi-upgrade"]) {
+        const dir = path.join(tmp, host, "skills", skill);
+        fs.mkdirSync(dir, { recursive: true });
+        fs.writeFileSync(path.join(dir, "SKILL.md"), DANGLING);
+      }
+    }
+    const out = validateIn(tmp);
+    assert.doesNotMatch(out, /cites-resolve\s+\.(kiro|cline|trae)\/skills\//,
+      `an installed skill tree under a supported host was read as the product's own claim:\n${out}`);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test("the host pattern is narrow — a product's own file beside a host's skills is still checked", (t) => {
+  if (requireUv(t)) return;
+  const tmp = installedTree();
+  try {
+    fs.mkdirSync(path.join(tmp, ".kiro", "steering"), { recursive: true });
+    fs.writeFileSync(path.join(tmp, ".kiro", "steering", "product.md"), DANGLING);
+    const out = validateIn(tmp);
+    assert.match(out, /cites-resolve\s+\.kiro\/steering\/product\.md.*money\.ts/,
+      `widening the skip swallowed a file the product wrote itself:\n${out}`);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test("every skill directory the installer can write matches the installed-host pattern", async () => {
+  // The drift guard. If a host is ever added whose skill directory is not `.<host>/skills`, the
+  // pattern in validate.py no longer covers it, and this is what says so before a consumer does.
+  const { PLATFORMS } = await import("../lib/platforms.mjs");
+  assert.ok(PLATFORMS.length > 3, "lib/platforms.mjs no longer exports PLATFORMS");
+  for (const p of PLATFORMS) {
+    assert.match(p.skillDir, /^\.[A-Za-z0-9_-]+\/skills$/,
+      `${p.id} installs into ${p.skillDir}, which validate.py's INSTALLED_SKILL pattern does not cover`);
+  }
+});
+
+test("cites-resolve skips `.work/` — scratch is not authority, so a pasted validator line is not a claim", (t) => {
+  if (requireUv(t)) return;
+  const tmp = installedTree();
+  try {
+    const dir = path.join(tmp, ".work", "some-tool", "a-session");
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, "paper.md"),
+      "Validator said: cites-resolve x.md: cites `src/lib/money.ts` which does not exist\n");
+    const out = validateIn(tmp);
+    assert.doesNotMatch(out, /cites-resolve\s+\.work\//,
+      `a session paper quoting a finding was itself reported as the finding:\n${out}`);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+// ---------------------------------------------------------------------------------------------
+// container-built on a product split across repositories. `built` says whether WE write a
+// container; `repo:` says its code is written in another repository. The code map is this repo's
+// tree, so a container whose code lives elsewhere has no heading here — and one without `repo:`
+// still does, which is why a single-repo product sees no change at all.
+const MAP = (dir) => path.join(dir, ".control", "structure-codebase.md");
+const ELSEWHERE = `
+  - id: api
+    name: "API"
+    built: true
+    repo: "another-repo"
+    what: "Serves the app; its code is in another repository"`;
+
+const withElsewhere = (dir) => componentsWith(dir, [[/^containers:\r?\n/m, `containers:${ELSEWHERE}\n`]]);
+
+test("a `built: true` container with `repo:` needs NO heading — its code map is in that repo", (t) => {
+  if (requireUv(t)) return;
+  const out = afterMutation(withElsewhere);
+  assert.doesNotMatch(out, /container-built\s+api/,
+    `a container whose code lives in another repo was asked for a heading in this one:\n${out}`);
+});
+
+test("a `built: true` container with `repo:` MUST NOT have a heading here", (t) => {
+  if (requireUv(t)) return;
+  const out = afterMutation((dir) => {
+    withElsewhere(dir);
+    fs.writeFileSync(MAP(dir), fs.readFileSync(MAP(dir), "utf8")
+      .replace("`★` marks a key file.", "### api\n\nIts code is in another repo.\n\n`★` marks a key file."));
+  });
+  assert.match(out, /container-built\s+code map §api.*repo/,
+    `a heading for code that is not in this repo went unreported:\n${out}`);
+});
+
+test("`repo:` on a `built: false` container is a finding — nobody writes its code anywhere", (t) => {
+  if (requireUv(t)) return;
+  const out = afterMutation((dir) =>
+    componentsWith(dir, [[/^    built: false\r?$/m, "    built: false\n    repo: \"another-repo\""]]));
+  assert.match(out, /container-built\s+db.*repo/,
+    `a repo was named for a container we do not build:\n${out}`);
+});
+
+test("a `built: true` container WITHOUT `repo:` still needs its heading — single-repo products are unchanged", (t) => {
+  if (requireUv(t)) return;
+  const out = afterMutation((dir) =>
+    fs.writeFileSync(MAP(dir), fs.readFileSync(MAP(dir), "utf8").replace(/^### app\r?$/m, "### renamed")));
+  assert.match(out, /container-built\s+app.*MUST have a heading/,
+    `the heading rule for code in this repo stopped firing:\n${out}`);
+});
+
+// ---------------------------------------------------------------------------------------------
+// ux-landed. UX is OPTIONAL at every `mode`, and `risk_accepted` does not reach it: the trigger is a
+// run the owner chose to make, never a knob. Once Product Components exist, the run's two <pc>
+// documents are owed to the corpus, and once they are there the corpus MUST NOT keep pointing back
+// at the run.
+const uxRun = (dir, doc, status = "draft") => {
+  const run = path.join(dir, "_bmad-output", "ux", "run-1");
+  fs.mkdirSync(run, { recursive: true });
+  const file = doc === "design" ? "DESIGN.md" : "EXPERIENCE.md";
+  fs.writeFileSync(path.join(run, file),
+    `---\ntype: ux\ncomponent: ''\ndocument: ${doc}\nstatus: ${status}\n---\n\n# UX\n`);
+};
+// A landed document names the run file(s) it came from in `landed_from` — in the frontmatter, where it
+// is provenance rather than a citation. That is what lets the check be PER RUN: `any()` over the corpus
+// went green for every run the moment one component's file landed.
+const landDesign = (dir, from = ["_bmad-output/ux/run-1/DESIGN.md"]) => {
+  const home = path.join(dir, ".how", "checkout", "01-ux");
+  fs.mkdirSync(home, { recursive: true });
+  fs.writeFileSync(path.join(home, "DESIGN.md"),
+    "---\ntype: ux\ncomponent: checkout\ndocument: design\nlanded_from:\n"
+    + from.map((f) => `  - ${f}\n`).join("") + "---\n\n# Design\n");
+};
+
+test("ux-landed is SILENT when no UX run exists — UX is optional", (t) => {
+  if (requireUv(t)) return;
+  const out = afterMutation(() => {});
+  assert.doesNotMatch(out, /ux-landed/, `a product that chose no UX was asked for it:\n${out}`);
+});
+
+test("ux-landed fails when a UX run waits in _bmad-output while components exist and nothing landed", (t) => {
+  if (requireUv(t)) return;
+  const out = afterMutation((dir) => uxRun(dir, "design"));
+  assert.match(out, /ux-landed\s+_bmad-output\/ux\/run-1\/DESIGN\.md.*landed_from/,
+    `components were born and the UX they were waiting for never reached the corpus:\n${out}`);
+});
+
+test("ux-landed goes quiet once the document has landed in a component", (t) => {
+  if (requireUv(t)) return;
+  const out = afterMutation((dir) => { uxRun(dir, "design"); landDesign(dir); });
+  assert.doesNotMatch(out, /ux-landed/, `a landed run was still reported:\n${out}`);
+});
+
+test("ux-landed is SILENT on a run the owner retired", (t) => {
+  if (requireUv(t)) return;
+  const out = afterMutation((dir) => uxRun(dir, "experience", "superseded"));
+  assert.doesNotMatch(out, /ux-landed/, `an abandoned run was still owed:\n${out}`);
+});
+
+test("ux-landed is SILENT before any component is born — the wait is legitimate until then", (t) => {
+  if (requireUv(t)) return;
+  const out = afterMutation((dir) => {
+    uxRun(dir, "design");
+    const f = path.join(dir, ".control", "registry", "components.yaml");
+    const text = fs.readFileSync(f, "utf8");
+    fs.writeFileSync(f, text.replace(/product_components:[\s\S]*?\nplatform_owns:/,
+                                     "product_components: []\n\nplatform_owns:"));
+  });
+  assert.doesNotMatch(out, /ux-landed/, `a run was demanded before the <pc> in its path existed:\n${out}`);
+});
+
+test("ux-landed behaves the same at `mode: catalog` — the depth knob does not govern UX", (t) => {
+  if (requireUv(t)) return;
+  const out = afterMutation((dir) => {
+    uxRun(dir, "design");
+    componentsWith(dir, [[/^    mode: outline\r?$/m, "    mode: catalog"]]);
+  });
+  assert.match(out, /ux-landed\s+_bmad-output\/ux\/run-1\/DESIGN\.md/,
+    `catalog silenced a rule that no mode governs:\n${out}`);
+});
+
+test("ux-landed fails when the corpus still cites the UX run instead of what landed", (t) => {
+  if (requireUv(t)) return;
+  const out = afterMutation((dir) => {
+    uxRun(dir, "design"); landDesign(dir);
+    const srs = path.join(dir, ".what", "checkout", "SRS-checkout.md");
+    fs.appendFileSync(srs, "\nBehaviour: see `_bmad-output/ux/run-1/DESIGN.md` § Checkout.\n");
+  });
+  assert.match(out, /ux-landed\s+\.what\/checkout\/SRS-checkout\.md.*_bmad-output\/ux\/run-1\/DESIGN\.md/,
+    `the corpus kept pointing at the run after it was distilled:\n${out}`);
+});
+
+test("a DECISION may still cite the UX run — it is a record of what was read", (t) => {
+  if (requireUv(t)) return;
+  const out = afterMutation((dir) => {
+    uxRun(dir, "design"); landDesign(dir);
+    const dec = path.join(dir, ".control", "decisions", "DEC-003-order-list-sorted-newest-first.md");
+    fs.appendFileSync(dec, "\nRead: `_bmad-output/ux/run-1/DESIGN.md`.\n");
+  });
+  assert.doesNotMatch(out, /ux-landed/, `history was reported as a live citation:\n${out}`);
+});
+
+// ---------------------------------------------------------------------------------------------
+// ux-landed, per run — the peer review's blocking finding. Each check below failed against the
+// `any()` version, which went green for every run as soon as one file had landed anywhere.
+const secondRun = (dir, doc = "design", body = null) => {
+  const run = path.join(dir, "_bmad-output", "ux", "run-2");
+  fs.mkdirSync(run, { recursive: true });
+  const file = doc === "design" ? "DESIGN.md" : "EXPERIENCE.md";
+  fs.writeFileSync(path.join(run, file),
+    body ?? `---\ntype: ux\ncomponent: ''\ndocument: ${doc}\nstatus: draft\n---\n\n# UX\n`);
+};
+
+test("ux-landed is PER RUN — a second run stays owed although the first one landed", (t) => {
+  if (requireUv(t)) return;
+  const out = afterMutation((dir) => { uxRun(dir, "design"); landDesign(dir); secondRun(dir); });
+  assert.match(out, /ux-landed\s+_bmad-output\/ux\/run-2\/DESIGN\.md/,
+    `one landing silenced every other run:\n${out}`);
+  assert.doesNotMatch(out, /ux-landed\s+_bmad-output\/ux\/run-1\//, `the landed run was reported:\n${out}`);
+});
+
+test("a landed document with no `landed_from` does not discharge the run — provenance is the proof", (t) => {
+  if (requireUv(t)) return;
+  const out = afterMutation((dir) => { uxRun(dir, "design"); landDesign(dir, []); });
+  assert.match(out, /ux-landed\s+_bmad-output\/ux\/run-1\/DESIGN\.md.*landed_from/,
+    `a landing that does not say where it came from was accepted for every run:\n${out}`);
+});
+
+test("product-level experience discharges an experience run — .what/experience.md counts as landed", (t) => {
+  if (requireUv(t)) return;
+  const out = afterMutation((dir) => {
+    uxRun(dir, "experience");
+    fs.writeFileSync(path.join(dir, ".what", "experience.md"),
+      "---\ntype: experience\nscope: product\nlanded_from:\n  - _bmad-output/ux/run-1/EXPERIENCE.md\n---\n\n# Experience\n");
+  });
+  assert.doesNotMatch(out, /ux-landed/, `a product whose UX is all product-level was reported unlanded:\n${out}`);
+});
+
+test("`landed_from` MAY name a run that has since been deleted — provenance is not a live citation", (t) => {
+  if (requireUv(t)) return;
+  const out = afterMutation((dir) => landDesign(dir, ["_bmad-output/ux/retired-run/DESIGN.md"]));
+  assert.doesNotMatch(out, /ux-landed|cites-resolve.*retired-run/,
+    `a deleted run named as provenance was reported:\n${out}`);
+});
+
+test("a run file with no frontmatter is still a run — the filename is the fallback", (t) => {
+  if (requireUv(t)) return;
+  const out = afterMutation((dir) => secondRun(dir, "design", "# Design, written without frontmatter\n"));
+  assert.match(out, /ux-landed\s+_bmad-output\/ux\/run-2\/DESIGN\.md/,
+    `a run that forgot its frontmatter escaped the check:\n${out}`);
+});
+
+// `repo:` naming THIS repository. The guide and the changelog said it is red, and nothing checked it:
+// a product could name itself, delete its own heading, and stay green. The identity comes from the
+// `origin` remote — where there is none, the comparison cannot be made and the run says so.
+function withOrigin(dir, url) {
+  execFileSync("git", ["init", "-q"], { cwd: dir });
+  execFileSync("git", ["remote", "add", "origin", url], { cwd: dir });
+}
+const SELF = (value) => `
+  - id: api
+    name: "API"
+    built: true
+    repo: "${value}"
+    what: "Claims its code is elsewhere"`;
+
+for (const value of ["acme/shopfront", "shopfront", "https://github.com/acme/shopfront.git"]) {
+  test(`\`repo: ${value}\` is red when origin IS that repository`, (t) => {
+    if (requireUv(t)) return;
+    const out = afterMutation((dir) => {
+      withOrigin(dir, "https://github.com/acme/shopfront.git");
+      componentsWith(dir, [[/^containers:\r?\n/m, `containers:${SELF(value)}\n`]]);
+    });
+    assert.match(out, /container-built\s+api.*THIS repository/,
+      `a container claiming to live elsewhere while naming this repo went unreported:\n${out}`);
+  });
+}
+
+test("`repo:` naming another repository stays green when origin is known", (t) => {
+  if (requireUv(t)) return;
+  const out = afterMutation((dir) => {
+    withOrigin(dir, "git@github.com:acme/shopfront.git");
+    componentsWith(dir, [[/^containers:\r?\n/m, `containers:${SELF("acme/shopfront-api")}\n`]]);
+  });
+  assert.doesNotMatch(out, /container-built\s+api/, `a genuinely external repo was refused:\n${out}`);
+});

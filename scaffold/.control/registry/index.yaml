@@ -29,7 +29,8 @@ policy:
 mode: catalog
 
 # GATES ALREADY PASSED. Written only by the repo owner's own decision at their own gate, and MUST NOT
-# be filled by an agent to clear its own way forward.
+# be filled by an agent to clear its own way forward. The skill that ran the gate asks, and writes it on
+# an explicit yes — the agent is the scribe, never the one deciding.
 gates_passed: []
 
 roles: []

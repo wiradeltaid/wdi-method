@@ -171,7 +171,9 @@ verifies the result, and lands the memlog.
 - The two structure maps in `.control/` MUST NOT be edited by hand — `wdi-init` intent `structure`
   re-derives them.
 - A `DEC-` with status `applied` MUST NOT be edited, except to record its supersession — status moves
-  to `superseded` and names its replacement. A change of mind produces a new `DEC-`.
+  to `superseded` and names its replacement — or to append to `touches` a file its applying commit
+  really changed within what the Decision says, marked on its line as a completion. A change of mind
+  produces a new `DEC-`.
 - A file in `.constitution/method/why/` MUST NOT be cited as the reason to reject a change. It is
   `status: Reference` — it explains, it does not bind, and where it disagrees with a guide the guide
   wins and the disagreement is a defect. This covers `why/` ONLY: a guide in

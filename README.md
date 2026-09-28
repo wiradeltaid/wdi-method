@@ -73,6 +73,9 @@ Inside your coding agent, run:
 ```
 `wdi-help` reads `.control/registry/` and tells you the gate your project is at, the open specs, and the next skill, without guessing from the conversation.
 
+### Updating Later: Do I Need `/wdi-upgrade`?
+You never have to work it out from the version number. `npx wdi-method@latest update` checks your repo's content for anything still in an older shape and writes what it found into `upgrade_pending` in `.control/wdi-method.yaml` — absent means nothing is owed. `/wdi-help` reads that field and tells you to run `/wdi-upgrade` first when it is there. `npx wdi-method upgrade-check` re-checks at any time. Every [`CHANGELOG.md`](CHANGELOG.md) entry also ends with a `wdi-upgrade: needed / not needed` line.
+
 ---
 
 ## Three Workflow Options

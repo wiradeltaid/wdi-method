@@ -245,6 +245,26 @@ Skipped entirely at `mode: catalog`.
 6. What does the client need to know before this goes live?
 7. What is watched in the first week?
 
+## Recording a gate that passed
+
+A gate passes when the owner says so, and the record of it is what every later precondition reads:
+`gates_passed` in `index.yaml` for G1–G3, `g4_passed` with its date on the component row for G4. G5
+is per spec and is recorded by the spec closing, not here.
+
+The record had no writer. Every gate skill ran the gate and stopped, the skills downstream read
+"G2 passed" as a precondition, and one repo birthed its components with `gates_passed: [G1]` — the
+gap surfaced only while closing G3.
+
+- The skill that ran a gate MUST end by asking the owner, in one line, whether it passed. On an explicit
+  *yes* in that session it writes the record; on anything else it writes nothing and says so. The agent
+  is the scribe, never the one deciding — a finished document or a green validator is not a passed gate.
+- A skill whose precondition is a passed gate MUST read it from the record. When the record is missing
+  it MUST ask the owner, and MUST NOT infer the gate from the artifacts that follow it.
+- `wdi-reconcile` reports a gate whose downstream work exists but whose record does not — components
+  without `G2`, a spine without `G3`. It is a report, not a red validator: a repo that never recorded
+  its gates is not broken, only unrecorded. The owner closes it by answering once per gate, and the
+  answer is written then — `wdi-upgrade` does it after an update that brought this rule.
+
 ## Units of work — `FR`, spec, `SPEC`, ticket
 
 | Unit | Is | Lifetime |

@@ -19,7 +19,8 @@ about BMad itself.
 | Source | What it answers |
 |---|---|
 | `.control/generated/status.yaml` | Primary machine-readable status: which spec is open, tickets progress, red validators (or `status.md`) |
-| `.control/registry/index.yaml` | The global `mode`, and the gate map |
+| `.control/wdi-method.yaml` | The installed version, and `upgrade_pending` — what `wdi-upgrade` still owes. Absent means nothing |
+| `.control/registry/index.yaml` | The global `mode`, the gate map, and `gates_passed` |
 | `.control/registry/components.yaml` | Per-component `mode`, `risk_accepted`, and `g4_passed` |
 | `.control/registry/specs.yaml` | Fallback only when status is absent/stale: spec → release, size, and ticket index (MUST query selectively) |
 | `.constitution/method/document/delivery-flow-guide.md` | The five gates and their checklists |
@@ -49,8 +50,8 @@ mis-route in this flow, because every other gate is the same for every component
 
 | State | Next |
 |---|---|
-| `wdi-method update` just ran and its summary printed an `upgrade` line | `wdi-upgrade` — **before anything else**. Content is still in the old shape, and every skill below reads the new one |
-| `wdi-method update` just ran and printed **no** `upgrade` line | Nothing. The update was mechanical and complete; carry on from wherever the gates say you are |
+| `upgrade_pending` is present in `.control/wdi-method.yaml` | `wdi-upgrade` — **before anything else**, however long ago `update` ran. Content is still in the old shape, and every skill below reads the new one. Name the pending items in the answer |
+| `upgrade_pending` is absent | No content is waiting to move. Do NOT guess from the version number: whether an upgrade is owed is a fact about the content, and `update` probed it. It does NOT mean the validators are green — a few `wdi-upgrade` items are found only by the validator, so a red validator is still routed by its own row. A repo updated before this field existed has no record — `npx wdi-method upgrade-check` writes one |
 | `wdi-method install` just ran, first time in this repo | `wdi-init` intent `setup` — the global `mode`, and nothing has started until it is set |
 | Someone asks whether to run `/setup-matt-pocock-skills` | **No**, unless they are changing tracker. `install` and `update` seed `docs/agents/` already answered for this method; re-running the interview restores defaults that contradict Article 3 |
 | The installer refused, naming engines | Not a skill. `npx skills@latest add mattpocock/skills` — **into this repo**, all six it names; a user-level plugin does not count. Then run the installer again |
@@ -60,8 +61,9 @@ mis-route in this flow, because every other gate is the same for every component
 | A brief exists, and no PRD covers the area in play | `wdi-product` intent `prd` |
 | A PRD covers it but the promise has moved | `wdi-product` intent `update` — never a second PRD for the same area |
 | Only the **wording** of an `FR` is wrong | Nobody. Whichever skill is at work fixes it directly; putting it behind a gate is how three earlier corrections were dropped |
-| A PRD exists and the interface is a large part of what it promises | `wdi-ux` — optional, and it runs **before G2**, which reads its `EXPERIENCE.md`. It needs no Product Component: `design-system.md` lands at once, and the two `<pc>`-scoped halves land when `wdi-init` intent `component` runs |
+| A PRD exists and the interface is a large part of what it promises | `wdi-ux` — optional, and it runs **before G2**, which reads its `EXPERIENCE.md`. It needs no Product Component: `design-system.md` and `.what/experience.md` land at once, and the two `<pc>`-scoped halves land when `wdi-init` intent `component` runs |
 | A PRD exists, no `product_components` yet | `wdi-init` intent `component` — the slicing is born here, at the tail of G2 |
+| A gate's work is visibly done but `gates_passed` does not list it — components exist without `G2`, a spine without `G3` | Ask the owner whether that gate passed, and record it only on their answer. The skill that follows reads `gates_passed`, and a gate nobody recorded is a precondition nobody can check |
 | Components exist, `mode` or `risk_accepted` unset | `wdi-init` intents `mode` and `risk` — both are the owner's, and G4 cannot be read without them |
 | Components exist, no UC catalogue or no spine | `wdi-blueprint` — intent `catalog` first, then `platform` |
 | The blueprint is complete and G3 has not been held | The gate. Read `.how-rendered/blueprint.md`, not seven files |

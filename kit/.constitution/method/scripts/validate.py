@@ -1454,28 +1454,26 @@ DESTINATION = (
 # cites a method file IS checked, but here in the package where it can be fixed — see
 # tests/kit-integrity.test.mjs. A product cannot fix a guide `update` overwrites.
 #
-# The BMad skill trees are the same class under whichever host the installer wrote them to. EVERY
-# host MUST be listed, and there are three: `.claude/skills/bmad-` alone left the `.agents/` copy of
-# one identical template failing, which reads as a defect in that product rather than an omission
-# here. Listing two then left the `.agent/` copy failing the same way — the singular host is a
-# separate directory from `.agents/`, not a prefix of it, and a product carrying all three saw the
-# same worked example reported once per host it was missing.
+# The BMad and `wdi-*` skill trees are the same class under whichever host they were copied to, and
+# they are matched by PATTERN, not by a list. The list this replaced was kept by hand and only grew
+# after a product went red — `.claude/` alone, then `.agents/`, then `.agent/` — while the installer
+# supports every host in `lib/platforms.mjs`, and a product can add one outside it. Each missing host
+# left permanent findings on files the product neither wrote nor may edit.
 #
-# `wdi-*` skills are OURS and are deliberately NOT here. They MUST NOT cite a product file that
-# does not exist unless the cite is a placeholder.
-INSTALLED = (
-    ".constitution/method/",
-    ".claude/skills/bmad-",
-    ".agents/skills/bmad-",
-    ".agent/skills/bmad-",
-    # The method's own skills are installed by `update` the same way the guides are, and a consumer
-    # can no more fix a cite in one than in a guide. Their cites are checked where the fix is made —
-    # `kit-integrity` in the package. And one of them, `wdi-upgrade`, deliberately names paths of the
-    # OLD shape to probe for them; read as claims, every probe would be a finding.
-    ".claude/skills/wdi-",
-    ".agents/skills/wdi-",
-    ".agent/skills/wdi-",
-)
+# The method's own `wdi-*` skills are installed by `update` the same way the guides are, and a consumer
+# can no more fix a cite in one than in a guide. Their cites are checked where the fix is made —
+# `kit-integrity` in the package. And one of them, `wdi-upgrade`, deliberately names paths of the OLD
+# shape to probe for them; read as claims, every probe would be a finding.
+#
+# The pattern is narrow on purpose: `.<host>/skills/bmad-*` and `.<host>/skills/wdi-*` only. A product's
+# own file beside them — `.kiro/steering/`, a skill of its own — is still checked.
+INSTALLED = (".constitution/method/",)
+INSTALLED_SKILL = re.compile(r"^\.[A-Za-z0-9_-]+/skills/(?:bmad|wdi)-")
+
+# Scratch is not authority — `repo-guide.md` § `.work/` says nothing in it MAY be read as such — so
+# what it cites is not a claim either. A session paper that pastes a validator line would otherwise be
+# reported as the very finding it quotes.
+SCRATCH = (".work/",)
 
 # The extension list is deliberately WIDE. A narrow one does not make cites-resolve safer — it makes it
 # silent: a product written in a language missing from the list has its code citations
@@ -1581,7 +1579,9 @@ def cites_resolve(c: Corpus, r: Result) -> None:  # was V24
     scanned = 0
     for path in _walk_corpus(c.root, (".md", ".yaml")):
         rel = path.relative_to(c.root).as_posix()
-        if rel.startswith("_bmad-output/") or rel.startswith(INSTALLED):
+        if rel.startswith("_bmad-output/") or rel.startswith(INSTALLED) or INSTALLED_SKILL.match(rel):
+            continue
+        if rel.startswith(SCRATCH):
             continue
         if rel.startswith(PAST_RECORD) or rel.startswith(FROZEN) or rel.startswith(DERIVED):
             continue
@@ -1617,6 +1617,93 @@ def map_container_headings(root: Path) -> list[str] | None:
     return [m.group(1).strip().strip("`") for m in CTR_HEADING.finditer(rest)]
 
 
+UX_RUN_CITE = re.compile(r"_bmad-output/ux/[A-Za-z0-9_./-]*?(?:DESIGN|EXPERIENCE|design-system)\.md")
+UX_RUN_NAMES = {"DESIGN.md": "design", "EXPERIENCE.md": "experience"}
+LANDED_FROM = re.compile(r"^landed_from:.*(?:\r?\n[ \t]+-.*)*", re.M)
+
+
+def ux_landed(c: Corpus, r: Result) -> None:
+    """A UX run's two <pc> documents land when components are born, and the corpus stops citing the run.
+
+    `EXPERIENCE.md` and `DESIGN.md` wait in `_bmad-output/ux/` only because their paths contain a
+    `<pc>`, and `wdi-init` intent `component` is where that wait ends. The prose said so and nothing
+    checked it: one repo birthed its components, kept both documents in the run, and wrote SRS files
+    citing the run as the behaviour reference — found only at G3, by `wdi-reconcile`.
+
+    Deliberately SILENT, not skipped, when there is nothing owed. UX is optional at every `mode` and
+    `risk_accepted` does not reach it, so the trigger is a run the owner chose to make — never a knob —
+    and nothing is owed before a Product Component exists. A run whose `status` is `superseded` or
+    `withdrawn` is retired and owes nothing. `.control/decisions/` and the memlog MAY still cite the
+    run: they record what was read, and only `.what/` and `.how/` are the distilled result.
+
+    PER RUN, by provenance. Every landed UX document names the run file(s) it came from in its
+    frontmatter `landed_from`, and a run is discharged only when some landed document names it. The
+    first version asked whether ANY component had a landed file, and one landing then silenced every
+    other run for good — four peer reviewers found it independently. `landed_from` is provenance, not a
+    citation: the run MAY be deleted later, and a `landed_from` naming a file that is gone is history.
+    """
+    if not c.pcs:
+        return
+    ux_root = c.root / "_bmad-output" / "ux"
+    if ux_root.is_dir():
+        discharged: set[str] = set()
+        for landed in (list(c.root.glob(".how/*/01-ux/DESIGN.md")) + list(c.root.glob(".what/*/04-usecases/EXPERIENCE.md"))
+                       + [c.root / ".what" / "experience.md", c.root / ".how" / "_platform" / "design-system.md"]):
+            fm = frontmatter(landed) or {}
+            for src in listy(fm, "landed_from"):
+                discharged.add(str(src).strip().replace("\\", "/").removeprefix("./"))
+        for path in sorted(ux_root.rglob("*.md")):
+            fm = frontmatter(path) or {}
+            # The filename is the fallback: a run written without frontmatter is still a run.
+            doc = str(fm.get("document") or UX_RUN_NAMES.get(path.name, "")).lower()
+            if str(fm.get("type") or "ux").lower() != "ux" or doc not in ("design", "experience"):
+                continue
+            if str(fm.get("status")) in ("superseded", "withdrawn"):
+                continue
+            rel = path.relative_to(c.root).as_posix()
+            if rel not in discharged:
+                r.fail("ux-landed", rel,
+                       f"Product Components exist, and no landed UX document names this run's `{doc}` "
+                       f"document in its `landed_from` — `wdi-ux` lands it and records the provenance, "
+                       f"dispatched by `wdi-init` intent `component`")
+    for path in _walk_corpus(c.root, (".md", ".yaml")):
+        rel = path.relative_to(c.root).as_posix()
+        if not rel.startswith((".what/", ".how/")):
+            continue
+        text = path.read_text(encoding="utf-8", errors="replace")
+        match = FM.match(text)
+        if match:  # `landed_from` is provenance and is exempt; everything else in the file is not
+            kept = LANDED_FROM.sub("", match.group(1))
+            text = text[:match.start(1)] + kept + text[match.end(1):]
+        for cited in sorted(set(UX_RUN_CITE.findall(text))):
+            r.fail("ux-landed", rel,
+                   f"cites the UX run `{cited}` — once components exist the corpus MUST cite what landed, "
+                   f"and where it came from belongs in its frontmatter `landed_from`")
+
+
+def repo_identity(value: str) -> str:
+    """`owner/name`, lower-case, from a remote URL or a `repo:` value; '' when there is nothing to read.
+
+    Accepts `https://host/owner/name(.git)`, `git@host:owner/name(.git)`, `owner/name`, and a bare `name`.
+    """
+    s = value.strip().lower().rstrip("/")
+    s = s.removesuffix(".git")
+    if "://" in s:
+        s = s.split("://", 1)[1].split("/", 1)[1] if "/" in s.split("://", 1)[1] else ""
+    elif s.startswith("git@") or (":" in s and "/" in s.split(":", 1)[1]):
+        s = s.split(":", 1)[1]
+    parts = [p for p in s.split("/") if p]
+    return "/".join(parts[-2:]) if parts else ""
+
+
+def repo_names_self(repo: str, own: str) -> bool:
+    """True when a `repo:` value names the repository whose origin is `own` (`owner/name`)."""
+    value = repo_identity(repo)
+    if "/" in value:
+        return value == own
+    return bool(value) and value == own.split("/")[-1]
+
+
 def container_built(c: Corpus, r: Result) -> None:  # was V25
     """A container's `built` and its four consequences, plus the PC x container matrix.
 
@@ -1635,6 +1722,8 @@ def container_built(c: Corpus, r: Result) -> None:  # was V25
         return
 
     built: dict[str, bool] = {}
+    elsewhere: set[str] = set()
+    own: str | None = None  # this repository's `owner/name`, read from origin only when a `repo:` needs it
     for ctr in containers:
         cid = str(ctr.get("id") or "").strip()
         if not cid:
@@ -1645,8 +1734,27 @@ def container_built(c: Corpus, r: Result) -> None:  # was V25
             r.fail("container-built", cid, "`built` MUST be a bool — true if we write its content, false if someone else implements it")
             continue
         built[cid] = flag
+        repo = str(ctr.get("repo") or "").strip()
+        if repo:
+            if not flag:
+                r.fail("container-built", cid, "`repo:` names where OUR code lives, and a `built: false` container has none — drop `repo:`")
+                continue
+            if own is None:
+                own = repo_identity(git(c.root, "remote", "get-url", "origin") or "")
+            if own and repo_names_self(repo, own):
+                r.fail("container-built", cid, f"`repo: {repo}` names THIS repository (origin `{own}`) — "
+                       "`repo:` is only for code that lives elsewhere; drop it and keep the heading")
+                continue
+            if not own:
+                r.skip("container-built repo:", "no `origin` remote, so a `repo:` naming this repository cannot be told apart from another one")
+            elsewhere.add(cid)
 
-    # (1) code-map heading = EXACTLY a container with `built: true`
+    # (1) code-map heading = EXACTLY a container with `built: true` whose code is in THIS repo.
+    #
+    # `repo:` is for a product split across repositories: we still write the container, so it stays
+    # `built: true`, registered, and drawn in C4 L2 — but the code map is this repo's tree, and that
+    # container's tree is in the other repo's map. Absent `repo:` means this repo, so a single-repo
+    # product sees no change at all.
     headings = map_container_headings(c.root)
     if headings is None:
         r.fail("container-built", ".control/structure-codebase.md", "the code map does not exist, so container headings cannot be compared")
@@ -1656,9 +1764,11 @@ def container_built(c: Corpus, r: Result) -> None:  # was V25
                 r.fail("container-built", f"code map §{h}", "heading is not a registered container — register it, or it is not a container")
             elif not built[h]:
                 r.fail("container-built", f"code map §{h}", "`built: false` MUST NOT have a heading — there is no code of ours inside it")
+            elif h in elsewhere:
+                r.fail("container-built", f"code map §{h}", "its `repo:` says the code is in another repository, so its heading belongs in that repo's code map, not this one")
         for cid, flag in sorted(built.items()):
-            if flag and cid not in headings:
-                r.fail("container-built", cid, "`built: true` MUST have a heading in the code map")
+            if flag and cid not in elsewhere and cid not in headings:
+                r.fail("container-built", cid, "`built: true` MUST have a heading in the code map — or, if its code is in another repository, name it in `repo:`")
 
     # (2) `built: false` MUST NOT be used by an LC, and (3) MUST NOT appear in a PC's `containers:`
     #
@@ -2011,7 +2121,7 @@ def run_checks(c: Corpus, asof: dt.date) -> Result:
     # no two copies left to compare.
     # V19 is REPEALED. It checked one line item — an `RTR-` file in .control/reports/ — and the
     # retrospective it archived was the only thing spec size `L` ever decided. Both went together.
-    for fn in (goal_has_fr, fr_has_uc, uc_scheduled, ticket_has_test, nfr_has_enforcer, refs_resolve, no_cycles, applied_dec_touches, locked_gate_passed, parallel_tickets_blocked, lc_registered, review_trace, chain_links, memlog_home, spec_names_release_prd, ticket_status_one_home, archived_spec_closed, spec_folder_location, scratch_workspace_hygiene, defect_root_cause, entity_one_writer, spec_after_g4, high_risk_named, mandate_accept, cites_resolve, container_built, custom_room_declared, corpus_in_git, engines_invocable, withdrawn_recorded, id_allocated_once):
+    for fn in (goal_has_fr, fr_has_uc, uc_scheduled, ticket_has_test, nfr_has_enforcer, refs_resolve, no_cycles, applied_dec_touches, locked_gate_passed, parallel_tickets_blocked, lc_registered, review_trace, chain_links, memlog_home, spec_names_release_prd, ticket_status_one_home, archived_spec_closed, spec_folder_location, scratch_workspace_hygiene, defect_root_cause, entity_one_writer, spec_after_g4, high_risk_named, mandate_accept, cites_resolve, container_built, ux_landed, custom_room_declared, corpus_in_git, engines_invocable, withdrawn_recorded, id_allocated_once):
         fn(c, r)
     plan_dates(c, r, asof)
     return r

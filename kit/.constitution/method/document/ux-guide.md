@@ -9,15 +9,49 @@ status: Accepted
 `bmad-ux` produces two documents that belong to **two different layers**. That split is the whole
 reason this guide exists: everything else follows from getting it right.
 
-## Two outputs, two layers
+## Four homes: two layers, at two levels
 
-| Output | Home | Layer | Answers |
-|---|---|---|---|
-| `EXPERIENCE.md` | `.what/<pc>/04-usecases/` | Promise | What the user experiences, and what they can get done |
-| `DESIGN.md` | `.how/<pc>/01-ux/` | Build | Screens, states, components, and how they are put together |
+| | Promise — `.what/` | Build — `.how/` |
+|---|---|---|
+| **Product** — holds for every component | `.what/experience.md` | `.how/_platform/design-system.md` |
+| **One Product Component** | `.what/<pc>/04-usecases/EXPERIENCE.md` | `.how/<pc>/01-ux/DESIGN.md` |
 
 The test is the usual one. If a sentence would still be true after a full redesign, it is experience
-and belongs in `.what/`. If it names a layout, a component, or a token, it is design.
+and belongs in `.what/`. If it names a layout, a component, or a token, it is design. The level is
+the second question: does it hold for every component, or for one?
+
+## Product level — what crosses components
+
+A UX run does not come out split by component. `bmad-ux`'s own `EXPERIENCE.md` opens with sections
+that hold for the whole product, and until the product-level experience file existed they had no
+home: the landing table had nowhere to send them, so they stayed in `_bmad-output/`, which is not
+corpus. One repo parked them in `design-system.md` instead — a promise filed in the build layer, where
+the next redesign would read it as broken.
+
+Each section lands by the redesign test, sentence by sentence where a section holds both kinds:
+
+| `bmad-ux` section | Default home | What moves to the other layer |
+|---|---|---|
+| Foundation — who it is for, the principles | `.what/experience.md` | — |
+| Information architecture — the product's surfaces and how one moves between them | `.what/experience.md` | One component's inner surfaces go to that component's `EXPERIENCE.md` |
+| Voice and Tone | `.what/experience.md` | — |
+| State patterns — empty, loading, error, offline, everywhere | `.how/_platform/design-system.md` | The promise a state keeps (*an empty list always names the next step*) goes to `.what/experience.md` |
+| Interaction primitives | `.how/_platform/design-system.md` | — |
+| Accessibility floor | the standard met → `.what/experience.md` | how it is met — contrast pairs, target sizes → `design-system.md` |
+| Surfaces that are not screens — notifications, widgets, share sheets | what the user is told, and when → `.what/experience.md` | how it looks → `design-system.md` |
+| Key flows — the flow map | the whole map → `.what/experience.md` | each component's zoom-in → that component's `DESIGN.md`, by the rule below |
+| Edge cases shared by several components | `.what/experience.md` | One component's own → its `EXPERIENCE.md` |
+
+**Splitting a flow across components.** The whole map lives at product level. A zoom-in lands in the
+component that **owns the screens in it** — never in the component that owns a shared composite shown
+inside it. A composite is drawn wherever it is used; drawing it does not move the flow. A zoom-in whose
+screens belong to two components is not split to fit: it stays part of the whole map in
+`.what/experience.md`. One repo nearly filed a zoom-in under the wrong component because the only
+registered `LC` inside it was a shared composite.
+
+**A shared composite has one home.** A `ui-composite` used by several components is registered once,
+under the component that holds its implementation. Where nearly every component uses it, it is a base
+element — its `LC` type becomes `ui-element` — and belongs in `design-system.md` instead.
 
 Getting this backwards is expensive in a specific way: a `DESIGN.md` filed under `.what/` makes the
 promise layer freeze around one visual solution, and every later redesign then reads as a broken
@@ -37,8 +71,9 @@ promise.
 - **A run MUST NOT wait for a `<pc>`, and MUST NOT be blocked on one.** The order is PRD → UX → **G2**
   → components, and it is forced: G2 reads `EXPERIENCE.md` (below), while `wdi-init` intent `component`
   requires G2 passed. Making a run wait for components closes that into a cycle nothing can open.
-- **`design-system.md` lands at G2**, immediately. It crosses components by definition and its path has
-  no `<pc>` in it.
+- **`design-system.md` and `.what/experience.md` land at G2**, immediately. Both cross components by
+  definition and neither path has a `<pc>` in it — which is also why G2 can read the product-level
+  experience from the corpus rather than from the run.
 - **`EXPERIENCE.md` and `DESIGN.md` wait, and only because their paths contain `<pc>`.** That is the one
   remaining deferral in the flow, and it is not the owner's to remember: `wdi-init` intent `component`
   lands them in the same act as birthing the components.
@@ -93,7 +128,8 @@ the screen wins in practice and the corpus starts lying.
 ## Passing G2
 
 `DESIGN.md` is an **attachment** at G2, not the document being read. What the Product Owner actually
-reads is `prd.md` and `EXPERIENCE.md` — and G2 gets 45 minutes, twice any other gate, precisely
+reads is `prd.md` and `EXPERIENCE.md` — the run's, for what still waits on components, beside
+`.what/experience.md`, already landed, for what crosses them — and G2 gets 45 minutes, twice any other gate, precisely
 because it decides two things: what is built, and how it feels to use.
 
 The gate question that catches a weak `EXPERIENCE.md` is checklist item 4: *can I retell the main UX
@@ -111,5 +147,15 @@ before the gate opens.
   `UC` is either a missing use case or a promise nobody made.
 - Durable UX decisions — why a pattern was chosen, what was rejected — belong in a `DEC-` or in the
   run's addendum, not as prose inside `DESIGN.md`.
-- The UX run folder in `_bmad-output/ux/` MUST NOT be deleted after placement. Intent *update* reads
-  it again.
+- The UX run folder in `_bmad-output/ux/` MUST NOT be deleted while intent *update* may still read it;
+  after that it follows the retirement condition in `corpus-guide.md`. Nothing in the corpus depends on
+  it staying: what landed is complete on its own.
+- Once components exist, a file in `.what/` or `.how/` MUST NOT cite the run's `DESIGN.md`,
+  `EXPERIENCE.md`, or `design-system.md`. The run has been distilled; the corpus cites what landed.
+- Every landed UX document — `experience.md`, `design-system.md`, each `EXPERIENCE.md` and `DESIGN.md` —
+  MUST name the run file(s) it came from in its frontmatter `landed_from`. That is provenance, not a
+  citation: it is exempt from the rule above, and it stays true after the run is deleted. The detail —
+  which sections went where — goes to `.control/memlog/ux.md`. A `DEC-` MAY still cite the run.
+- `ux-landed` checks both, **per run**: once components exist, every active run document MUST be named
+  in some landed document's `landed_from`, and nothing in `.what/` or `.how/` outside `landed_from` MAY
+  cite the run.

@@ -77,7 +77,7 @@ matrix, and the survey behind that warning is spent the moment the owner answers
 |---|---|---|
 | Is | A **living rule** in `ARCHITECTURE-SPINE.md` | A **decision event** |
 | Lives in | The spine | `.control/decisions/` |
-| Changes by | Being edited in place | Never, once `applied` — a new `DEC-` supersedes it |
+| Changes by | Being edited in place | Never, once `applied` — a new `DEC-` supersedes it. Two trace edits are allowed: the supersession pointer, and completing `touches` |
 | Answers | What is forbidden from now on | What was chosen, and what it cost |
 
 An `AD-N` usually has a `DEC-` behind it. Neither MUST be written in place of the other, and one MUST
@@ -122,7 +122,7 @@ where the section table above says so.
 |---|---|
 | `id` | `DEC-NNN`, allocated from `.control/registry/decisions.yaml`, globally. MUST NOT restart per component or per release |
 | `status` | `draft` · `accepted` · `applied` · `superseded` · `rejected` |
-| `touches` | Empty at `draft`. Filled **when the decision is applied**, with the files it actually changed |
+| `touches` | Empty at `draft`. Filled **when the decision is applied**, with the files it actually changed. MAY be completed after `applied` — § *Completing `touches`* |
 | `type` | Free text, and optional. Written when it is useful — `risk-acceptance`, `course-correction`. One value has a fixed shape: `mandate`, opened by `wdi-autopilot`, whose parameters live under `mandate:` on the registry row and nowhere else |
 | `accepted_by` | Who raised it to `accepted`. A person and a date, the way `risk_accepted_by` is written — or the `DEC-` of a `type: mandate` that delegated the acceptance. `mandate-accept` checks the second form |
 | `supersedes` · `superseded_by` | Both sides of a supersession MUST exist |
@@ -147,9 +147,29 @@ Filenames MUST obey the cross-OS naming rules in `structure-guide.md`.
 | `superseded` | Replaced. Names its replacement, and the replacement names it |
 | `rejected` | Seriously considered and turned down. A real status, and it MUST be used — it is what stops the same argument being had twice |
 
-**Applying is what freezes a decision, not accepting.** From `applied` onward nothing in the file MUST
+**Applying is what freezes a decision, not accepting.** From `applied` onward — the two trace edits in the
+table above aside — nothing in the file MUST
 be touched — not the Decision, not the Cost, not a typo in the Why. Documents cite it, and editing it
 destroys the only evidence of what they were changed to match.
+
+### Completing `touches`
+
+`touches` is the one part of an applied decision that records what HAPPENED rather than what was
+decided, and it can be wrong in a way the freeze cannot defend: an application that also changed a
+file nobody listed leaves a trace that lies, with no legal repair. One repo found its spine changed
+by an application whose `touches` never named it.
+
+So a file MAY be appended to `touches` after `applied`, and only when both hold:
+
+- the applying commit really changed it — the commit that completes `touches` names that commit;
+- the change is inside what the Decision says.
+
+Append only: nothing is removed, and no other field moves. The appended entry is written in BOTH the
+`DEC-` file and `.control/registry/decisions.yaml`, and it carries its own marker on the line —
+`- <path>  # completed <YYYY-MM-DD>, applying commit <sha>` — so a reader of the decision can tell the
+original application from the completion without opening git. Where the second condition fails, it is not
+a trace to complete — the application widened beyond the decision, which is a finding for a new `DEC-`
+or a revert, and `touches` MUST NOT be used to make it look authorised.
 
 Before that, an `accepted` `DEC-` MAY be corrected in place. Nothing has been built on it, so there is
 no divergent record to preserve, and **the correction is not recorded anywhere** — the file now reads

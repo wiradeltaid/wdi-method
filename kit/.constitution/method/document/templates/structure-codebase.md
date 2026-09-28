@@ -59,8 +59,10 @@ commit: '{sha}'               # the commit it was read at — staleness is measu
      without warning.
 
      Heading names MUST match the `container` values used in components.yaml, so an LC's container
-     can be checked against this map instead of trusted. A container with no code in this repo MUST
-     NOT get a subsection — it belongs to c4-l2-containers.md. A folder that builds more than one
+     can be checked against this map instead of trusted. The headings are exactly the `built: true`
+     containers WITHOUT `repo:` — `container-built` checks it. A container whose code is in another
+     repository carries `repo:` in components.yaml and gets its subsection in THAT repo's map; one
+     that is ours but has no code yet still gets a subsection, one line saying so. A folder that builds more than one
      container MUST say which. -->
 
 ### {container}

@@ -27,6 +27,11 @@ Every bump MUST bring a `CHANGELOG.md` entry in the same commit, written for the
 carefully to read an `update` diff — what changed, and what a repo that already has the method installed
 has to do about it. `CONTRIBUTING.md` carries the same rule for humans.
 
+Every entry MUST carry one line starting `**`wdi-upgrade`:**` that says *needed* or *not needed*, and
+why. A change that moves content into a new shape MUST add its row to `wdi-upgrade`'s checklist and its
+probe to `pendingUpgrades()` in the same commit — `tests/upgrade-pending.test.mjs` fails when one
+arrives without the other.
+
 ## Language
 
 Everything in this repository is **English** — the installer's interface included, and so is every

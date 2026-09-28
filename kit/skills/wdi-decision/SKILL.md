@@ -136,7 +136,7 @@ list assembled while editing is a list that grows to fit what was already done.
 | `.how/_platform/` — spine, C4, `cross-cutting.md`, the three inventories | `wdi-blueprint` intent `platform` |
 | `.what/<pc>/` slots `02`–`05` — full flows, local rules, lifecycles, scenarios | `wdi-component` intent `behaviour` |
 | `.how/<pc>/` minus `01-ux/` | `wdi-component` intent `design` |
-| `EXPERIENCE.md` · `.how/<pc>/01-ux/` · `design-system.md` | `wdi-ux` |
+| `.what/experience.md` · `EXPERIENCE.md` · `.how/<pc>/01-ux/` · `design-system.md` | `wdi-ux` |
 | `components.yaml` — a PC born or changed · `mode` · `risk_accepted` · the two structure maps | `wdi-init`, by intent |
 | `specs.yaml`, or anything inside an open spec | `wdi-build` |
 | `.control/questions/` | `wdi-question` |
@@ -186,7 +186,10 @@ reopen a gate yourself, and you MUST NOT treat a green application as a gate tha
   edit pass owns the rule.
 - You MUST NOT apply into a spec that is already closed.
 - **Supersession is written on both sides**: `superseded_by` on the retired decision, `supersedes` on the one
-  replacing it. Nothing else about an `applied` decision MAY be touched, and this is the exception — a reader
+  replacing it. Nothing else about an `applied` decision MAY be touched but one trace — appending to
+  `touches` a file the applying commit really changed, in the `DEC-` and in `decisions.yaml`, marked on its
+  line, `decision-guide.md` § *Completing `touches`* — and
+  supersession is the other exception — a reader
   following the old id needs the pointer forward, and for a `type: mandate` that pointer's date is what says
   when the delegation stopped. Retiring a mandate that accepted decisions without it is a `mandate-accept`
   finding.

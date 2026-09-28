@@ -65,7 +65,7 @@ None of these are yours to create.
 |---|---|
 | The component is registered with `mode` and `risk_accepted` set | Route to `wdi-init` intents `component`, `mode`, `risk` |
 | Its `mode` is not `catalog` | Stop. G4 is skipped, and the work goes straight to `wdi-build` |
-| G3 has passed | Route to `wdi-blueprint`. Depth written against a moving portrait is rewritten |
+| `G3` is in `gates_passed` | Route to `wdi-blueprint`. Depth written against a moving portrait is rewritten. A missing record is asked of the owner, never inferred from the spine existing |
 | The spine exists and its `AD-N` are readable | Route to `wdi-blueprint`. You MUST NOT write the spine |
 | For `design`: the container this component runs in is registered | Route to `wdi-blueprint`. G3 has passed by now, so the answer exists — an `LC` written here MUST carry it. Only a screen `LC` born at G2 is allowed an empty one, and G3 fills it |
 
@@ -152,6 +152,11 @@ branches and contracts live.
 
 You MUST NOT open G4 on depth that has not been through it.
 
+## Step 8 — Record the gate
+
+Ask the owner whether G4 passed for this component. Write today's date into its `g4_passed` only on
+their explicit *yes* — `delivery-flow-guide.md` § *Recording a gate that passed*. `spec-after-g4` reads it.
+
 ## Rules
 
 - A decision taken while writing is **written into the document as its own content**, stated as what now
@@ -171,4 +176,4 @@ You MUST NOT open G4 on depth that has not been through it.
 Component and its `mode` and `risk_accepted` · which intents ran · what was written per slot and **what the
 mode deliberately left unwritten** · the `AD-N` inherited · the `LC` registered and their types · evidence
 labels outstanding by kind · drift found and where it was routed · whether `wdi-review` ran · the one ranked
-batch of questions.
+batch of questions · whether G4 was recorded.

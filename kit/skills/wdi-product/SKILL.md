@@ -147,7 +147,7 @@ What you MUST NOT do: delete the row, renumber around the gap, or edit a `DEC-` 
   is `update` far more often than it feels.
 - You MUST NOT open G2 on a PRD that has not been through check 11. Gate time is for deciding, not
   proofreading.
-- The gate reads `prd.md` and `EXPERIENCE.md` together. A PRD that passes while the experience side is
+- The gate reads `prd.md` and the experience together — `.what/experience.md` for what holds across components, the run's `EXPERIENCE.md` for the rest. A PRD that passes while the experience side is
   missing has answered half of what G2 decides.
 - Every unresolved `[ASSUMPTION]` MUST be filed through `wdi-question` before the gate opens.
 - You MUST NOT raise `status:`. Status is a stage; the `reviewed:` block is an event, and `wdi-review` writes
@@ -155,8 +155,13 @@ What you MUST NOT do: delete the row, renumber around the gap, or edit a `DEC-` 
 - When the PRD cannot promise what was asked, say so and stop. Route to `wdi-problem`; do not quietly narrow
   the ask.
 
+## Step 8 — Record the gate
+
+Ask the owner whether G2 passed. Write `G2` into `gates_passed` only on their explicit *yes* —
+`delivery-flow-guide.md` § *Recording a gate that passed*. `wdi-init` intent `component` reads it next.
+
 ## Output
 
 Intent dispatched · what the promise now is in one line · the requirements landed in Step 4 · the result of
 all eleven checks naming the failures · the `owns:` check · impact found and where it was routed · the gates
-the matrix names · open questions filed.
+the matrix names · open questions filed · whether G2 was recorded.

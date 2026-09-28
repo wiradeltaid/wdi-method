@@ -2,6 +2,7 @@
 type: ux
 component: '{pc}'
 document: design             # design (.how/<pc>/01-ux/) · experience (.what/<pc>/04-usecases/)
+landed_from: []              # the run file(s) in _bmad-output/ux/ this landed from — provenance, kept after the run is gone
 created: '{YYYY-MM-DD}'
 ---
 
@@ -18,9 +19,10 @@ created: '{YYYY-MM-DD}'
      Keeping them in one file — as most projects do — makes a button-colour change and a flow change
      look equally weighty. They are not.
 
-     Neither lands by itself. bmad-ux writes to _bmad-output/ux/ and wdi-ux lands it. Base
-     tokens and shared elements do NOT stay per-component; they go to
-     .how/_platform/design-system.md. -->
+     Neither lands by itself. bmad-ux writes to _bmad-output/ux/ and wdi-ux lands it. What holds
+     for EVERY component does NOT stay per-component: the promise side goes to .what/experience.md
+     (templates/experience.md), and tokens, shared elements, and build patterns go to
+     .how/_platform/design-system.md. ux-guide.md § Product level maps each bmad-ux section. -->
 
 ## DESIGN — visual
 

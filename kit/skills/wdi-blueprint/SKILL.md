@@ -38,6 +38,8 @@ of that is `wdi-component` at G4. You MUST NOT write a promise; when the bluepri
 
 - The components MUST already exist. If `components.yaml` holds no `product_components`, route to `wdi-init`
   intent `component` — the slicing is born at the tail of G2, from the brief plus every PRD.
+- `G2` MUST be in `gates_passed`. When it is not, ask the owner whether G2 passed; the components existing
+  is not the answer.
 - `catalog` runs before `platform`. The spine is written against a portrait that exists.
 - If the spine and C4 set already exist, `platform` is an **amendment**, never a create. A second create
   overwrites what three specs of annotation put there.
@@ -239,7 +241,12 @@ You MUST NOT hand-write anything under `.control/generated/`, `.what-rendered/`,
 - An `AD-N` that reverses or narrows an earlier one MUST go through `wdi-decision` first. Editing an `AD-N` in
   place is how a reversal happens with nobody deciding it.
 
-## Step 8 — A PRD that arrives after G3
+## Step 8 — Record the gate
+
+Ask the owner whether G3 passed. Write `G3` into `gates_passed` only on their explicit *yes* —
+`delivery-flow-guide.md` § *Recording a gate that passed*. `wdi-component` reads it next.
+
+## Step 9 — A PRD that arrives after G3
 
 The blueprint is **living and amended**, not repeated. `wdi-init` intent `component` births the new
 components, this skill adds their rows to the catalogue and the three inventories, and **G3 reopens over the
@@ -247,7 +254,7 @@ delta only**. The 45-minute session does not run again for one additional initia
 
 ## Rules
 
-- You MUST NOT write into `.how/<pc>/`, and `design-system.md` in `_platform/` belongs to `wdi-ux`.
+- You MUST NOT write into `.how/<pc>/`. `design-system.md` in `_platform/` and `.what/experience.md` belong to `wdi-ux`.
 - You MUST NOT regenerate the C4 set from scratch. The loss of annotations is invisible in a diff that reads
   as a rewrite.
 - You MUST NOT raise `status:`. Status is a stage; the `reviewed:` block is an event.
@@ -261,4 +268,4 @@ delta only**. The 45-minute session does not run again for one additional initia
 Intents run · the catalogue and inventories as counts, per component · glossary terms written, proposed, and
 rejected with the rule that rejected each · the `AD-N` that are new or changed · what was amended in the C4
 set and what contradicted it · containers registered · plan-versus-code differences reported · whether the
-roll-up regenerated and `wdi-review` ran · the one ranked batch of questions.
+roll-up regenerated and `wdi-review` ran · the one ranked batch of questions · whether G3 was recorded.

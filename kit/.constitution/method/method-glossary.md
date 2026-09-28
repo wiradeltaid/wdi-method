@@ -71,6 +71,9 @@ there is only Product Component.
 | **C4** | L1 system context · L2 containers · L3 components, one file per container. L1+L2 together are what other methods call the HLD |
 | **`DESIGN.md`** | UX per PC, in `.how/<pc>/01-ux/` |
 | **`EXPERIENCE.md`** | The user-facing journey, in `.what/<pc>/04-usecases/` |
+| **`repo:`** | On a container, the repository its code lives in when that is NOT this one. Absent means here. It moves the container's code-map heading to that repository |
+| **`upgrade_pending`** | In `.control/wdi-method.yaml`: what `wdi-upgrade` still owes, as `update` probed it. Absent means nothing |
+| **`experience.md`** | The experience every component keeps, in `.what/`. Its build-side twin is `design-system.md` |
 | **`DEC-`** | One decision worth remembering, numbered globally. Lives in `.control/decisions/`. Recording is **not mandatory**; it freezes at `applied`, not at `accepted` |
 | **SPEC** | The document of **one spec**: a projection of `.what/` + `.how/` that MUST NOT contain anything new. Not read by humans, and **not written at size `S`** — there the tickets are the contract |
 | **Ticket** | One unit of build: a tracer-bullet vertical slice, complete through every layer, verifiable on its own, sized to one fresh context window. Carries the tickets that **block** it. Status is read from the ticket itself, never copied elsewhere |

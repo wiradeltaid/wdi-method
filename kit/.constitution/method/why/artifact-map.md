@@ -44,6 +44,7 @@ Marks used below: **always** = present at all four modes, born at G1, G2, or G3 
 | `_product-brief/addendum.md` | Depth that does not fit the brief's narrative | G1 | always | always | always | always |
 | `_prd/<initiative>/prd.md` | `CAP` · `FR` · `NFR` · `UJ` · one proof of done per `FR` | G2 | always | always | always | always |
 | `_prd/<initiative>/addendum.md` | Rejected alternatives, option matrices, sizing | G2 | always | always | always | always |
+| `experience.md` | The experience every component keeps: foundation, IA, voice, flow map, journeys across components | G2, optional | optional | optional | optional | optional |
 | `<pc>/04-usecases/EXPERIENCE.md` | The user-facing journey | G2, optional | optional | optional | optional | optional |
 | `business-rules.md` | `BR-N` binding more than one component | G3 | always | always | always | always |
 | **`<pc>/SRS-<pc>.md`** | § Actor Register · **§ UC Catalogue — this is the use case list** · Constraints · Non-Goals · Prerequisite · Assumptions/Risks/TBC | G3 | **always** | always | always | always |
@@ -71,7 +72,7 @@ Repealed: `<pc>/01-requirements/` (permanently empty; `FR` live in the PRD and t
 | **`_platform/inventory-api.md`** | **Endpoint list**: `No` · method · path · owning component · description · status | G3 | **always** | always | always | always |
 | **`_platform/inventory-screen.md`** | **Screen list**: `No` · screen · route · owning component · actor · `UC` served | G3 | **always** | always | always | always |
 | `_platform/cross-cutting.md` | One error envelope for the whole product, and the rest of what is shared | G3 | always | always | always | always |
-| `_platform/design-system.md` | Tokens and base elements | G2, optional | optional | optional | optional | optional |
+| `_platform/design-system.md` | Tokens, base elements, and the build patterns every component shares | G2, optional | optional | optional | optional | optional |
 | `<pc>/SDD-<pc>.md` § Decision Summary | What this component is built as, and the costliest choices reversed | G4 | skeleton | ✓ | ✓ | ✓ |
 | `<pc>/SDD-<pc>.md` § Structure | The `LC` list and their dependency direction | G4 | skeleton | ✓ | ✓ | ✓ |
 | `<pc>/SDD-<pc>.md` § Inherited Constraints | The `AD-N` binding this component, quoted not paraphrased | G4 | — | — | ✓ | ✓ |
@@ -116,7 +117,7 @@ someone else performs. `../document/corpus-guide.md` holds the binding version o
 | `wdi-product` | `.what/_prd/<initiative>/` |
 | `wdi-blueprint` | `.what/<pc>/` § Actor Register + § UC Catalogue + `03-domain/domain-model.md` · `.what/business-rules.md` · `.control/product-glossary.md` · all of `.how/_platform/` except `design-system.md` |
 | `wdi-component` | `.what/<pc>/` slots `02`–`05` · `.how/<pc>/` except `01-ux/` |
-| `wdi-ux` | `EXPERIENCE.md` · `.how/<pc>/01-ux/` · `.how/_platform/design-system.md` |
+| `wdi-ux` | `.what/experience.md` · `EXPERIENCE.md` · `.how/<pc>/01-ux/` · `.how/_platform/design-system.md` |
 | `wdi-build` | `specs.yaml` · `.scratch/<spec-id>-<slug>/` · `src/` · `web/` |
 | `wdi-decision` | `.control/decisions/` · `decisions.yaml`, and at apply time whatever `touches` names — through each file's owner |
 | `wdi-question` | `.control/questions/` |

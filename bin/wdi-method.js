@@ -170,6 +170,7 @@ function usage() {
   update  [dir]             update      (TUI unless --yes)
   verify  [dir]
   engines [dir] [--fix]     report the six engines, their invocation state, and the BMad G5 ban
+  upgrade-check [dir]       re-probe what wdi-upgrade still owes; rewrites upgrade_pending (exit 1 if any)
   promote <live-dir> --rescue   pull a method change back out of a consumer (not the normal flow)
 
   --yes                     non-interactive
@@ -214,7 +215,7 @@ function parseArgs(argv) {
     return args;
   }
   const first = rest[0];
-  if (["install", "update", "verify", "promote", "engines"].includes(first)) {
+  if (["install", "update", "verify", "promote", "engines", "upgrade-check"].includes(first)) {
     args.cmd = rest.shift();
   } else if (first.startsWith("-")) {
     args.cmd = "wizard";
@@ -1266,6 +1267,43 @@ function seedEmptyLayers(target, { first }) {
   }
 }
 
+// What `wdi-upgrade` still owes, written where it is committed. The summary line alone was the only
+// record, so a repo whose owner missed that one screen could not find out again — and `wdi-help` can
+// only route to `wdi-upgrade` from something it can read. Absent when nothing is pending: an empty
+// list would read as a question nobody has to answer.
+const PENDING_HEADER = "# What wdi-upgrade still has to move. Re-probed by `npx wdi-method upgrade-check`; absent = nothing.";
+
+function pendingBlock(items) {
+  if (!items.length) return "";
+  return `${PENDING_HEADER}\nupgrade_pending:\n${items.map((i) => `  - ${JSON.stringify(i)}\n`).join("")}`;
+}
+
+// Re-probe and rewrite ONLY the pending block, leaving the rest of the stamp as `update` wrote it.
+// This is how `wdi-upgrade` closes: the field disappears when the probes come back clean.
+function upgradeCheck(target) {
+  const file = path.join(target, ".control", "wdi-method.yaml");
+  if (!fs.existsSync(file)) die("no .control/wdi-method.yaml — the method is not installed here");
+  const items = pendingUpgrades(target);
+  let text = fs.readFileSync(file, "utf8")
+    .replace(/^# What wdi-upgrade still has to move\..*\r?\n/m, "")
+    .replace(/^upgrade_pending:\r?\n(?:[ \t]+- .*\r?\n)*/m, "");
+  const block = pendingBlock(items);
+  if (block) {
+    text = /^installed_at:/m.test(text)
+      ? text.replace(/^installed_at:/m, `${block}installed_at:`)
+      : `${text.replace(/\s*$/, "\n")}${block}`;
+  }
+  fs.writeFileSync(file, text, "utf8");
+  console.log("");
+  if (!items.length) {
+    ok("nothing pending — wdi-upgrade owes nothing here");
+    return 0;
+  }
+  console.log(`  upgrade   ${items.length} item${items.length === 1 ? "" : "s"} still in the OLD shape — run the wdi-upgrade skill`);
+  for (const item of items) console.log(`    ${DIM}·${RESET} ${item}`);
+  return 1;
+}
+
 function writeStamp(target) {
   const control = path.join(target, ".control");
   if (!fs.existsSync(control)) return;
@@ -1293,6 +1331,8 @@ function writeStamp(target) {
     lines.push("engines:");
     lines.push("  source: none   # none in this repo — G5 cannot run until they are installed");
   }
+  const pending = pendingBlock(pendingUpgrades(target));
+  if (pending) lines.push(pending.trimEnd());
   lines.push(`installed_at: ${today()}`);
   lines.push("");
   const stamp = lines.join("\n");
@@ -1427,17 +1467,17 @@ function pendingUpgrades(target) {
     });
   };
   const items = [];
-  if (has(".control", "registry", "requirements.yaml")) items.push("requirements.yaml → goals.yaml + requirements-<slug>.yaml");
+  if (has(".control", "registry", "requirements.yaml")) items.push("#1 requirements.yaml → goals.yaml + requirements-<slug>.yaml");
   // The file the engines actually read. `/setup-matt-pocock-skills` writes its own answer here — no
   // `specs.yaml`, no predefined path — and `seedAgentDocs` will not overwrite a file the product owns,
   // so without this probe the repo never learns why its tickets scatter.
   if (has("docs", "agents", "issue-tracker.md")
       && !read("docs", "agents", "issue-tracker.md").includes("seeded by `wdi-method`")) {
-    items.push("docs/agents/issue-tracker.md is not the method's answer (npx wdi-method engines --fix)");
+    items.push("#11 docs/agents/issue-tracker.md is not the method's answer (npx wdi-method engines --fix)");
   }
   const strays = specsOutsideScratch(read(".control", "registry", "specs.yaml"));
   if (strays.length) {
-    items.push(`spec_folder outside .scratch/<spec-id>-<slug>/ on ${strays.join(", ")} `
+    items.push(`#12 spec_folder outside .scratch/<spec-id>-<slug>/ on ${strays.join(", ")} `
                + `(the folder moves, then its cites)`);
   }
   // Reported only where it is still WORK. A closed pre-rename wave is read correctly (0.6.7 taught
@@ -1451,46 +1491,109 @@ function pendingUpgrades(target) {
   // that would answer "not mine" and stop.
   const legacyOpen = specsInLegacyShape(read(".control", "registry", "specs.yaml"));
   if (legacyOpen.length) {
-    items.push(`${legacyOpen.join(", ")} still in the W<n>/epics/stories shape and not closed `
+    items.push(`#2 ${legacyOpen.join(", ")} still in the W<n>/epics/stories shape and not closed `
                + `(flattened into tickets, id kept as its retired alias)`);
   }
-  if (/^## (Executive Summary|Vision|Assumptions|Prerequisites)\s*$/m.test(read(".what", "_product-brief", "brief.md"))) items.push("brief.md in the 14-section shape");
+  if (/^## (Executive Summary|Vision|Assumptions|Prerequisites)\s*$/m.test(read(".what", "_product-brief", "brief.md"))) items.push("#3 brief.md in the 14-section shape");
   // Sections by NAME: the numbers moved between kits (Non-Goals was §7 in one, §5 in the next).
-  if (anyIn(".what/_prd", "prd.md", /^## (\d+\.\s*)?(Document Purpose|Glossary|Non-Goals|Open Questions|Assumptions Index)\b|\*\*Proof of done:\*\*/m)) items.push("a prd.md in the 12-section shape, or with FR blocks");
+  if (anyIn(".what/_prd", "prd.md", /^## (\d+\.\s*)?(Document Purpose|Glossary|Non-Goals|Open Questions|Assumptions Index)\b|\*\*Proof of done:\*\*/m)) items.push("#4 a prd.md in the 12-section shape, or with FR blocks");
   const whatDir = path.join(target, ".what");
   if (fs.existsSync(whatDir)) {
     for (const pc of fs.readdirSync(whatDir)) {
       if (pc.startsWith("_")) continue;
       const srs = read(".what", pc, `SRS-${pc}.md`);
-      if (/^\|\s*UC-\d+\s*\|/m.test(srs)) { items.push("an SRS with a UC Catalogue table (now a pointer)"); break; }
+      if (/^\|\s*UC-\d+\s*\|/m.test(srs)) { items.push("#5 an SRS with a UC Catalogue table (now a pointer)"); break; }
     }
   }
   const howDir = path.join(target, ".how");
   if (fs.existsSync(howDir)) {
     for (const pc of fs.readdirSync(howDir)) {
       if (pc.startsWith("_")) continue;
-      if (/\|\s*Quoted rule\s*\||Quoted verbatim from/.test(read(".how", pc, `SDD-${pc}.md`))) { items.push("an SDD quoting AD-N text (now ids only)"); break; }
+      if (/\|\s*Quoted rule\s*\||Quoted verbatim from/.test(read(".how", pc, `SDD-${pc}.md`))) { items.push("#6 an SDD quoting AD-N text (now ids only)"); break; }
     }
   }
-  if (/\|\s*Container\s*\|\s*Product Components living in it\s*\|/.test(read(".how", "_platform", "c4-l2-containers.md"))) items.push("c4-l2 with a PC x container table (now a pointer)");
-  if (has(".control", "generated", "brief.md") || has(".control", "generated", "blueprint.md")) items.push("human pages still in .control/generated/ (render clears them)");
-  if (has(".what", "_product-brief", "brief.md") && !has(".what-rendered")) items.push("no .what-rendered/ yet (render creates it)");
+  if (/\|\s*Container\s*\|\s*Product Components living in it\s*\|/.test(read(".how", "_platform", "c4-l2-containers.md"))) items.push("#7 c4-l2 with a PC x container table (now a pointer)");
+  if (has(".control", "generated", "brief.md") || has(".control", "generated", "blueprint.md")) items.push("#8 human pages still in .control/generated/ (render clears them)");
+  if (has(".what", "_product-brief", "brief.md") && !has(".what-rendered")) items.push("#9 no .what-rendered/ yet (render creates it)");
   // Skipped: what the validator never reads (kit copies, rendered output, dependencies) and what it
   // treats as a record of the PAST — memlog, decisions, reports, _bmad-output. A stale path in a log
   // is history, not a finding, and repointing it would falsify the record.
   const SKIP = new Set([".git", "node_modules", "target", ".constitution", ".claude", ".agents", ".agent",
     ".what-rendered", ".how-rendered", "dist", "build", "memlog", "decisions", "reports", "meetings", "_bmad-output", ".work"]);
   const OLD_PAGE = /\.control\/generated\/(brief|blueprint|prd-[a-z0-9-]+)\.md/;
+  // At the root, every dot-folder except the corpus layers is a tool's: an agent host's skill copies
+  // (`.kiro/skills/wdi-upgrade` names the OLD paths on purpose, to probe for them), editor state, CI.
+  // Listing hosts by name missed every one outside the first three, and each such repo was told to run
+  // `wdi-upgrade` on every update with nothing to move.
+  const CORPUS_DOT = new Set([".control", ".what", ".how"]);
   const citesOldPage = (dir, depth) => {
     if (depth > 8) return false;
     for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (e.isDirectory() && depth === 0 && e.name.startsWith(".") && !CORPUS_DOT.has(e.name)) continue;
       if (e.isDirectory()) { if (!SKIP.has(e.name) && citesOldPage(path.join(dir, e.name), depth + 1)) return true; continue; }
       if (e.name === "answered.md") continue;
       if (e.name.endsWith(".md") && OLD_PAGE.test(fs.readFileSync(path.join(dir, e.name), "utf8"))) return true;
     }
     return false;
   };
-  if (citesOldPage(target, 0)) items.push("a document cites .control/generated/brief|blueprint|prd-*.md (pages moved to the rendered trees)");
+  if (citesOldPage(target, 0)) items.push("#10 a document cites .control/generated/brief|blueprint|prd-*.md (pages moved to the rendered trees)");
+  // Cross-component EXPERIENCE parked in the product's design system. Before `.what/experience.md`
+  // existed it had no home, so a repo put it in the one product-level UX file there was — a promise
+  // in the build layer. The section names are bmad-ux's own, which is where the content comes from.
+  // The names are bmad-ux's own and the product-level template's, in either spelling — a probe narrower
+  // than the template it migrates into reports "nothing owed" while the content is still in the wrong layer.
+  if (/^## (Foundation|Information architecture|Voice and tone|Flow map|Onboarding|Journeys|Shared edge cases|Promises every surface keeps|Cross-component (behaviou?r|journeys?))\b/mi
+        .test(read(".how", "_platform", "design-system.md"))) {
+    items.push("#15 cross-component experience in design-system.md (moves to .what/experience.md)");
+  }
+  // #16 and #18 follow `ux-landed`: nothing about a UX run is owed before a Product Component exists.
+  const components = read(".control", "registry", "components.yaml");
+  const hasPcs = /^product_components:[ \t]*\r?\n[ \t]+-/m.test(components);
+  const LANDED_FROM = /^landed_from:.*(?:\r?\n[ \t]+-.*)*/m;   // provenance, not a citation
+  const UX_RUN = /_bmad-output\/ux\/[A-Za-z0-9_./-]*?(DESIGN|EXPERIENCE|design-system)\.md/;
+  const citesUxRun = (dir, depth) => {
+    if (depth > 8 || !fs.existsSync(dir)) return false;
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) { if (citesUxRun(full, depth + 1)) return true; continue; }
+      if (/\.(md|ya?ml)$/.test(e.name) && UX_RUN.test(fs.readFileSync(full, "utf8").replace(LANDED_FROM, ""))) return true;
+    }
+    return false;
+  };
+  if (hasPcs && (citesUxRun(path.join(target, ".what"), 0) || citesUxRun(path.join(target, ".how"), 0))) {
+    items.push("#16 the corpus cites a UX run in _bmad-output/ux/ (repoint at what landed; provenance to landed_from)");
+  }
+  // #17 — a container whose `repo:` sends its code elsewhere but still has a heading here, or a `repo:` on
+  // a container nobody writes. The self-naming case needs the origin remote and is left to `container-built`.
+  const ctrSection = (components.match(/^containers:[^\n]*\n((?:[ \t].*(?:\r?\n|$)|\r?\n)*)/m) || [, ""])[1];
+  const headings = new Set([...(read(".control", "structure-codebase.md").split(/^## Containers\s*$/m)[1] || "")
+    .split(/^## (?!#)/m)[0].matchAll(/^###\s+(.+?)\s*$/gm)].map((m) => m[1]));
+  const repoDebt = ctrSection.split(/^[ \t]*-[ \t]+id:[ \t]*/m).slice(1).some((block) => {
+    const id = block.split(/\r?\n/)[0].trim().replace(/^["']|["']$/g, "");
+    const repo = /^[ \t]+repo:[ \t]*["']?([^"'\r\n]+)/m.exec(block)?.[1].trim();
+    if (!repo) return false;
+    return /^[ \t]+built:[ \t]*false\b/m.test(block) || headings.has(id);
+  });
+  if (repoDebt) {
+    items.push("#17 a container's repo: disagrees with the code map (heading for code kept elsewhere, or repo: on built: false)");
+  }
+  // #18 — landed UX documents written before `landed_from` existed. Without it `ux-landed` cannot tell
+  // which run a landing discharged, so every run in `_bmad-output/ux/` reads as still owed.
+  const uxRoot = path.join(target, "_bmad-output", "ux");
+  const hasRun = fs.existsSync(uxRoot) && fs.readdirSync(uxRoot, { recursive: true })
+    .some((f) => /(^|[\\/])(DESIGN|EXPERIENCE)\.md$/.test(String(f)));
+  const landedDocs = [];
+  for (const [layer, slot, name] of [[".how", "01-ux", "DESIGN.md"], [".what", "04-usecases", "EXPERIENCE.md"]]) {
+    const base = path.join(target, layer);
+    if (!fs.existsSync(base)) continue;
+    for (const pc of fs.readdirSync(base)) {
+      const f = path.join(base, pc, slot, name);
+      if (fs.existsSync(f)) landedDocs.push(f);
+    }
+  }
+  if (hasPcs && hasRun && landedDocs.some((f) => !/^landed_from:/m.test(fs.readFileSync(f, "utf8")))) {
+    items.push("#18 a landed UX document has no landed_from (name the run file(s) it came from)");
+  }
   return items;
 }
 
@@ -2181,7 +2284,7 @@ function runNonInteractive(args) {
 
 async function main() {
   const args = parseArgs(process.argv);
-  if (!["wizard", "install", "update", "verify", "promote", "engines"].includes(args.cmd)) {
+  if (!["wizard", "install", "update", "verify", "promote", "engines", "upgrade-check"].includes(args.cmd)) {
     usage();
     process.exit(2);
   }
@@ -2206,6 +2309,10 @@ async function main() {
   }
   if (args.cmd === "engines") {
     enginesCommand(requireTarget(args.dir), { fix: Boolean(args.fix) });
+    return;
+  }
+  if (args.cmd === "upgrade-check") {
+    process.exitCode = upgradeCheck(requireTarget(args.dir));
     return;
   }
   const wantTui = !args.yes && args.cmd !== "verify" && process.stdin.isTTY && process.stdout.isTTY;

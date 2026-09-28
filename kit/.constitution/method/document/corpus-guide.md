@@ -58,7 +58,9 @@ One question decides everything: **is this file still correct after its spec has
 Yes → the corpus. No → `_bmad-output/`.
 
 `_bmad-output/` is committed but **not curated**. Committing it is what makes citation by path stable, so a
-decision or a PRD MAY point into it. Research, brainstorming, forge, and PRFAQ reports are never promoted.
+decision or a PRD MAY point into it. One exception: once components exist, `.what/` and `.how/` MUST NOT
+cite a UX run's `DESIGN.md`, `EXPERIENCE.md`, or `design-system.md` — the run has been distilled, and
+`ux-guide.md` § Rules owns it. Research, brainstorming, forge, and PRFAQ reports are never promoted.
 
 A run folder MUST NOT be deleted **while anything still needs it** — the `update` intents re-read the original
 inputs in place. "Never deleted" is not the rule; the rule is a **retirement condition**, and it is below.
@@ -122,9 +124,10 @@ part of producing it — never a follow-up someone else performs.
 | Full UC flows · local rules · state machines · scenarios | `.what/<pc>/` slots `02`–`05` | `wdi-component` intent `behaviour` |
 | The SDD and its slots `02`–`06` | `.how/<pc>/` | `wdi-component` intent `design` |
 | each Boundary and Control object drawn | an `LC` in `components.yaml` | `wdi-component` intent `design` |
+| Experience that holds for every component — `ux-guide.md` § *Product level* | `.what/experience.md` | `wdi-ux` |
 | `EXPERIENCE.md` | `.what/<pc>/04-usecases/` | `wdi-ux` |
 | `DESIGN.md` | `.how/<pc>/01-ux/` | `wdi-ux` |
-| tokens and base components | `.how/_platform/design-system.md` | `wdi-ux` |
+| tokens, base components, and build patterns every component shares | `.how/_platform/design-system.md` | `wdi-ux` |
 | each screen in `DESIGN.md` | an `LC` of type `ui-screen` in `components.yaml` | `wdi-ux` |
 | The names of the tests a ticket went green on | the ticket's `tests` in `specs.yaml` | `wdi-build` |
 | What the spec settled about the stack, the conventions, or the brownfield reality | merged into `.constitution/project/codebase-*-guide.md` | `wdi-build`, at spec close |
@@ -497,8 +500,10 @@ on records of the past applies. Those citations dangle by design, and `wdi-recon
 report them: what makes it harmless is that the substance is already written into the document doing the
 citing, so the path is provenance rather than a dependency.
 
-The same three conditions govern `.work/`, with one difference: nothing there was ever authority, so condition
-1 is usually already met.
+**`.work/` is not governed by these three conditions.** Nothing there was ever authority, so there is no
+promise to map and no citation to re-point, and deleting scratch needs no `DEC-`. `repo-guide.md` § `.work/`
+owns its retirement: distil what lasts, then delete when the task closes. The two guides used to disagree
+here, and a repo holding a month of committed scratch could read either as permission to keep it.
 
 Two consequences that MUST be expected rather than discovered:
 

@@ -28,7 +28,7 @@ version gives them, word for word. The memlog stays true, and this skill's repor
 | Source | What it answers |
 |---|---|
 | `.control/wdi-method.yaml` | The version now installed — the shape everything below MUST end in |
-| The `update` run's own output | The `upgrade` line lists what it detected as pending; start there |
+| `upgrade_pending` in `.control/wdi-method.yaml` | What `update` detected as pending, numbered by the rows of Step 1; start there. `npx wdi-method upgrade-check` re-probes it at any time |
 | `.control/registry/` | What is already a row, so nothing is landed twice |
 | `.what/_product-brief/brief.md` · `.what/_prd/*/prd.md` | The two documents whose shape changed most |
 | `.what/<pc>/SRS-<pc>.md` · `.how/<pc>/SDD-<pc>.md` · `.how/_platform/c4-l2-containers.md` | The three that used to carry a copy of a registry table |
@@ -54,8 +54,17 @@ before an earlier one lands content in a file that the earlier item is about to 
 | 10 | any `.md` outside `.constitution/` cites `.control/generated/brief.md`, `blueprint.md`, or `prd-<slug>.md` | a pointer at a page that moved | `.what-rendered/_product-brief/brief.md` · `.how-rendered/blueprint.md` · `.what-rendered/_prd/<slug>/prd.md` — `cites-resolve` fails until it is repointed |
 | 11 | `docs/agents/issue-tracker.md` does not contain the words `seeded by ``wdi-method``` | the engines' config as `/setup-matt-pocock-skills` wrote it: everything in `.scratch/` with no registry behind it, `specs.yaml` never mentioned | the method's own answer. **`npx wdi-method engines --fix`** rewrites it and keeps the old text as `issue-tracker.md.bak`. Two of four live repos still had upstream's, which is why their tickets landed wherever the engine guessed |
 | 12 | a spec that is **not `closed`** has a `spec_folder` outside `.scratch/`, or a leaf that does not begin with its own id | spec folders under `_bmad-output/specs/`, leaf named freely — four repos wrote it four ways, one of them all four inside itself | `.scratch/<spec-id>-<slug>/`. Move the directory, rewrite the `spec_folder` row, then repoint every cite — `cites-resolve` is red until you do, and it is how you find them all. **A `closed` spec is left alone**: its folder is a record, moving it churns finished work, and its ticket files are already allowed to be gone |
-| 13 | `validate.py` reports `refs-resolve` on a `BG-` · `CAP-` · `FR-` · `NFR-` · `UC-` id — the finding itself is the probe | the row was **deleted** when the product stopped promising it, leaving every `DEC-` that served it pointing at nothing | the row comes BACK, marked `status: withdrawn` with `withdrawn_by` naming the decision that took it. Recover its text from git rather than retyping it — `git log -S"id: CAP-8" -- .control/registry/` finds the commit that held it. You MUST NOT edit the references instead: a `DEC-` records what happened, and it did serve that promise at the time. `corpus-guide.md` § *A withdrawn promise STAYS in the registry* owns the rule, `wdi-product` the procedure |
-| 14 | a `type: mandate` `DEC-` at `status: superseded` that some other `DEC-` names in its `accepted_by`, and neither side of the supersession is written | the mandate was retired — a setting changed, or the run ended — and nothing recorded which decision replaced it. Before 0.6.16 the validator read that status as present tense and turned every decision the run had taken red instead, with no legal repair | `superseded_by: DEC-<replacement>` on the retired mandate's row and `supersedes:` back on the replacement. That date is what revoked the delegation, and it is the one edit an `applied` decision allows. If nothing replaced it, the decision that ENDED the run is the replacement — open it through `wdi-decision`. You MUST NOT repair this by editing the decisions taken under the mandate: they were accepted while it stood |
+| 13 | **validator** — `validate.py` reports `refs-resolve` on a `BG-` · `CAP-` · `FR-` · `NFR-` · `UC-` id — the finding itself is the probe | the row was **deleted** when the product stopped promising it, leaving every `DEC-` that served it pointing at nothing | the row comes BACK, marked `status: withdrawn` with `withdrawn_by` naming the decision that took it. Recover its text from git rather than retyping it — `git log -S"id: CAP-8" -- .control/registry/` finds the commit that held it. You MUST NOT edit the references instead: a `DEC-` records what happened, and it did serve that promise at the time. `corpus-guide.md` § *A withdrawn promise STAYS in the registry* owns the rule, `wdi-product` the procedure |
+| 14 | **validator** — `mandate-accept` reports a `type: mandate` `DEC-` at `status: superseded` that some other `DEC-` names in its `accepted_by`, and neither side of the supersession is written | the mandate was retired — a setting changed, or the run ended — and nothing recorded which decision replaced it. Before 0.6.16 the validator read that status as present tense and turned every decision the run had taken red instead, with no legal repair | `superseded_by: DEC-<replacement>` on the retired mandate's row and `supersedes:` back on the replacement. That date is what revoked the delegation, and it is the one edit an `applied` decision allows. If nothing replaced it, the decision that ENDED the run is the replacement — open it through `wdi-decision`. You MUST NOT repair this by editing the decisions taken under the mandate: they were accepted while it stood |
+| 15 | `.how/_platform/design-system.md` has a section named Foundation, Information architecture, Voice and Tone, Flow map, or Cross-component behaviour | cross-component EXPERIENCE parked in the product's design system, because until `.what/experience.md` existed it had no home | `.what/experience.md`, section by section and word for word — the split is `ux-guide.md` § *Product level*. What stays in `design-system.md` is build: tokens, base elements, state patterns, interaction primitives, the surfaces that are not screens. A section that holds both is split at the sentence, by the redesign test |
+| 16 | a file in `.what/` or `.how/` cites `_bmad-output/ux/**/DESIGN.md`, `EXPERIENCE.md`, or `design-system.md` | the corpus pointing back at the UX run after it landed — a behaviour reference to the run, or a *landed from* line at the top of a landed document | the cite names the landed copy instead; a *landed from* line becomes the landed document's frontmatter `landed_from` (item 18). Reported only once components exist — before that the run is the only copy. `ux-landed` is red until every one is gone |
+| 17 | a container in `components.yaml` whose `repo:` is filled and whose id still has a heading in the code map, or `repo:` on a `built: false` container. A `repo:` naming THIS repository is `container-built`'s — it reads the `origin` remote | a product split across repositories, recorded before `repo:` had a meaning | `repo:` is filled only where the code lives in ANOTHER repository, and that container's heading leaves this repo's code map — it belongs in the map of the repo that holds it. A `repo:` naming THIS repo is removed. `wdi-init` intent `structure` re-derives the map |
+| 18 | components exist, a UX run is in `_bmad-output/ux/`, and a landed `DESIGN.md` or `EXPERIENCE.md` has no `landed_from` in its frontmatter | landed before `landed_from` existed, so `ux-landed` cannot tell which run a landing discharged and reads every run as owed | `landed_from:` lists the run file(s) it came from, read off the old *landed from* line or `.control/memlog/ux.md`. A run that was never landed is landed now through `wdi-ux`, or marked `status: superseded` if the owner abandoned it |
+
+**Gates passed before they were recorded** are not a numbered item — nothing moves, the owner answers.
+Where `wdi-reconcile` or `wdi-help` shows downstream work for a gate `gates_passed` does not list, ask the
+owner once per gate whether it passed, and write it on a yes (`delivery-flow-guide.md` § *Recording a gate
+that passed*). The report says which were recorded and which the owner left open.
 
 Items 11 and 12 are the engines' half of a version jump, and they come FIRST when both are hit:
 item 11 writes where a spec's files belong, item 12 moves them there. Doing 12 first means moving
@@ -185,6 +194,16 @@ This writes every reader's page into `.what-rendered/` and `.how-rendered/`, and
 that used to sit in `.control/generated/`. Then `--check` MUST be green. Every finding at this point is
 either a row that moved wrong in Step 2 or a pointer that points at nothing — both are this skill's to
 fix before it reports done.
+
+Then close the record:
+
+```bash
+npx wdi-method upgrade-check
+```
+
+It re-runs the probes and rewrites `upgrade_pending` in `.control/wdi-method.yaml`. It MUST exit 0 —
+the field is then gone, which is what tells `wdi-help` and the next session that nothing is owed. An
+item still listed is either not moved yet or needs the owner, and the report says which.
 
 ## Step 5 — Report, and commit once
 

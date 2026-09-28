@@ -13,7 +13,7 @@ of where things are, a reader that can see this product's code.
 |---|---|---|---|
 | `setup` | Guide the global `mode` setting · scaffold the registries that are still empty · **report** the documents already present, read-only · derive the two structure maps · align the engines | before G1 | once per project |
 | `engines` | Run `npx wdi-method engines --fix`, then report what it changed: the flag stripped from `to-spec` · `to-tickets` · `implement` so `wdi-build` can invoke them, the retired BMad G5 wrappers locked out of model invocation and denied in `.claude/settings.json`, and `docs/agents/` repaired where it still carried upstream's answer | after every `wdi-method install` or `update` | each version jump, and any time `engines-invocable` is red |
-| `component` | Propose the slicing from the brief plus every PRD · birth what is accepted: registry row plus `SRS`/`SDD` skeletons · propose `mode`, `risk_accepted`, `risk_note`, `owns` | **G2 passed** | each time a component is born |
+| `component` | Propose the slicing from the brief plus every PRD · birth what is accepted: registry row plus `SRS`/`SDD` skeletons · propose `mode`, `risk_accepted`, `risk_note`, `owns` | **G2 passed** — read from `gates_passed`; missing, ask the owner | each time a component is born |
 | `mode` | Change `mode` — global in `index.yaml`, or one component in `components.yaml`. Guided | — | any time |
 | `risk` | Set or review one component's `risk_accepted`, with disclosure of what it touches | the component exists | any time, usually before G4 |
 | `structure` | Re-derive `.control/structure-codebase.md` and `structure-document.md` from the tree on disk | — | when folders change, and at spec close |
@@ -106,6 +106,10 @@ components is the moment that ends. Landing goes through `wdi-ux` — it owns th
 skill MAY write them — but it is dispatched from here rather than left for the owner to remember. It is
 the only deferral left in the flow, and this is where it closes.
 
+The act is not done until it is verified: `validate.py` MUST show `ux-landed` green before this intent
+reports. Red means a UX run still waits while components exist, or the corpus still cites the run —
+landing that stopped halfway, found now rather than at G3.
+
 **Containers MAY be registered here when they are genuinely already known** — an app, an API, a database
 the product plainly has. Then a screen `LC` gets its container the moment it is born and there is no debt
 at all. They MUST NOT be guessed to achieve that: `wdi-blueprint` intent `platform` owns the real answer
@@ -147,9 +151,10 @@ them; it MUST NOT restate them.
 2. Classify each base folder. For the codebase map the only test is deployability — a **container** runs
    its own code or stores its own data, a **library** is imported by something else, anything else stays
    a line in the top-level tree or in a non-unit section. Size and importance MUST NOT decide it.
-   Container headings MUST be **exactly the `built: true` containers** in `components.yaml`: every
-   heading is a registered container, and a `built: false` one MUST NOT get a heading because no code of
-   ours lives in it. The match is one-directional, and reading it both ways makes it unsatisfiable.
+   Container headings MUST be **exactly the `built: true` containers without `repo:`** in
+   `components.yaml`: every heading is a registered container, a `built: false` one MUST NOT get a
+   heading because no code of ours lives in it, and one whose `repo:` names another repository MUST NOT
+   get one here because its code map is there. The match is one-directional, and reading it both ways makes it unsatisfiable.
 3. Draw the convention, not the contents. A shape that repeats MUST be written once with a placeholder.
 4. Mark key files `★` by the four tests in the guide. Borderline files are left out.
 5. Write from `templates/structure-codebase.md` and `templates/structure-document.md`. Template comments

@@ -237,7 +237,7 @@ Audit and override information MUST NOT go to the addendum; it belongs in the me
   states. Filing one as blocking "to be safe" is the habit that produced 146 ids.
 - `bmad-review` runs automatically through `doc_standards` on `prd.md` and `addendum.md`. It MUST
   have run before the gate — a Product Owner's 45 minutes are for deciding, not proofreading.
-- The gate reads `prd.md` and `EXPERIENCE.md` together. A PRD that passes while the experience side
+- The gate reads `prd.md` and the experience together — `.what/experience.md` for what holds across components, the run's `EXPERIENCE.md` for the rest. A PRD that passes while the experience side
   is missing has answered only half of what G2 decides.
 - Solution shape MUST NOT appear. If a sentence names a framework, a table, or a transport, it belongs in
   `addendum.md` or in the spine.

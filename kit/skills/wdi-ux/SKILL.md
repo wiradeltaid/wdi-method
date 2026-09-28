@@ -1,6 +1,6 @@
 ---
 name: wdi-ux
-description: Use when UX is produced or landed — dispatching bmad-ux for a PRD scope, then landing DESIGN.md, EXPERIENCE.md, the design system, and the screen registry into the layers they belong to. Optional, and it rides on G2. Never writes UX content itself.
+description: Use when UX is produced or landed — dispatching bmad-ux for a PRD scope, then landing DESIGN.md, EXPERIENCE.md, the product-level experience and design system, and the screen registry into the layers they belong to. Optional, and it rides on G2. Never writes UX content itself.
 ---
 
 # WDI UX
@@ -22,6 +22,7 @@ Landing is split by what each half's path actually needs, and only one half wait
 | Lands | Needs | So it lands |
 |---|---|---|
 | `design-system.md` → `.how/_platform/` | nothing but the run being final — it crosses components by definition | **immediately**, at G2 |
+| what holds for every component in `EXPERIENCE.md` → `.what/experience.md` | the same — no `<pc>` in its path | **immediately**, at G2 |
 | `EXPERIENCE.md` → `.what/<pc>/04-usecases/` | the `<pc>` in its path to exist | when components are born |
 | `DESIGN.md` → `.how/<pc>/01-ux/` + screen `LC` rows | the same `<pc>`. **Not a container** — see below | when components are born |
 
@@ -31,6 +32,12 @@ Landing is split by what each half's path actually needs, and only one half wait
 **And the wait is not the owner's to remember.** `wdi-init` intent `component` lands whatever is waiting
 in `_bmad-output/ux/` in the same act as birthing the components — one pass, no tracked to-do. Report
 what is waiting and name that act; do not ask the owner to come back.
+
+**Product level first.** `bmad-ux`'s `EXPERIENCE.md` opens with sections that hold for the whole
+product — Foundation, Information architecture, Voice and Tone, State patterns, Interaction primitives,
+the flow map. They are NOT one component's, and they are not all promises: `ux-guide.md` § *Product
+level* maps each onto `.what/experience.md` or `design-system.md`. A section left in `_bmad-output/`
+because no row seemed to fit is the defect that section exists to stop.
 
 You MUST NOT write or edit `DESIGN.md` or `EXPERIENCE.md` yourself. If a check fails, name what is
 missing and re-dispatch — a hand-patched UX document makes the memlog lie about how it got that way.
@@ -45,7 +52,8 @@ The content rules are in `ux-guide.md` and MUST NOT be restated here.
 | `.constitution/method/document/ux-guide.md` | The rules the result is checked against |
 | `.constitution/method/document/templates/ux.md` | The required shape of each half |
 | `.control/registry/components.yaml` | Whether the Product Components and containers a landing needs exist |
-| `.constitution/method/document/templates/design-system.md` | The shape of the product-level tokens file |
+| `.constitution/method/document/templates/design-system.md` | The shape of the product-level design: tokens, base elements, build patterns |
+| `.constitution/method/document/templates/experience.md` | The shape of the product-level experience |
 | `.control/product-glossary.md` | Terms already fixed, so the screens do not invent competing ones |
 | `_bmad-output/ux/` | An earlier run — the input to *land*, and to intent *update* |
 | `.how/_platform/design-system.md` | Tokens and base components already agreed |
@@ -109,7 +117,8 @@ here is **when each one becomes possible**.
 
 | Output | Lands into | Possible once |
 |---|---|---|
-| Tokens and base components | `.how/_platform/design-system.md` | The run is final — it crosses components by definition |
+| Tokens, base components, build patterns that hold everywhere | `.how/_platform/design-system.md` | The run is final — it crosses components by definition |
+| Experience that holds for every component — `ux-guide.md` § *Product level* | `.what/experience.md` | The run is final — no `<pc>` in its path |
 | `EXPERIENCE.md` | `.what/<pc>/04-usecases/` | The `<pc>` is registered in `components.yaml` |
 | `DESIGN.md` | `.how/<pc>/01-ux/` | The `<pc>` is registered. **The path has no container in it, so none is needed** |
 | Each screen | an `LC` of type `ui-screen` in `components.yaml` | The `<pc>` is registered. `container:` is left **empty** and filled at G3 |
@@ -125,10 +134,19 @@ here is **when each one becomes possible**.
   `wdi-init` intent `component` and a container from `wdi-blueprint` intent `platform`.
 - One run MAY land across several Product Components. Split by which `<pc>` the content serves; a
   screen whose `<pc>` is ambiguous MUST be raised through `wdi-question`, not assigned by guess.
+- A flow zoom-in lands with the component that owns **the screens in it**, never with the owner of a
+  shared composite drawn inside it. One whose screens belong to two components stays in the flow map
+  of `.what/experience.md`.
+- Every landed document names the run file(s) it came from in its frontmatter `landed_from` — that is
+  what `ux-landed` reads to know the run is discharged. The body MUST NOT carry a *landed from* line, and
+  nothing else in `.what/` or `.how/` MAY cite the run. Which sections went where goes to
+  `.control/memlog/ux.md` in Step 7.
 - Registering the screens is part of landing `DESIGN.md`, in the same act. A screen in `01-ux/`
   without its `components.yaml` entry has been half-landed, and `lc-registered` catches it at a worse moment.
 - `.how/_platform/` otherwise belongs to `wdi-blueprint`. `design-system.md` is the one file in it you
-  own, and it has its own template; you MUST NOT touch any other.
+  own, and it has its own template; you MUST NOT touch any other. In `.what/`, `experience.md` is yours
+  and `business-rules.md` is `wdi-blueprint`'s: a cross-component rule the system enforces is a
+  business rule, not experience.
 - The run folder MUST NOT be deleted after landing. Intent *update* reads it again.
 
 ## Step 6 — Impact

@@ -10,6 +10,72 @@ version contains every fix below it.
 
 ---
 
+## [Unreleased] — proposed as a minor
+
+**Read this before you update.** Two validator rules are new or stricter, so a repo that is green today
+can come back red. Most of it is something that was already wrong and went unchecked; two parts are new
+obligations — the ban on citing a UX run from the corpus, and `landed_from` on every landed UX document.
+
+### Changed: behaviour
+
+- **New validator `ux-landed`, checked per run.** Every landed UX document names the run file(s) it came
+  from in a new frontmatter field, `landed_from`. Once Product Components exist, every active run
+  `DESIGN.md` / `EXPERIENCE.md` in `_bmad-output/ux/` MUST be named by some landed document — a
+  component's, or `.what/experience.md` — and `.what/` and `.how/` MUST NOT cite the run anywhere else.
+  `landed_from` is provenance: the run may be deleted later and it stays valid. `.control/decisions/` may
+  still cite the run. A run file without frontmatter is recognised by its filename. UX stays optional: the rule
+  is silent with no run, silent before any component exists, silent on a run marked `superseded` or
+  `withdrawn`, and no `mode` or `risk_accepted` value changes it.
+- **`container-built` understands a product split across repositories.** A new optional field `repo:` on
+  a container names the repository its code lives in when that is NOT this one. Such a container keeps
+  `built: true` and its C4 place, but gets no heading in this repo's code map — the template, the
+  structure guide, and the validator now say the same thing. Absent `repo:` means this repository, so a
+  single-repo product sees no change. `repo:` naming this repository — compared with the `origin`
+  remote; without one the comparison is reported as skipped — or `repo:` on a `built: false` container,
+  is red.
+- **`cites-resolve` recognises installed skill copies under every host.** `.<host>/skills/bmad-*` and
+  `.<host>/skills/wdi-*` are skipped by pattern instead of a three-host list, so a repo installed for
+  Kiro, Cline, Trae, or any other supported host no longer carries permanent findings on files it may not
+  edit. `.work/` is skipped too — scratch is not authority, so a pasted validator line is not a claim.
+- **`update` records what `wdi-upgrade` still owes.** The probes now write `upgrade_pending` into
+  `.control/wdi-method.yaml`, numbered by the rows of `wdi-upgrade`'s checklist, and the field is absent
+  when nothing is owed. `npx wdi-method upgrade-check` re-probes at any time and rewrites it (exit 1 while
+  anything is pending); `wdi-upgrade` ends by running it, and `wdi-help` routes on the field instead of on
+  whether `update` "just ran". The probes no longer report the method's own skill text under a non-Claude
+  host, or a scratch paper, as stale product content.
+
+### Changed: method
+
+- **UX has a product level.** New `.what/experience.md` (template `templates/experience.md`) holds the
+  experience every component keeps — foundation, information architecture, voice and tone, the flow map,
+  journeys that cross components, shared edge cases. `design-system.md` grows the build side: state
+  patterns, interaction primitives, how accessibility is met, surfaces that are not screens.
+  `ux-guide.md` § *Product level* maps each `bmad-ux` section to one of the two, and both land at G2
+  because neither path contains a `<pc>`. A flow zoom-in lands with the component owning its screens,
+  never with the owner of a shared composite drawn inside it.
+- **Completing `touches` on an applied decision is allowed**, append-only, for a file the applying commit
+  really changed within what the Decision says. A change outside it is a finding, not a trace.
+- **Gates get recorded.** `wdi-problem`, `wdi-product`, `wdi-blueprint`, and `wdi-component` end by asking
+  the owner whether their gate passed and write `gates_passed` / `g4_passed` only on an explicit yes.
+  Skills that need a passed gate read the record and ask when it is missing; `wdi-reconcile` reports
+  downstream work whose gate was never recorded. `delivery-flow-guide.md` § *Recording a gate that passed*.
+- **Session papers from outside tools live in `.work/<tool>/<slug>/`**, distilled into `DEC-` / memlog /
+  `.control/reports/` and deleted when the session closes. `corpus-guide.md` no longer asks for a `DEC-`
+  before scratch is deleted — the two guides disagreed.
+
+**What a repo that already has the method installed does about it.** Run
+`npx wdi-method@latest update --yes`, then read the `upgrade` line or `upgrade_pending`. Expect, where
+they apply: cross-component UX sections parked in `design-system.md` (item 15), SRS or landed UX
+documents citing the UX run (item 16), containers whose code lives in another repository (item 17 —
+fill `repo:` there, drop it where it names this repo, and re-run `wdi-init` intent `structure`), and
+landed UX documents with no `landed_from` (item 18). Gate skills now record `gates_passed`; a repo whose
+gates passed before that is asked once per gate by `wdi-upgrade`, and nothing is written without a yes.
+
+**`wdi-upgrade`:** needed when `upgrade_pending` lists anything — items 15–18 are new in this version —
+or when `wdi-help` shows a passed gate that was never recorded. Not needed otherwise.
+
+---
+
 ## [0.6.30] - 2026-09-27
 
 A patch. No behaviour changes.

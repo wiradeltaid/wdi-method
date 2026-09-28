@@ -115,10 +115,18 @@ A container is inside the boundary whether or not we wrote it. `built:` records 
 |---|---|---|
 | An L3 | Yes, where it holds more than one PC | **Never.** No box inside it is ours to draw |
 | An `LC` naming it as `container` | Yes | **Never** |
-| A heading in `structure-codebase.md` | **Required** | **Never** — no code of ours lives there |
+| A heading in `structure-codebase.md` | **Required** — in the code map of the repo that holds its code | **Never** — no code of ours lives there |
 | Listed in a PC's `containers:` | Yes | **Never** — see the matrix below |
 
-`container-built` checks all four. This is what makes the class settled rather than re-argued: a database and a web
+`container-built` checks all four.
+
+**A product split across repositories adds one field, `repo:`, and only where it is true.** A
+`built: true` container whose code lives in ANOTHER repository names it there. It stays registered,
+stays in C4 L2, and keeps every consequence above — except that its heading belongs to that repository's
+code map, not this one's, and `container-built` refuses one here. Absent `repo:` means this repository,
+so a single-repo product writes nothing and sees no change. `repo:` MUST NOT name this repository —
+`container-built` compares it with the `origin` remote, and reports that it could not when there is none —
+and MUST NOT appear on a `built: false` container: nobody writes that container's code anywhere. This is what makes the class settled rather than re-argued: a database and a web
 server are containers, they carry NFRs, and they still produce no design artifact of ours.
 
 **What IS ours about a `built: false` container MUST have a home outside the C4 set** — its configuration

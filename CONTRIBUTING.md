@@ -170,6 +170,11 @@ for a repo that already has the method installed — and says *nothing beyond `u
 answer. A tag whose changelog entry arrives later is a tag whose GitHub release notes are generated from
 commit subjects nobody wrote for a reader.
 
+**Every entry says whether `wdi-upgrade` is needed**, on one line starting `**`wdi-upgrade`:**`. That line
+is for the reader of the changelog; the repo itself does not depend on it, because `update` probes the
+content and records the answer in `upgrade_pending`. A change that introduces a new shape adds its row to
+the `wdi-upgrade` checklist and its probe to `pendingUpgrades()` together.
+
 ## Before you publish
 
 ```bash

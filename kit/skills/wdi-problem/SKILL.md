@@ -102,7 +102,13 @@ and every later run compounds it.
 - When the ask is about the Product Component slicing, this is the wrong skill at any point. Before the list
   exists it belongs to `wdi-init` intent `component`; after G3 a correction goes through `wdi-decision`.
 
+## Step 6 — Record the gate
+
+Ask the owner whether G1 passed. Write `G1` into `gates_passed` only on their explicit *yes* —
+`delivery-flow-guide.md` § *Recording a gate that passed*.
+
 ## Output
 
 A short report: intent dispatched, what the brief now claims in one line, the goal rows landed in Step 4,
-and the result of all eleven checks — naming the failures, not summarising them away.
+and the result of all eleven checks — naming the failures, not summarising them away — and whether G1
+was recorded.

@@ -90,7 +90,9 @@ For the codebase map the distinction is exact and MUST NOT be softened:
 container gets a heading.** Reading it both ways makes the rule unsatisfiable: a `built: false` container
 — a database, a web server — MUST be registered, because it runs inside the boundary and carries NFRs,
 and MUST NOT get a heading, because no code of ours lives there. So the check is **heading = exactly the
-`built: true` containers**, and `container-built` runs it. `c4-l2-containers.md` still owns the list itself.
+`built: true` containers whose code is in this repo** — those without `repo:` — and `container-built`
+runs it. A container whose `repo:` names another repository gets its heading in THAT repository's map;
+`architecture-guide.md` § *`built`* owns the field. `c4-l2-containers.md` still owns the list itself.
 
 ### Sections that are not units
 

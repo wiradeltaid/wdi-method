@@ -75,6 +75,9 @@ Di dalam coding agent Anda, jalankan:
 ```
 `wdi-help` membaca `.control/registry/` dan memberi tahu gerbang tempat proyek Anda berada, spec yang terbuka, dan skill berikutnya, tanpa menebak dari percakapan.
 
+### Update Berikutnya: Perlukah `/wdi-upgrade`?
+Anda tidak perlu menebaknya dari nomor versi. `npx wdi-method@latest update` memeriksa isi repo Anda untuk apa pun yang masih berbentuk lama, lalu menulis temuannya ke `upgrade_pending` di `.control/wdi-method.yaml`; bila field itu tidak ada, tidak ada yang perlu dipindahkan. `/wdi-help` membaca field itu dan menyuruh Anda menjalankan `/wdi-upgrade` lebih dulu bila field itu ada. `npx wdi-method upgrade-check` memeriksa ulang kapan saja. Setiap entri [`CHANGELOG.md`](../CHANGELOG.md) juga diakhiri baris `wdi-upgrade: needed / not needed`.
+
 ---
 
 ## Tiga Pilihan Alur Kerja

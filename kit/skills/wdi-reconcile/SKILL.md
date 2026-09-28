@@ -76,6 +76,7 @@ missing or stale, say so and name `validate.py --generate` rather than working a
 | Inventory | Do the three inventories still match the code? `inventory.py` answers it; carry its findings rather than re-deriving them |
 | **Constitution** | Does an artifact break the rule its own guide states? |
 | **Homeless output** | Does anything in `_bmad-output/` have no row in the ownership table in `corpus-guide.md`, or a row whose named owner is not installed? |
+| **Gate record** | Does downstream work exist for a gate `gates_passed` does not list — components without `G2`, a spine without `G3`? Report it for the owner to answer; `delivery-flow-guide.md` § *Recording a gate that passed* |
 | **Evidence** | `cites-resolve` answers the mechanical half — does every cited path still resolve. What is left for a reader: does the file still **contain** what is cited |
 
 The chain check overlaps the validators on purpose. Validators answer what can be counted; this pass
