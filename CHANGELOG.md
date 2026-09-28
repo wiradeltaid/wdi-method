@@ -10,7 +10,9 @@ version contains every fix below it.
 
 ---
 
-## [Unreleased] — proposed as a minor
+## [0.6.31] - 2026-09-28
+
+A patch by the owner's choice, though it carries behaviour changes — read the whole entry.
 
 **Read this before you update.** Two validator rules are new or stricter, so a repo that is green today
 can come back red. Most of it is something that was already wrong and went unchecked; two parts are new
