@@ -20,13 +20,23 @@ import {
   writeProductIdentity,
 } from "../lib/identity.mjs";
 import {
+  declaredPlatforms,
   detectPlatforms,
   formatPlatformList,
+  getPlatform,
+  hostsYaml,
   isKnownPlatform,
+  isRetiredPlatform,
+  normalizePlatformId,
   normalizePlatformIds,
+  PLATFORMS,
   platformSelectOptions,
+  platformsWithManualOnly,
   platformUsesHook,
   PREFERRED_PLATFORM_IDS,
+  RETIRED_PLATFORMS,
+  retiredPlatformsIn,
+  ruleFiles,
   skillDestinations,
 } from "../lib/platforms.mjs";
 import { opencodeCommandsDir, syncOpencodeCommands } from "../lib/opencode-commands.mjs";
@@ -101,9 +111,36 @@ const GUARD_LINE = `> **${GUARD_MARK}.** \`wdi-method\` unlocked model invocatio
   + "session, a subagent that thought this looked relevant — stop and say so: this engine publishes "
   + "to the tracker and writes code.";
 
-// Every folder a platform reads skills from. One list, because a repo installs the engines wherever
-// `npx skills add` was pointed, and that installer offers symlinks across several of them.
-const SKILL_HOMES = [".claude", ".agents", ".agent", ".cursor", ".codex"];
+// The method's own skills a person MUST type. Each carries `disable-model-invocation: true` (the hosts
+// that honour it hold it there), a guard line at the top of its body (every host reads that), and a
+// line in the AGENTS.md block (every host reads that too).
+const WDI_MANUAL_ONLY = [
+  "wdi-daily-what-to-build",
+  "wdi-daily-autopilot",
+  "wdi-daily-what-to-test",
+  "wdi-prune-or-archive",
+  "wdi-explain-to-me",
+];
+
+/** Every folder in a repo that may hold skills.
+ *
+ * NOT a hand-kept list of hosts. The one this replaced named five folders while the installer
+ * offered forty hosts, so an engine installed for Kiro, Cline, or Trae was reported missing and never
+ * unlocked. Every `.<host>/skills` at the root counts, plus every directory a supported host is
+ * documented to read (`skills/` for OpenClaw, nested ones) — a repo installs the engines wherever
+ * `npx skills add` was pointed, and that installer symlinks across several of them.
+ */
+function skillRoots(target) {
+  const roots = new Set(PLATFORMS.flatMap((p) => p.reads));
+  if (fs.existsSync(target)) {
+    for (const e of fs.readdirSync(target, { withFileTypes: true })) {
+      if (!e.name.startsWith(".") || e.name === ".git") continue;
+      if (!e.isDirectory() && !e.isSymbolicLink()) continue;
+      if (fs.existsSync(path.join(target, e.name, "skills"))) roots.add(`${e.name}/skills`);
+    }
+  }
+  return [...roots];
+}
 
 // BMad skills RETIRED at G5. This array is the single home of that list: `bmad-skill-register.md`
 // carries the same names for a reader, and a test fails when the two disagree.
@@ -233,9 +270,14 @@ function parseArgs(argv) {
     else if (t === "--agents") {
       const raw = rest.shift();
       if (!raw) die("--agents needs a comma-separated list");
-      args.agents = normalizePlatformIds(raw.split(",").map((s) => s.trim()).filter(Boolean));
-      const unknown = raw.split(",").map((s) => s.trim()).filter(Boolean)
-        .filter((a) => !isKnownPlatform(a));
+      const asked = raw.split(",").map((s) => s.trim()).filter(Boolean);
+      const retired = asked.filter((a) => isRetiredPlatform(a));
+      if (retired.length) {
+        die(retired.map((a) => `${a} is no longer supported — ${RETIRED_PLATFORMS[normalizePlatformId(a)]}`)
+          .join("\n       "));
+      }
+      args.agents = normalizePlatformIds(asked);
+      const unknown = asked.filter((a) => !isKnownPlatform(a));
       if (unknown.length) die(`unknown platform: ${unknown.join(", ")} (run --list-agents)`);
       if (!args.agents.length) die("--agents needs at least one known platform");
     } else if (t === "--product") args.product = rest.shift();
@@ -362,30 +404,48 @@ function requireTarget(dir) {
  */
 function repoSkillFiles(target, names) {
   const out = new Map();
-  for (const home of SKILL_HOMES) {
+  for (const root of skillRoots(target)) {
     for (const name of names) {
-      const file = path.join(target, home, "skills", name, "SKILL.md");
+      const file = path.join(target, root, name, "SKILL.md");
       if (!fs.existsSync(file)) continue;
       let real = file;
       try {
         real = fs.realpathSync(file);
       } catch {}
       if (!out.has(name)) out.set(name, new Map());
-      out.get(name).set(real, file);
+      const seen = out.get(name);
+      if (!seen.has(real)) seen.set(real, []);
+      seen.get(real).push(file);
     }
   }
   return out;
 }
 
-/** The six engines, in the REPO. A user-level plugin is not an answer here — see ENGINE_SKILLS. */
-function enginesReport(target) {
+/** The six engines, in the REPO — and visible to EVERY selected host.
+ *
+ * Present somewhere is not enough. Kiro reads `.kiro/skills` and nothing else, so engines in
+ * `.agents/skills` are invisible to it and `wdi-build` fails there at G5. `missingByHost` names, per
+ * selected host, the engines none of its `reads` directories holds. With no hosts given it falls
+ * back to "anywhere in the repo", which is what the unlock and the lock work on.
+ * A user-level plugin is not an answer here — see ENGINE_SKILLS.
+ */
+function enginesReport(target, agents = []) {
   const files = repoSkillFiles(target, ENGINE_SKILLS);
   const missing = ENGINE_SKILLS.filter((n) => !files.has(n));
-  return { files, missing, present: missing.length === 0 };
+  const missingByHost = new Map();
+  for (const id of normalizePlatformIds(agents)) {
+    const reads = getPlatform(id).reads.map((d) => path.join(target, d) + path.sep);
+    const visible = (name) => [...(files.get(name)?.values() || [])].flat()
+      .some((f) => reads.some((r) => f.startsWith(r)));
+    const lacking = ENGINE_SKILLS.filter((n) => !visible(n));
+    if (lacking.length) missingByHost.set(id, lacking);
+  }
+  const present = agents.length ? missingByHost.size === 0 : missing.length === 0;
+  return { files, missing, missingByHost, present };
 }
 
-function enginesPresent(target) {
-  return enginesReport(target).present;
+function enginesPresent(target, agents = []) {
+  return enginesReport(target, agents).present;
 }
 
 /** Only ever a WARNING. The plugin's copies are namespaced and still flagged, so they can neither be
@@ -483,7 +543,10 @@ function retireBmadG5(target) {
  * Merged, never replaced: a product's own permissions are its own. Invalid JSON is reported rather
  * than repaired — rewriting a settings file nobody can parse is how a repo loses its allowlist.
  */
-function writeDenyRules(target) {
+function writeDenyRules(target, agents) {
+  // Claude Code's own settings file, for Claude Code only. Writing it for a Kiro-only repo would
+  // create a `.claude/` folder nothing reads.
+  if (!platformsWithManualOnly(agents, "claude").length) return 0;
   const file = path.join(target, ".claude", "settings.json");
   let settings = {};
   if (fs.existsSync(file)) {
@@ -507,6 +570,46 @@ function writeDenyRules(target) {
   fs.writeFileSync(file, `${JSON.stringify(settings, null, 2)}\n`, "utf8");
   note(`deny rules for ${added.length} retired BMad skill${added.length === 1 ? "" : "s"} `
        + `→ .claude/settings.json`);
+  return added.length;
+}
+
+/** OpenCode's equivalent: `permission.skill: ask` in `opencode.json`. The model may still reach for
+ * the skill, and OpenCode then asks the person before loading it — a gate the model cannot pass
+ * alone, with the human route left open. `deny` would hide it from the person too.
+ *
+ * Merged, never replaced, under the same rules as `.claude/settings.json`: a value the product
+ * already set for a name is kept, and a file nobody can parse (`opencode.json` may carry comments) is
+ * reported rather than rewritten.
+ */
+function writeOpencodePermissions(target, agents) {
+  if (!platformsWithManualOnly(agents, "opencode").length) return 0;
+  const file = path.join(target, "opencode.json");
+  let cfg = {};
+  if (fs.existsSync(file)) {
+    try {
+      cfg = JSON.parse(fs.readFileSync(file, "utf8"));
+    } catch {
+      note("opencode.json is not plain JSON — skill permissions NOT written; add them by hand: "
+           + `permission.skill "${WDI_MANUAL_ONLY[0]}": "ask" (and the rest in bmad-skill-register.md)`);
+      return 0;
+    }
+    if (!cfg || typeof cfg !== "object" || Array.isArray(cfg)) return 0;
+  }
+  const perm = cfg.permission && typeof cfg.permission === "object" && !Array.isArray(cfg.permission)
+    ? cfg.permission : {};
+  if (typeof perm.skill === "string") {
+    note(`opencode.json sets permission.skill to "${perm.skill}" for every skill — left as the product wrote it`);
+    return 0;
+  }
+  const skill = perm.skill && typeof perm.skill === "object" ? perm.skill : {};
+  const added = [...WDI_MANUAL_ONLY, ...BMAD_RETIRED_G5].filter((n) => !(n in skill));
+  if (!added.length) return 0;
+  for (const n of added) skill[n] = "ask";
+  perm.skill = skill;
+  cfg.permission = perm;
+  if (!cfg.$schema) cfg = { $schema: "https://opencode.ai/config.json", ...cfg };
+  fs.writeFileSync(file, `${JSON.stringify(cfg, null, 2)}\n`, "utf8");
+  note(`opencode.json: ${added.length} manual-only skill${added.length === 1 ? "" : "s"} set to "ask"`);
   return added.length;
 }
 
@@ -565,16 +668,30 @@ function bmadMissingMessage() {
 //
 // So it blocks, and `--skip-engines-check` is the escape, exactly as `--skip-bmad-check` is for BMad. The
 // escape matters: CI installs into a bare checkout, and a repo that will never reach G5 is a real case.
-function enginesMissingMessage(missing) {
-  const names = (missing && missing.length ? missing : ENGINE_SKILLS).join(" · ");
+function enginesMissingMessage(report) {
+  const missing = report?.missing?.length ? report.missing
+    : report?.missingByHost?.size ? [] : ENGINE_SKILLS;
+  const byHost = report?.missingByHost?.size ? [...report.missingByHost] : [];
+  const head = [];
+  if (missing.length) {
+    head.push(`The engines are not in this repo. Missing: ${missing.join(" · ")}`, "",
+      `  ${ENGINES_INSTALL_ANY}`);
+  }
+  if (byHost.length) {
+    if (head.length) head.push("");
+    head.push("Not where every selected host can read them — install for each host named here:", "");
+    for (const [id, names] of byHost) {
+      const p = getPlatform(id);
+      head.push(`  ${p.name} reads ${p.reads.join(", ")} — cannot see ${names.join(" · ")}`,
+        `    ${ENGINES_INSTALL_ANY} --agent ${p.skillsCli}`);
+    }
+  }
   return [
-    `The engines are not in this repo. Missing: ${names}`,
+    ...head,
     "",
     "They MUST be installed INTO the repo, not as a user-level plugin — the method strips",
     "`disable-model-invocation` from its own copies so `wdi-build` and `wdi-autopilot` can drive",
     "them, and a plugin's files are not the repo's to edit.",
-    "",
-    `  ${ENGINES_INSTALL_ANY}`,
     "",
     `Take all six: ${ENGINE_SKILLS.join(" · ")}. Choose "copy" or "symlink" — either is read.`,
     "",
@@ -1304,9 +1421,10 @@ function upgradeCheck(target) {
   return 1;
 }
 
-function writeStamp(target) {
+function writeStamp(target, agents) {
   const control = path.join(target, ".control");
   if (!fs.existsSync(control)) return;
+  const hosts = normalizePlatformIds(agents && agents.length ? agents : declaredPlatforms(target, fs));
   const eng = enginesReport(target);
   const fp = engineFingerprints(target);
   const names = Object.keys(fp);
@@ -1314,6 +1432,12 @@ function writeStamp(target) {
     "# Written by wdi-method install/update. A trace, not a lockfile.",
     `wdi_method: ${PKG.version}`,
     `bmad_method: ${readBmadVersion(target) || '""'}`,
+    "# The hosts this repo was installed for. `update` reuses this list; the skills and validate.py",
+    "# read `hosts:` to learn where each host reads skills, how a person types one, and whether the",
+    "# host has its own scheduler.",
+    "platforms:",
+    ...hosts.map((id) => `  - ${id}`),
+    hostsYaml(hosts),
   ];
   if (names.length) {
     const blocked = engineInvocationState(target).blocked;
@@ -1632,34 +1756,20 @@ function upsertAgentFiles(target, platforms, productName) {
   if (!next.endsWith("\n")) next += "\n";
   fs.writeFileSync(agentsFile, next);
 
-  const mirrors = [];
-  if (platformUsesHook(platforms, "cursorrules")) {
-    mirrors.push(path.join(target, ".cursorrules"));
-  }
-  if (platformUsesHook(platforms, "agents-mirror")) {
-    mirrors.push(path.join(target, ".agents", "AGENTS.md"));
-  }
-  for (const mirror of mirrors) {
+  // Every rule file a selected host reads in place of, or beside, AGENTS.md — CLAUDE.md, GEMINI.md,
+  // .junie/guidelines.md, … — carries the same block. A host that never sees the block never sees
+  // the method policy, and on a host with no manual-only gate that policy is the lock.
+  for (const rel of ruleFiles(platforms).slice(1)) {
+    const mirror = path.join(target, ...rel.split("/"));
     fs.mkdirSync(path.dirname(mirror), { recursive: true });
-    if (fs.existsSync(mirror)) {
-      const patched = upsertMethodBlock(fs.readFileSync(mirror, "utf8"), template);
-      fs.writeFileSync(mirror, patched.endsWith("\n") ? patched : `${patched}\n`);
-      note(`method block refreshed in ${posixRel(target, mirror)}`);
-    } else {
+    const current = fs.existsSync(mirror) ? fs.readFileSync(mirror, "utf8") : "";
+    if (!current.trim() || current.trim() === "@AGENTS.md") {
       fs.writeFileSync(mirror, next);
-      note(`created ${posixRel(target, mirror)}`);
-    }
-  }
-
-  if (platformUsesHook(platforms, "claude-md")) {
-    const claude = path.join(target, "CLAUDE.md");
-    if (!fs.existsSync(claude) || fs.readFileSync(claude, "utf8").trim() === "@AGENTS.md") {
-      fs.writeFileSync(claude, next);
-      note("CLAUDE.md synchronized from AGENTS.md");
+      note(current.trim() ? `${rel} synchronized from AGENTS.md` : `created ${rel}`);
     } else {
-      const patched = upsertMethodBlock(fs.readFileSync(claude, "utf8"), template);
-      fs.writeFileSync(claude, patched.endsWith("\n") ? patched : `${patched}\n`);
-      note("method block refreshed in CLAUDE.md");
+      const patched = upsertMethodBlock(current, template);
+      fs.writeFileSync(mirror, patched.endsWith("\n") ? patched : `${patched}\n`);
+      note(`method block refreshed in ${rel}`);
     }
   }
 }
@@ -1715,12 +1825,17 @@ function printSummary(target, agents, { first, was, written, skipped, skills, to
                         `run the ${INIT_SKILL} skill, intent ${DIM}readers${RESET}, ` +
                         `to write it for this repo's stack`);
   }
-  const engReport = enginesReport(target);
+  const engReport = enginesReport(target, agents);
   summaryLine("engines", engReport.present
-    ? `${ENGINE_SKILLS.join(" · ")} — found (in this repo)`
-    : `NOT found: ${engReport.missing.join(" · ")}. G5 (wdi-build) and the Fast Path need them; G1–G4 run without them`);
+    ? `${ENGINE_SKILLS.join(" · ")} — found (in this repo), readable by every selected host`
+    : engReport.missing.length
+      ? `NOT found: ${engReport.missing.join(" · ")}. G5 (wdi-build) and the Fast Path need them; G1–G4 run without them`
+      : `NOT readable by ${[...engReport.missingByHost.keys()].join(", ")}. G5 (wdi-build) and the Fast Path need them; G1–G4 run without them`);
   if (!engReport.present) {
-    summaryLine("", `${DIM}·${RESET} into THIS repo: ${DIM}${ENGINES_INSTALL_ANY}${RESET} — a user-level plugin does not count`);
+    for (const [id, names] of engReport.missingByHost) {
+      summaryLine("", `${DIM}·${RESET} ${id}: ${names.join(" · ")} — ${DIM}${ENGINES_INSTALL_ANY} --agent ${getPlatform(id).skillsCli}${RESET}`);
+    }
+    summaryLine("", `${DIM}·${RESET} into THIS repo — a user-level plugin does not count`);
     summaryLine("", `${DIM}·${RESET} docs/agents/ is already seeded, so ${DIM}${ENGINES_SETUP}${RESET} is not needed · ${ENGINES_REPO}`);
   } else {
     const blocked = engineInvocationState(target).blocked;
@@ -1838,8 +1953,10 @@ function apply(target, agents,
   // wrappers. A one-time fix would hold for about a week.
   enableEngineInvocation(target);
   retireBmadG5(target);
-  writeDenyRules(target);
-  writeStamp(target);
+  writeDenyRules(target, agents);
+  writeOpencodePermissions(target, agents);
+  noteRetiredPlatforms(target);
+  writeStamp(target, agents);
   printSummary(target, agents, { first, was, written, skipped, skills, tomls, opencodeCmds });
   printNextSteps({
     first,
@@ -1848,16 +1965,29 @@ function apply(target, agents,
   });
 }
 
+/** A host the repo still names that the method dropped. Said, never acted on: its folder holds
+ * whatever the product put there too, and on update absence is a decision the owner makes. */
+function noteRetiredPlatforms(target) {
+  for (const id of retiredPlatformsIn(target, fs)) {
+    note(`${id} is no longer supported — ${RETIRED_PLATFORMS[id]}. Its wdi-* skill folders were left `
+         + "in place; remove them by hand when you are ready");
+  }
+}
+
 function enginesCommand(target, { fix }) {
-  const before = enginesReport(target);
+  const agents = declaredPlatforms(target, fs);
+  const before = enginesReport(target, agents);
   console.log("");
-  console.log(`  engines   ${before.present ? "all present" : `MISSING ${before.missing.join(" · ")}`}`);
+  console.log(`  engines   ${before.present ? "all present" : before.missing.length ? `MISSING ${before.missing.join(" · ")}` : "present, but not where every host reads"}`);
+  for (const [id, names] of before.missingByHost) {
+    console.log(`    ${id.padEnd(17)}cannot read ${names.join(" · ")}  ${DIM}${ENGINES_INSTALL_ANY} --agent ${getPlatform(id).skillsCli}${RESET}`);
+  }
   for (const name of ENGINE_SKILLS) {
     const copies = before.files.get(name);
     if (!copies) continue;
     const flagged = [...copies.keys()].some((f) =>
       /^disable-model-invocation\s*:\s*true/m.test(fs.readFileSync(f, "utf8")));
-    const where = [...copies.values()].map((f) => posixRel(target, f)).join(", ");
+    const where = [...copies.values()].flat().map((f) => posixRel(target, f)).join(", ");
     console.log(`    ${name.padEnd(17)}${flagged ? "flagged — no skill can invoke it" : "invocable"}  ${DIM}${where}${RESET}`);
   }
   const banned = repoSkillFiles(target, BMAD_RETIRED_G5);
@@ -1885,12 +2015,13 @@ function enginesCommand(target, { fix }) {
   repairAgentDocs(target);
   enableEngineInvocation(target);
   retireBmadG5(target);
-  writeDenyRules(target);
-  writeStamp(target);
+  writeDenyRules(target, agents);
+  writeOpencodePermissions(target, agents);
+  writeStamp(target, agents);
   ok("engines aligned");
   if (!before.present) {
     console.log("");
-    console.log(enginesMissingMessage(before.missing));
+    console.log(enginesMissingMessage(before));
   }
 }
 
@@ -2127,7 +2258,7 @@ async function runWizard(pre) {
   // both is told about BMad first rather than sent to install the second thing.
   const engineGate = enginesReport(target);
   if (!engineGate.present && !pre.skipEngines) {
-    p.note(enginesMissingMessage(engineGate.missing), "Engines next");
+    p.note(enginesMissingMessage(engineGate), "Engines next");
     p.outro("Install them into this repo, then run this again: npx wdi-method");
     process.exit(1);
   }
@@ -2211,9 +2342,18 @@ async function runWizard(pre) {
       initialValues: detected,
       required: true,
       maxItems: 8,
-      placeholder: "Type to search…",
+      placeholder: `Type to search all ${PLATFORMS.length} hosts — Space selects, Enter confirms`,
     }),
   );
+
+  // Step 2 again, now that the hosts are known. Present somewhere is not enough: Kiro reads
+  // `.kiro/skills` only, so engines in `.agents/skills` leave it unable to run G5.
+  const hostGate = enginesReport(target, selected);
+  if (!hostGate.present && !pre.skipEngines) {
+    p.note(enginesMissingMessage(hostGate), "Engines for the hosts you picked");
+    p.outro("Install them where each host reads, then run this again: npx wdi-method");
+    process.exit(1);
+  }
 
   p.note(
     [
@@ -2222,9 +2362,9 @@ async function runWizard(pre) {
       "",
       "What gets written for the platforms you picked:",
       "  AGENTS.md  (the BEGIN:wdi-method block — always)",
-      platformUsesHook(selected, "claude-md") ? "  CLAUDE.md  (method block mirror)" : "",
-      platformUsesHook(selected, "cursorrules") ? "  .cursorrules  (method block mirror)" : "",
-      platformUsesHook(selected, "agents-mirror") ? "  .agents/AGENTS.md  (method block mirror)" : "",
+      ...ruleFiles(selected).slice(1).map((f) => `  ${f}  (method block mirror)`),
+      platformsWithManualOnly(selected, "claude").length ? "  .claude/settings.json  (deny rules, merged)" : "",
+      platformsWithManualOnly(selected, "opencode").length ? "  opencode.json  (permission.skill: ask, merged)" : "",
       platformUsesHook(selected, "opencode-commands")
         ? `  ${opencodeCommandsDir()}/wdi-*.md  (slash commands → skills)`
         : "",
@@ -2237,12 +2377,12 @@ async function runWizard(pre) {
 
   const okGo = cancelIf(await p.confirm({ message: first ? "Run the install?" : "Run the update?", initialValue: true }));
   if (!okGo) {
-    p.cancel("Dibatalkan.");
+    p.cancel("Cancelled.");
     process.exit(0);
   }
 
   const spinner = p.spinner();
-  spinner.start(first ? "Memasang…" : "Meng-update…");
+  spinner.start(first ? "Installing…" : "Updating…");
   apply(target, selected, {
     docLanguage,
     docFilenameLanguage,
@@ -2251,7 +2391,7 @@ async function runWizard(pre) {
     product: String(product).trim(),
     client: String(client).trim(),
   });
-  spinner.stop(first ? "Terpasang" : "Ter-update");
+  spinner.stop(first ? "Installed" : "Updated");
   p.outro(first ? "Done. Take the after-install steps above." : "Done. Read the method-block diff in AGENTS.md.");
 }
 
@@ -2265,8 +2405,8 @@ function runNonInteractive(args) {
   if (!args.skipBmad && !bmadPresent(target)) {
     die(bmadMissingMessage());
   }
-  if (!args.skipEngines && !enginesPresent(target)) {
-    die(enginesMissingMessage(enginesReport(target).missing));
+  if (!args.skipEngines && !enginesPresent(target, agents)) {
+    die(enginesMissingMessage(enginesReport(target, agents)));
   }
   const existing = readIndexIdentity(target);
   const product = args.product || existing.name;

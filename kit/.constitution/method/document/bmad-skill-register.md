@@ -65,9 +65,12 @@ place is how a method gets worked around rather than followed.
 
 ### Retired at G5 — enforced by install and update
 
-**This is enforced, not only stated.** `install` and `update` set `disable-model-invocation: true` on
-every wrapper below and add a `Skill(<name>)` deny rule to `.claude/settings.json`, both re-applied on
-every run because BMad's installer rewrites its own wrappers. A person typing `/bmad-build` still gets
+**This is enforced, not only stated — as far as each host allows.** `install` and `update` set
+`disable-model-invocation: true` on every wrapper below (every host that honours the key holds it),
+add a `Skill(<name>)` deny rule to `.claude/settings.json` for Claude Code and `"<name>": "ask"` under
+`permission.skill` in `opencode.json` for OpenCode, all re-applied on every run because BMad's installer
+rewrites its own wrappers. On a host with no lock at all, the `AGENTS.md` method block — mirrored into
+that host's own rule file — is what forbids them. A person typing `/bmad-build` still gets
 it: the method retires a default, it does not confiscate a tool. The list lives in
 `bin/wdi-method.js` as `BMAD_RETIRED_G5`, and a test fails when this table and that array disagree.
 

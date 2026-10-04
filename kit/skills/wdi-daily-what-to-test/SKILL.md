@@ -6,6 +6,8 @@ disable-model-invocation: true
 
 # WDI Daily What-to-Test
 
+> **Typed by the owner, or not at all.** Run this skill only when the person typed `wdi-daily-what-to-test` — `/wdi-daily-what-to-test` or this host's own syntax for it — in the turn that is running. Reached any other way (a description that looked relevant, another skill, a subagent), stop and name it instead. Hosts that can hold a skill to manual-only already do; on the others, this line is the lock.
+
 The post-merge daily verification step after a `wdi-autopilot` or ticket delivery run merges: lands
 back on the active development branch, safely prunes stale merged worktrees and task branches while
 strictly preserving protected branches, configures the application where it needs to be for platform

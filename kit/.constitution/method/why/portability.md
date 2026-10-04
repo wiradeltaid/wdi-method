@@ -56,9 +56,26 @@ others leaves a method that cannot run:
 | Set | Note |
 |---|---|
 | `.constitution/` | Minus the product articles; `promote` / `install` handle the seam |
-| `.claude/skills/wdi-*/` (and `.agents/skills/wdi-*/` when those agents are selected) | Every wrapper. A wrapper without its guide, or a guide without its wrapper, is half a method |
+| `.<host>/skills/wdi-*/` for every host selected at install | Every wrapper. A wrapper without its guide, or a guide without its wrapper, is half a method |
 | `_bmad/custom/*.toml` | The one most likely to be forgotten. `*.user.toml` stays behind |
-| `AGENTS.md` | The routing table is the method; from `## Code` down is the product. `install` / `update` MUST NOT overwrite an existing `AGENTS.md` |
+| `AGENTS.md`, and each rule file a selected host reads beside it | The routing table is the method; from `## Code` down is the product. `install` / `update` MUST NOT overwrite an existing `AGENTS.md` |
+
+## One method, many hosts
+
+The method runs on every host the installer offers, and each host differs in five ways that matter.
+`lib/platforms.mjs` in the package is the one record of them; `install` writes the selected hosts into
+`.control/wdi-method.yaml` under `hosts:`, and the skills and `validate.py` read them from there.
+
+| Difference | What the method does about it |
+|---|---|
+| **Where skills are read** (`reads:`) | The `wdi-*` skills go to each host's own folder. The six engines MUST be in a folder every selected host reads — Kiro reads only `.kiro/skills` — and `npx wdi-method engines` names the `npx skills add --agent` that puts them there |
+| **How a skill is loaded** | Through the host's own mechanism: a skill tool where it has one, otherwise reading the whole `SKILL.md`. Both are invocation; a paraphrase is neither |
+| **How a person types one** (`invoke:`) | `/name`, `$name`, `/skill:name`, `@name`, or asked for by name. `wdi-help` names the next skill in this host's form |
+| **Manual-only** (`manual_only:`) | Three layers. The host's own lock where it has one (`disable-model-invocation`; `.claude/settings.json` deny rules; `opencode.json` `ask`). A guard line at the top of each manual-only skill. The `AGENTS.md` block, mirrored into every rule file a host reads. On a host with no lock the last two are all there is, and that is the host's limit, not a gap in the install |
+| **A scheduler of its own** (`loop:`) | `wdi-daily-autopilot` and `wdi-autopilot` start it where it exists. Where it does not, they run one iteration per invocation — a shell loop or an OS scheduler is not a substitute |
+
+A host the method dropped is named by `update` and left alone: its folders may hold the product's own
+files too, so removing them is the owner's call.
 
 ## Two directions
 

@@ -1976,10 +1976,65 @@ def corpus_in_git(c: Corpus, r: Result) -> None:
             pass
 
 
-ENGINE_HOMES = (".claude", ".agents", ".agent", ".cursor", ".codex")
 ENGINE_FLAGGED = ("to-spec", "to-tickets", "implement")
 ENGINE_SKILLS = ENGINE_FLAGGED + ("tdd", "code-review", "domain-modeling")
 FLAG_RE = re.compile(r"^disable-model-invocation\s*:\s*true", re.M)
+STAMP = Path(".control") / "wdi-method.yaml"
+HOST_ID_RE = re.compile(r"^\s+-\s+id:\s*([A-Za-z0-9_.-]+)\s*$")
+HOST_READS_RE = re.compile(r"^\s+reads:\s*\[(.*)\]\s*$")
+
+
+def _skill_roots(root: Path) -> list[Path]:
+    """Every folder in the repo that may hold skills — matched by PATTERN, not by a list of hosts.
+
+    The list this replaced named five folders while the installer offered forty hosts, so engines
+    installed for Kiro, Cline, or Trae were reported as no engines at all. Every `.<host>/skills` at
+    the root counts, plus every directory a host in the stamp's `hosts:` is recorded to read.
+    """
+    found: dict[str, Path] = {}
+    try:
+        entries = sorted(root.iterdir())
+    except OSError:
+        entries = []
+    for entry in entries:
+        if entry.name.startswith(".") and entry.name != ".git" and (entry / "skills").is_dir():
+            found[f"{entry.name}/skills"] = entry / "skills"
+    for reads in _stamp_hosts(root).values():
+        for rel in reads:
+            if (root / rel).is_dir():
+                found.setdefault(rel, root / rel)
+    return list(found.values())
+
+
+def _stamp_hosts(root: Path) -> dict[str, list[str]]:
+    """`hosts:` from `.control/wdi-method.yaml` — host id → the skill folders it reads.
+
+    The installer writes it from `lib/platforms.mjs`; this reads it so the two never keep separate
+    lists. An older stamp has no `hosts:`, and the check then falls back to "anywhere in the repo".
+    """
+    path = root / STAMP
+    if not path.is_file():
+        return {}
+    out: dict[str, list[str]] = {}
+    current = None
+    in_hosts = False
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        if re.match(r"^hosts:\s*$", line):
+            in_hosts = True
+            continue
+        if in_hosts and line.strip() and not line.startswith(" "):
+            break
+        if not in_hosts:
+            continue
+        m = HOST_ID_RE.match(line)
+        if m:
+            current = m.group(1)
+            out[current] = []
+            continue
+        m = HOST_READS_RE.match(line)
+        if m and current:
+            out[current] = [s.strip().strip('"').strip("'") for s in m.group(1).split(",") if s.strip()]
+    return out
 
 
 def _engine_files(root: Path, name: str) -> list[Path]:
@@ -1990,8 +2045,8 @@ def _engine_files(root: Path, name: str) -> list[Path]:
     one finding read as two.
     """
     seen: dict[Path, Path] = {}
-    for home in ENGINE_HOMES:
-        path = root / home / "skills" / name / "SKILL.md"
+    for home in _skill_roots(root):
+        path = home / name / "SKILL.md"
         if not path.is_file():
             continue
         try:
@@ -2037,6 +2092,16 @@ def engines_invocable(c: Corpus, r: Result) -> None:
         if not installed[name]:
             r.fail("engines-invocable", name, "is not installed in this repo — G5 needs all six, and "
                               "a user-level plugin does not count: its files are not this repo's to unlock")
+    # Present somewhere is not present for every host. Kiro reads `.kiro/skills` and nothing else, so
+    # an engine only in `.agents/skills` leaves `wdi-build` unable to run there.
+    for host, reads in _stamp_hosts(c.root).items():
+        for name in ENGINE_SKILLS:
+            if not installed[name]:
+                continue
+            if not any((c.root / rel / name / "SKILL.md").is_file() for rel in reads):
+                r.fail("engines-invocable", name,
+                       f"is not in any folder {host} reads ({', '.join(reads)}) — that host cannot "
+                       f"run it. `npx wdi-method engines` names the `npx skills add --agent` to use")
     for name in ENGINE_FLAGGED:
         for path in installed[name]:
             if FLAG_RE.search(_frontmatter(path.read_text(encoding="utf-8", errors="replace"))):

@@ -1,6 +1,6 @@
 ---
 name: wdi-build
-description: Use at G5 Release — one spec from open to closed in one supervised run. Opens the spec, hands the owner to-spec and to-tickets, ships every ticket to a green PR through a five-step pipeline, then closes the spec. One invocation, not four.
+description: Use at G5 Release — one spec from open to closed in one supervised run. Opens the spec, drives to-spec and to-tickets, ships every ticket to a green PR through a five-step pipeline, then closes the spec. One invocation, not four.
 ---
 
 # WDI Build
@@ -16,29 +16,37 @@ without them. Thirteen BMad skills are **retired** at this gate and MUST NOT be 
 `bmad-spec`, `bmad-build`, `bmad-build-auto`, `bmad-code-review`, `bmad-retrospective`,
 `bmad-agent-dev`, `bmad-create-epics-and-stories`, `bmad-create-story`, `bmad-dev-story`,
 `bmad-dev-auto`, `bmad-quick-dev`, `bmad-sprint-planning`, `bmad-sprint-status`. That is enforced, not
-requested: `install` and `update` lock each one out of model invocation and add a `Skill()` deny rule.
-`bmad-skill-register.md` carries the list and the criterion behind it.
+requested: `install` and `update` lock each one out of model invocation wherever the host offers a lock
+(`disable-model-invocation`, `.claude/settings.json` deny rules, `opencode.json` `ask`), and the
+`AGENTS.md` block forbids them on every host. `bmad-skill-register.md` carries the list and the
+criterion behind it.
 
-**All five engines are INVOKED, by this skill, through the Skill tool.** Upstream ships `to-spec`,
-`to-tickets` and `implement` with `disable-model-invocation: true`; `wdi-method` strips it from the
-copies this repo owns, so there is no command to hand to the owner and no reading-and-following to do.
-Where an engine needs a decision — the seams, the `to-tickets` quiz — that decision is made before the
-invocation and passed IN it, because an engine that stops to ask inside an unattended run is a run
-that stalls with nobody there to answer.
+**All six engines are INVOKED, by this skill, through the host's own skill mechanism.** Which mechanism
+that is belongs to the host, not to this skill: a skill tool where the host has one (Claude Code's
+`Skill`, OpenCode's `skill`, Gemini's `activate_skill`), and where the host has none — Kiro, Codex,
+Cursor, and most others — loading the engine is reading its `SKILL.md` **in full, from the repo's
+own copy**, and carrying it out. That is not a workaround on those hosts; it is the only way they load any
+skill. `hosts:` in `.control/wdi-method.yaml` says where this host reads skills. Upstream ships
+`to-spec`, `to-tickets` and `implement` with `disable-model-invocation: true`; `wdi-method` strips it
+from the copies this repo owns, so on every host this skill drives the engines itself and hands no command
+to the owner. Where an engine needs a decision — the seams, the `to-tickets` quiz — that decision is
+made before the invocation and passed IN it, because an engine that stops to ask inside an unattended run
+is a run that stalls with nobody there to answer.
 
 **If an engine will not invoke, stop and say why.** `disable-model-invocation` back in its frontmatter
 is what `npx skills update` does, and the fix is one command: `npx wdi-method engines --fix`, or the
-`wdi-init` / `wdi-upgrade` skill. MUST NOT work around it by pasting the engine's process inline: the
-engine's rules are its own, and a paraphrase of them is not the engine.
+`wdi-init` / `wdi-upgrade` skill. An engine missing from every folder this host reads is the other
+cause, and `npx wdi-method engines` names the `npx skills add --agent` that fixes it. MUST NOT work
+around either by paraphrasing the engine from memory, summarising it into a brief, or reading a copy from
+outside the repo: the engine's rules are its own, and anything short of its whole `SKILL.md` is not the
+engine.
 
 **Under an active mandate the owner's part is `wdi-autopilot`'s.** A `DEC-` of `type: mandate` at
 `status: accepted`, unexpired, moves **every** "the owner runs" and "the owner decides" in this skill to the
 coordinator — G5's checklist and Step 2's *stop and reach the owner* included, which reach the coordinator and
-not a person. Three of them change **shape** as well as owner: the engines run by **read-and-follow** — a builder brief
-that names the engine's `SKILL.md` path and carries out its process — or from a copy in the repo, and the ledger
-names which; the seams, the `to-tickets` quiz, and § When the code turns out to be right are decided by the
+not a person. Two of them change **shape** as well as owner: the seams, the `to-tickets` quiz, and § When the code turns out to be right are decided by the
 coordinator and written to the ledger, one row each; and whatever the mandate lists as `parked` still stops,
-reported for the owner rather than decided. One thing changes **shape** rather than owner: a mandate is one
+reported for the owner rather than decided. The engines are invoked exactly as above, mandate or not. One thing changes **shape** rather than owner: a mandate is one
 unit of work and reaches the active development branch (`policy.development_branch`, default `main`) through **one PR**, so Step 4 commits the ticket to the run branch instead of
 opening a PR per ticket, and Step 5 splits: the coordinator pushes the run branch at every spec close, but
 **the cloud run happens once, at `wdi-autopilot` § Finish** — every intermediate push starts nothing, and
@@ -224,7 +232,7 @@ is not.
 
 ### Step 2 — build
 
-- The owner runs `/implement`, and it MUST be given the ticket and the three brief rules above.
+- This skill invokes `implement` (as § All six engines says), and it MUST be given the ticket and the three brief rules above.
 - It commits to the current branch and **never pushes**. That is its own behaviour and it is what we want; the
   coordinator is the hand that pushes.
 - **`/implement` calls `/code-review` itself, and that call does NOT satisfy Step 3.** It is the builder
@@ -385,8 +393,9 @@ only thing `V19` checked.
 - Amending what a ticket `satisfies` to make a must-fix go away
 - A ticket that slices one layer instead of cutting through all of them, outside a wide refactor
 - Running a wide refactor's batches in parallel
-- Claiming this skill invoked `to-spec`, `to-tickets`, or `implement` — it cannot; the owner runs them, or under
-  a mandate a builder reads and follows them, and the ledger says so
+- Paraphrasing `to-spec`, `to-tickets`, or `implement` from memory, or summarising one into a brief, and
+  calling that the engine — on a host with no skill tool the engine is its whole `SKILL.md`, read from the repo
+- Stopping because the host has no `Skill` tool — that host loads skills by reading them, and so does this skill
 - A builder editing `.what/`, `.how/`, or an `applied` `DEC-` to make its code fit
 - Fixing a failing test without knowing why it failed
 - Opening a PR with an unresolved must-fix, or before the ticket-closing checklist is answered

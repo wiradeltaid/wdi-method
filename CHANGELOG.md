@@ -10,6 +10,62 @@ version contains every fix below it.
 
 ---
 
+## [0.6.32] - 2026-10-04
+
+A patch by the owner's choice, though it carries behaviour changes: until now the method only worked
+properly on Claude Code. Read the whole entry if the repo uses any other host.
+
+**Read this before you update.** `update` can now refuse where it went through before: the engines
+have to be in a folder **every selected host reads**, not just somewhere in the repo. The refusal names
+each host and the `npx skills add … --agent <id>` that fixes it. `validate.py` `engines-invocable` goes
+red for the same reason, and for engines it could not see before (flagged engines under `.kiro/skills`
+used to read as "no engines in this repo").
+
+### Changed: behaviour
+
+- **One record per host.** `lib/platforms.mjs` now records, for each host, where it reads skills, the
+  `npx skills` agent id, its project rule files, how a person types a skill, whether it can hold a skill to
+  manual-only, and whether it has a scheduler of its own. `install` / `update` write the selected hosts
+  into `.control/wdi-method.yaml` as `platforms:` and `hosts:`; `update` reuses that list, and the skills
+  and `validate.py` read it. The five-folder lists in the installer and the validator are gone.
+- **Engines are checked per host, and unlocked and locked everywhere.** Engine detection, the
+  `disable-model-invocation` strip, and the BMad G5 lock cover every `.<host>/skills` folder in the repo,
+  plus every folder a supported host reads. Kiro, Cline, Trae, Junie, Qwen, CodeBuddy and the rest were
+  missed before.
+- **Manual-only on every host, in three layers.** The host's own lock where it has one —
+  `disable-model-invocation: true` (honoured by Claude Code, CodeBuddy, Factory Droid, Qwen, Kimi Code,
+  Pi, Pochi, OpenClaw, CodeWhale, Zencoder), `.claude/settings.json` deny rules (Claude Code only now; a repo
+  without Claude Code no longer gets a `.claude/` folder), and `"ask"` under `permission.skill` in
+  `opencode.json` for OpenCode (merged; a value the product set is kept). A guard line at the top of
+  the five manual-only skills. A rule in the `AGENTS.md` block. On a host with no lock, the last two are
+  the lock.
+- **The method block reaches every host's rule file.** Besides `AGENTS.md`: `CLAUDE.md`, `GEMINI.md`,
+  `QWEN.md`, `CODEBUDDY.md`, `CRUSH.md`, `.goosehints`, `replit.md`, `.junie/guidelines.md`,
+  `.cursorrules`, `.agents/AGENTS.md`, `.trae/rules/wdi-method.md`, `.zencoder/rules/wdi-method.md` —
+  each only for the host that reads it. An existing file keeps everything outside the block.
+- **`wdi-build` invokes the engines through the host's own skill mechanism.** A skill tool where the host
+  has one; elsewhere, reading the engine's whole `SKILL.md` from the repo — which is how those hosts load
+  any skill. Three contradictory statements (Skill tool only / "the owner runs them" / read-and-follow
+  under a mandate only) are replaced by that one rule. Paraphrasing an engine is still forbidden.
+- **`wdi-daily-autopilot` and `wdi-autopilot` use the host's own scheduler, or run once.** `/loop` on
+  Claude Code, Command Code, and Qoder; the host's scheduler on CodeBuddy, Cline, Goose, GitHub Copilot,
+  Warp, and AdaL. On every other host the skill runs one iteration per invocation under the same mandate,
+  ledger, and branch — never a shell loop or an OS scheduler.
+- **`wdi-help` names the next skill in this host's syntax** — `/name`, `$name` (Codex, Cortex),
+  `/skill:name` (Kimi Code, Pi), `@name` (Windsurf).
+- **Hosts removed:** iFlow (shut down), Firebender (service ends 2026-10-31), Roo Code (archived), Hermes
+  Agent (reads `~/.hermes/skills` only), Neovate (no documented project skill folder), Mux (runs other
+  agents, reads no skills itself). `--agents` with one of them is refused with the reason; `update` on a
+  repo that names one says so and leaves its folders alone.
+- **`--agents antigravity` now means the Antigravity IDE** (`.agent/skills`), as BMad's id does. It was
+  silently aliased to the CLI.
+- The installer's last Indonesian strings are English; the host picker says how many hosts it searches.
+
+**`wdi-upgrade`:** not needed. Nothing in the repo's content changes shape; `update` itself writes the new
+stamp fields. If `update` refuses, run the `npx skills add … --agent <id>` it prints, then `update` again.
+
+---
+
 ## [0.6.31] - 2026-09-28
 
 A patch by the owner's choice, though it carries behaviour changes — read the whole entry.

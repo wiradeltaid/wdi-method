@@ -146,7 +146,7 @@ Named for the **gate they serve**, so *"which skill do I run"* is answered by *"
 | Skill | Its trigger |
 |---|---|
 | `wdi-daily-what-to-build` | Hand-testing notes to turn into a reviewed spec or ticket. Stops before code, commit, or push |
-| `wdi-daily-autopilot` | Start the daily loop: checks for an accepted mandate (preflight if none), resolves reviewers, launches `/loop` over `wdi-autopilot` |
+| `wdi-daily-autopilot` | Start the daily loop: checks for an accepted mandate (preflight if none), resolves reviewers, starts the host's own scheduler over `wdi-autopilot` (one iteration where the host has none) |
 | `wdi-daily-what-to-test` | After a merge: sync, prune merged branches, prepare the app, build the hand-test checklist |
 | `wdi-prune-or-archive` | Closed specs to archive or prune, through `lifecycle.py` |
 

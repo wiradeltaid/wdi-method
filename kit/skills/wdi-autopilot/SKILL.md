@@ -43,8 +43,8 @@ NOT start the loop while any row in the first two groups is red.
 | **Engines** | BMad installed; every `wdi-*` skill the run will call present | A wrapper is missing — name it and `npx wdi-method update` |
 | | All six engines present IN this repo — `to-spec` · `to-tickets` · `implement` · `tdd` · `code-review` · `domain-modeling` — with the **path** of each `SKILL.md` | Any missing. `npx skills@latest add mattpocock/skills`; a user-level plugin does not count |
 | | The three flagged engines are **invocable**: no `disable-model-invocation` in the repo's copies | Any still flagged — no skill can invoke it, so Phase 2 would stall. `npx wdi-method engines --fix`, or the `wdi-init` / `wdi-upgrade` skill |
-| | The retired BMad G5 wrappers are locked out of model invocation, and `.claude/settings.json` denies them | Any still invocable. Same fix — BMad's installer restores its wrappers whenever it runs |
-| | This skill and `wdi-build` are themselves invocable — no `skillOverrides` entry in `settings.json` set to `off` or `user-invocable-only` | Either is overridden. Nothing else can start the loop, and the override is silent |
+| | The retired BMad G5 wrappers are locked out of model invocation wherever this host offers a lock (`.claude/settings.json` deny rules, `opencode.json` `ask`) | Any still invocable. Same fix — BMad's installer restores its wrappers whenever it runs |
+| | This skill and `wdi-build` are themselves invocable — on Claude Code, no `skillOverrides` entry in `settings.json` set to `off` or `user-invocable-only` | Either is overridden. Nothing else can start the loop, and the override is silent |
 | | The tracker the engines publish to is configured — `docs/agents/issue-tracker.md`, written once by `/setup-matt-pocock-skills` | Missing. `to-tickets` would stop to ask for it, and this skill never asks; the owner runs the setup before confirming |
 | | Reviewers separate from the builder can be dispatched | The session cannot spawn a second agent and any touched component is `risk_accepted: low` — Step 3 of `wdi-build` would block |
 | | `.constitution/project/codebase-stack-guide.md` names build and test commands, **and the test command exits 0 here** (prefer quiet output flags, e.g. `-- --quiet`, to keep context compact; on non-zero exit, surface the failure details and abort preflight) | Absent or failing. Every ticket's "full suite green once" and the smoke test read it. Found at minute one, not at hour six |
@@ -57,8 +57,8 @@ NOT start the loop while any row in the first two groups is red.
 | **Settings** | `scope` — the `FR` ids to deliver, or `all` | — (default `all` open `FR`) |
 | | `parked` — what stops for the owner instead of being decided: any of `promise` · `ad-n` · `sensitive` | — (default **`ad-n`**, and nothing else. `decision-guide.md` says narrowing an invariant MUST NOT be softened further, so removing it is the owner's to say out loud — not a default they never saw) |
 | | `smoke_test` — `agent` or `owner` | — (default `agent`, and **`owner` when `codebase-stack-guide.md` names no way to run the app** — an agent cannot smoke-test what it cannot launch) |
-| | `loop` — the interval between iterations | — (default `5m`) |
-| | `expires` — the date the mandate lapses | — (default 7 days from today; a `/loop` task expires then too) |
+| | `loop` — the interval between iterations | — (default `5m`). On a host with no scheduler of its own (`loop: none` in `hosts:`) the row reads **once** — see § Starting the loop |
+| | `expires` — the date the mandate lapses | — (default 7 days from today; a scheduled task expires then too) |
 | | Where the ledger and the final report will be written | — |
 | | The **run branch** — `autopilot/<mandate-id>`, using the next free `DEC-` id from `decisions.yaml`, which the mandate then takes — and that the run will open **one** PR from it | The branch already exists with commits nobody can account for |
 | **Runtime** | The session runs with permission prompts bypassed | Cannot be verified from inside the session. Printed as a line the owner confirms |
@@ -69,15 +69,16 @@ the same rule the installer follows. A preflight that asks fourteen questions on
 
 ### The engines are invoked — there is no route to find
 
-`to-spec`, `to-tickets` and `implement` ship with `disable-model-invocation: true`, which blocks the Skill
-tool for this session and every subagent, and no setting lifts it: the gate reads the frontmatter and
-consults nothing else. Two releases of this skill worked around that by reading the engine's `SKILL.md`
-and carrying out its process. **That route is retired.** The engines are installed in the repo, the
-installer strips the flag from the repo's own copies, and `wdi-build` invokes them like any other skill.
+`to-spec`, `to-tickets` and `implement` ship with `disable-model-invocation: true`. Where the host
+honours that key it blocks every model-initiated load, and no setting lifts it. The engines are installed
+in the repo, the installer strips the flag from the repo's own copies, and `wdi-build` invokes them like
+any other skill — through the host's own skill mechanism, which on a host with no skill tool is reading the
+engine's whole `SKILL.md` from the repo (`wdi-build` § All six engines).
 
-What preflight checks is therefore not *which route exists* but *whether the flag is back* — `npx skills
-update` restores the author's file byte for byte, and `engines-invocable` in `validate.py` is red when it
-has. A stalled Phase 2 three hours into an unattended run is what this replaces.
+What preflight checks is therefore not *which route exists* but *whether the flag is back* and *whether
+this host can see the engines* — `npx skills update` restores the author's file byte for byte, an engine
+installed for one host is invisible to another, and `engines-invocable` in `validate.py` is red for both.
+A stalled Phase 2 three hours into an unattended run is what this replaces.
 
 The `to-tickets` quiz — granularity and blocking edges — is still **answered by this skill**: ticket
 count from the size table in `delivery-flow-guide.md`, edges from `depends_on` and `touches`. The answers
@@ -96,19 +97,31 @@ On the owner's confirmation, and not before:
    `smoke_test` · `loop` · `expires` — live **only** on its row in `decisions.yaml`; the file carries
    Decision, Why, and Cost, and points at the row. One fact, one home.
 2. Write the ledger header — see § The ledger.
-3. Start the loop. In Claude Code, invoke the `loop` skill with `<interval> /wdi-autopilot`. Where that is
-   not available, print the command for the owner to type, and name the alternative the platform has:
+3. Start the loop — § Starting the loop.
 
-```
-/loop 5m /wdi-autopilot
-```
+### Starting the loop
+
+The loop is the **host's own scheduler**, and nothing else counts: a shell `while`, an OS cron job, or a
+second agent firing this one is not a loop this skill starts. Read this host's `loop:` from `hosts:` in
+`.control/wdi-method.yaml` (the entry whose `id` is the host running this session):
+
+| `loop:` | What this skill does |
+|---|---|
+| `{kind: command, how: …}` | Types the command, filling `{interval}` and `{prompt}` (`/wdi-autopilot`) — e.g. `/loop 5m /wdi-autopilot` on Claude Code |
+| `{kind: scheduler, how: …}` | Creates the schedule the way `how` names it, with the same interval and prompt |
+| `none` | **Runs one iteration now**, in this turn (Door 2), and reports that this host has no scheduler: the next iteration starts when the owner invokes this skill again. The mandate, the ledger, and the branch carry over unchanged, so each invocation resumes where the last stopped |
+
+A host missing from `hosts:` (an old stamp) is treated as `none`. The `none` row is not a lesser run: one
+iteration works as far as it safely can, exactly as a scheduled one does, and stops only at the same three
+stops.
 
 The interval is the **pause between** iterations, not the length of one. An iteration that outlives it
-finishes first; the next firing waits.
+finishes first; the next firing waits. "Cancel the loop", wherever this skill says it, means cancelling
+that scheduled task; where there is none, it means nothing further is started.
 
 **Session survivability across environments:**
 - **Linux / Remote SSH:** Run inside a session manager such as `tmux` (`tmux new -s autopilot`) or `screen` before starting the loop. Disconnecting SSH or closing the terminal then leaves the autonomous loop running unharmed.
-- **Windows (PowerShell / Windows Terminal):** `tmux` is not native to Windows PowerShell. Run the session in a dedicated persistent Windows Terminal tab or window left active, or via background subagent tools (`run_in_background`). Do not invoke or require `tmux` on Windows environments.
+- **Windows (PowerShell / Windows Terminal):** `tmux` is not native to Windows PowerShell. Run the session in a dedicated persistent Windows Terminal tab or window left active. Do not invoke or require `tmux` on Windows environments.
 
 ## Door 2 — One iteration
 

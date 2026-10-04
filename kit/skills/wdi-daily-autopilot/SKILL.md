@@ -1,15 +1,17 @@
 ---
 name: wdi-daily-autopilot
-description: Compose and launch the autonomous daily loop routine (default 10m interval) with self code-review and peer-review runners resolved from local configuration. Invoke as `/wdi-daily-autopilot [self-review] [peer] [interval] [--skip-peer-review|--no-review]` (`[self-review]` alias `[in-session]`).
+description: Compose and launch the autonomous daily loop routine (default 10m interval, on the host's own scheduler; once where the host has none) with self code-review and peer-review runners resolved from local configuration. Invoke as `/wdi-daily-autopilot [self-review] [peer] [interval] [--skip-peer-review|--no-review]` (`[self-review]` alias `[in-session]`).
 disable-model-invocation: true
 ---
 
 # WDI Daily Autopilot Launch
 
+> **Typed by the owner, or not at all.** Run this skill only when the person typed `wdi-daily-autopilot` — `/wdi-daily-autopilot` or this host's own syntax for it — in the turn that is running. Reached any other way (a description that looked relevant, another skill, a subagent), stop and name it instead. Hosts that can hold a skill to manual-only already do; on the others, this line is the lock.
+
 Composes the autonomous daily engineering routine, verifies or initiates the owner-accepted mandate
 required by `wdi-autopilot`, resolves coordinator self code-review and independent peer-review dispatch
-from local configuration or agent rules, and launches the execution via `/loop <interval>` (default
-`10m`).
+from local configuration or agent rules, and launches the execution on the host's own scheduler (default
+`10m`) — or, on a host that has none, runs one iteration now.
 
 `/wdi-daily-autopilot [self-review] [peer] [interval] [--skip-peer-review|--no-review]`:
 - `[self-review]` — coordinator self code-review pass model (`default` or explicit model slug; alias `[in-session]`).
@@ -53,9 +55,10 @@ Inspect the repository for `.control/custom-dispatch.yaml` (if not found in the 
     Guardrail: coordinator direct implementation MUST NOT eliminate independent peer review when any component the mandate touches has `risk_accepted: low`. There `low` is the hardest review: `wdi-build` Step 3 requires a two-reviewer panel of agents that are not the builder (`delivery-flow-guide.md`). The coordinator MUST NOT honour a peer-review bypass (`roles.reviewer: none`, `review_policy.peer_review: false`, `--skip-peer-review`, or `--no-review`) when any touched component has `risk_accepted: low`: stop and report which components block it (fail-closed). When every touched component is `medium` or `high`, the bypass is allowed, and the choice MUST be recorded in the mandate text (step 4) and in the ledger.
   - Resolve runner dispatch by `type:` for reviewer and deep analyst:
     - `auto`: Evaluates whether the runner's target model is reachable in-session from the active
-      session profile (per the caller's global agent collaboration rules). Dispatches in-session via `Agent`
-      if reachable; falls back to shell-out using `command` if unreachable in-session.
-    - `in-session`: Dispatches strictly via in-session `Agent` subagent.
+      session profile (per the caller's global agent collaboration rules). Dispatches through this host's
+      own read-only subagent tooling if reachable; falls back to shell-out using `command` if unreachable in-session.
+    - `in-session`: Dispatches strictly through this host's own subagent tooling (read-only). A host with
+      none cannot satisfy it — stop and report (fail-closed).
     - `shell-out`: Executes the external shell-out `command` (single-string command). If `command` is absent
       or empty, stop and report immediately (fail-closed).
 - **If `.control/custom-dispatch.yaml` does not exist**:
@@ -123,17 +126,25 @@ self-review and self-verification without external peer dispatch.
 
 ## 5. Launch
 
-Invoke the `loop` skill with `<resolved interval> /wdi-autopilot <composed text from step 4>`. This
-starts the loop execution.
+Read this host's `loop:` from `hosts:` in `.control/wdi-method.yaml` (the entry whose `id` is the host
+running this session) and launch the way `wdi-autopilot` § Starting the loop says:
+
+- **`kind: command` or `kind: scheduler`** — start the host's own scheduler with `<resolved interval>` and
+  the prompt `/wdi-autopilot <composed text from step 4>` (the host's own invocation syntax, `invoke:` in
+  the same entry, replaces `/wdi-autopilot` where it differs).
+- **`none`** (or the host is not in `hosts:`) — do not look for a substitute: no shell loop, no OS
+  scheduler, no second agent. Run **one** iteration of `wdi-autopilot` now, in this turn, with the composed
+  text. The mandate the owner already accepted (step 3) is the go-ahead; nothing more is asked.
 
 ## 6. Verify Immediate Execution
 
-Before finishing, verify that `/wdi-autopilot` was invoked in this same turn for the first iteration
-rather than remaining idle until the first cron interval tick. If it did not run immediately, invoke
-`/wdi-autopilot` now to start the first iteration.
+Before finishing, verify that `wdi-autopilot` ran its first iteration in this same turn rather than
+waiting for the first scheduled tick. If it did not, run it now.
 
 ## 7. Report and Stop
 
 Report the resolved configuration (in-session mechanism, peer review status, active mandate ID, and
-loop interval), confirm that the loop is active, and stop. MUST NOT intervene in or micromanage
-subsequent loop iterations.
+loop interval — or `once: this host has no scheduler`), and stop. Where a schedule is running, MUST NOT
+intervene in or micromanage subsequent iterations. Where it ran once, the report ends with the one line
+the owner needs: invoke this skill again to run the next iteration — the mandate, ledger, and run branch
+carry over.

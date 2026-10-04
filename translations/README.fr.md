@@ -40,7 +40,7 @@ Un document en retard sur le code est dans son état attendu, ce n'est pas un d�
 - Node.js 20 ou ultérieur.
 - Git.
 - [uv](https://docs.astral.sh/uv/), qui exécute les validateurs Python 3.11+ de la méthode.
-- Une plateforme d'agents : Claude Code, Cursor, Codex et d'autres plateformes d'agents.
+- Un hôte d'agents : l'un des hôtes qu'affiche `npx wdi-method --list-agents` — Claude Code, Kiro, Cursor, Codex, OpenCode, Gemini CLI, GitHub Copilot et d'autres.
 
 Exécutez les trois étapes dans l'ordre. L'installateur s'arrête si l'étape 1 ou l'étape 2 n'a pas été faite. Toutes les invites proposent des valeurs par défaut ; appuyez sur <kbd>Enter</kbd> pour les accepter.
 
@@ -55,7 +55,7 @@ Installez les moteurs dans votre dépôt (choisissez "copy" ou "symlink") :
 ```bash
 npx skills@latest add mattpocock/skills
 ```
-*Sélectionnez les six moteurs que pilote la méthode :* `to-spec`, `to-tickets`, `implement`, `tdd`, `code-review` et `domain-modeling`.
+*Sélectionnez les six moteurs que pilote la méthode :* `to-spec`, `to-tickets`, `implement`, `tdd`, `code-review` et `domain-modeling`, ainsi que chaque hôte d'agents que vous utiliserez. Chaque hôte doit pouvoir les lire — Kiro, par exemple, ne lit que `.kiro/skills` — et lorsque l'un ne le peut pas, l'installateur s'arrête et affiche le `npx skills add … --agent <id>` pour cet hôte.
 
 > **Pourquoi le plugin Claude Code ne suffit pas :** Trois des six moteurs (`to-spec`, `to-tickets`, `implement`) sont livrés avec `disable-model-invocation: true`. À chaque installation et mise à jour, WDI Method retire cette ligne des copies présentes dans votre dépôt, afin que `wdi-build` et `wdi-autopilot` puissent les exécuter. Il ne peut pas modifier un plugin au niveau utilisateur, donc l'installateur s'arrête tant que les moteurs ne sont pas dans le dépôt. `--skip-engines-check` ignore cette vérification.
 
@@ -66,14 +66,16 @@ npx wdi-method
 ```
 *(Non interactif : `npx wdi-method install --yes --agents claude-code --product "Your Product"`)*
 
-> **Ce que l'installateur modifie dans BMad :** L'installateur désactive aussi l'invocation par le modèle pour 13 compétences BMad de build et de sprint que les moteurs remplacent, et ajoute les règles de refus correspondantes à `.claude/settings.json`. Vous pouvez toujours les exécuter en tapant la commande.
+> **Ce que l'installateur modifie dans BMad :** L'installateur désactive aussi l'invocation par le modèle pour 13 compétences BMad de build et de sprint que les moteurs remplacent, et, sur les hôtes qui disposent d'un verrou, en ajoute un (règles de refus dans `.claude/settings.json` pour Claude Code, `"ask"` dans `opencode.json` pour OpenCode). Sur chaque hôte, le bloc de méthode qu'il écrit dans `AGENTS.md` et dans le propre fichier de règles de chaque hôte les interdit. Vous pouvez toujours les exécuter en tapant la commande.
+
+> **Chaque hôte fonctionne de la même façon :** la méthode consigne ce que chaque hôte sélectionné sait faire dans `.control/wdi-method.yaml` (`hosts:`) — où il lit les compétences, comment vous en tapez une, s'il peut maintenir une compétence en mode manuel uniquement, et s'il dispose de son propre planificateur. Les compétences lisent cet enregistrement au lieu de supposer Claude Code.
 
 ### Votre Première Commande : `/wdi-help`
 Dans votre agent de codage, exécutez :
 ```text
 /wdi-help
 ```
-`wdi-help` lit `.control/registry/` et vous indique le gate où se trouve votre projet, les spécifications ouvertes et la compétence suivante, sans deviner à partir de la conversation.
+`wdi-help` lit `.control/registry/` et vous indique le gate où se trouve votre projet, les spécifications ouvertes et la compétence suivante, sans deviner à partir de la conversation. La plupart des hôtes acceptent `/wdi-help` ; Codex accepte `$wdi-help`, Kimi Code et Pi acceptent `/skill:wdi-help`, et Windsurf accepte `@wdi-help`. `wdi-help` nomme la compétence suivante dans la forme de votre hôte.
 
 ---
 
@@ -110,7 +112,7 @@ Une fois l'architecture en place, le travail quotidien suit un rythme journalier
 1. **`/wdi-daily-what-to-build [reviewer] <notes>`**  
    Transforme des notes de tests manuels, des observations QA ou des rapports de bugs en une spécification ou un ticket révisé sur la branche de développement, pour une exécution ultérieure de l'autopilot. Il s'arrête là : il ne fait jamais de commit ni de push et ne lance jamais l'autopilot.
 2. **`/wdi-daily-autopilot [self-review] [peer] [interval] [--skip-peer-review]`**  
-   Vérifie l'existence d'un mandat accepté et exécute le preflight s'il n'y en a pas, détermine les relecteurs à partir de la configuration locale et lance la boucle (par défaut `/loop 10m /wdi-autopilot`). La boucle travaille sur la branche `autopilot/<mandate-id>`, écrit le code en commençant par les tests, consigne chaque décision dans son registre et se termine par une PR prête pour la révision. Le propriétaire fusionne.
+   Vérifie l'existence d'un mandat accepté et exécute le preflight s'il n'y en a pas, détermine les relecteurs à partir de la configuration locale et lance la boucle sur le planificateur propre à l'hôte (toutes les 10 minutes par défaut — `/loop 10m /wdi-autopilot` sur Claude Code). Sur un hôte sans planificateur, elle exécute une itération à chaque fois que vous la tapez. La boucle travaille sur la branche `autopilot/<mandate-id>`, écrit le code en commençant par les tests, consigne chaque décision dans son registre et se termine par une PR prête pour la révision. Le propriétaire fusionne.
 3. **`/wdi-daily-what-to-test [web <target> | mobile <target> | desktop]`**  
    Après une fusion : synchronise la branche de développement, supprime les branches et worktrees fusionnés, prépare l'application pour les tests manuels et construit une liste de contrôle à partir des tickets fermés depuis la dernière synchronisation (`before_sync..HEAD`). Sans argument, il se contente de synchroniser, de supprimer et de construire la liste de contrôle.
 4. **`/wdi-prune-or-archive [--spec <id> | --all-closed] [--archive | --prune] [--dry-run]`**  
@@ -160,11 +162,11 @@ Un runner désigné comme relecteur DOIT être en lecture seule. Le flag de lect
 WDI Method installe 22 compétences : 7 compétences de gate, 5 pour le daily tier (dont `wdi-autopilot`) et 10 que vous exécutez à tout moment.
 
 Comment une compétence démarre :
-- **Vous la tapez** : les quatre compétences du daily tier et `wdi-explain-to-me` (elles portent `disable-model-invocation: true`).
-- **Vous la tapez, ou `wdi-autopilot` l'exécute sous un mandat accepté** : `wdi-build`. Elle ne porte pas le flag `disable-model-invocation`, car `wdi-autopilot` doit l'invoquer ; la règle selon laquelle les agents ne la lancent pas d'eux-mêmes figure dans la Method policy que l'installateur écrit dans `CLAUDE.md` et `AGENTS.md`.
+- **Vous la tapez** : les quatre compétences du daily tier et `wdi-explain-to-me` (elles portent `disable-model-invocation: true` pour les hôtes qui le respectent, et une ligne de garde plus une règle `AGENTS.md` pour ceux qui ne le respectent pas).
+- **Vous la tapez, ou `wdi-autopilot` l'exécute sous un mandat accepté** : `wdi-build`. Elle ne porte pas le flag `disable-model-invocation`, car `wdi-autopilot` doit l'invoquer ; la règle selon laquelle les agents ne la lancent pas d'eux-mêmes figure dans la Method policy que l'installateur écrit dans `AGENTS.md` et dans chaque fichier de règles que lit un hôte sélectionné.
 - **Vous la tapez, ou l'agent la nomme et attend votre feu vert** : les autres compétences.
 - **L'agent peut l'exécuter de lui-même (lecture seule)** : `wdi-help`.
-- **Déclenchée par `/loop` sous un mandat accepté** : `wdi-autopilot`. Sous un mandat, `wdi-autopilot` exécute aussi les autres compétences.
+- **Déclenchée par le planificateur propre à l'hôte sous un mandat accepté, ou une fois par invocation là où l'hôte n'en a pas** : `wdi-autopilot`. Sous un mandat, `wdi-autopilot` exécute aussi les autres compétences.
 
 | Compétence | Ce qu'elle fait | Comment elle démarre |
 |---|---|---|
@@ -178,8 +180,8 @@ Comment une compétence démarre :
 | `/wdi-build` | G5. Une spécification de l'ouverture à la clôture : vous exécutez `to-spec` et `to-tickets`, chaque ticket aboutit à une PR au vert, puis la spécification est clôturée. Elle ne fusionne jamais. | Vous la tapez, ou `wdi-autopilot` l'exécute |
 | **Daily tier** | | |
 | `/wdi-daily-what-to-build` | Transforme des notes de tests manuels en une spécification ou un ticket révisé pour une exécution ultérieure de l'autopilot. S'arrête avant le code, le commit ou le push. | Vous la tapez |
-| `/wdi-daily-autopilot` | Vérifie l'existence d'un mandat accepté (exécute le preflight s'il n'y en a pas), détermine les relecteurs à partir de la configuration locale et lance la boucle, toutes les 10 minutes par défaut. | Vous la tapez |
-| `/wdi-autopilot` | La boucle elle-même : traite chaque FR sous un mandat accepté, sur une branche avec une PR, et consigne chaque décision dans un registre. | Déclenchée par `/loop` sous un mandat accepté |
+| `/wdi-daily-autopilot` | Vérifie l'existence d'un mandat accepté (exécute le preflight s'il n'y en a pas), détermine les relecteurs à partir de la configuration locale et lance la boucle sur le planificateur propre à l'hôte, toutes les 10 minutes par défaut — ou exécute une itération là où l'hôte n'en a pas. | Vous la tapez |
+| `/wdi-autopilot` | La boucle elle-même : traite chaque FR sous un mandat accepté, sur une branche avec une PR, et consigne chaque décision dans un registre. | Déclenchée par le planificateur propre à l'hôte (ou une fois par invocation) sous un mandat accepté |
 | `/wdi-daily-what-to-test` | Après une fusion : synchronise la branche de développement, supprime les branches et worktrees fusionnés, prépare l'application pour les tests manuels et construit une liste de contrôle à partir des tickets fermés. | Vous la tapez |
 | `/wdi-prune-or-archive` | Déplace les spécifications fermées vers `.archive/specs/` ou les supprime avec `git rm`, via `lifecycle.py`, qui vérifie d'abord et annule en cas d'échec. La ligne de la spécification reste dans `specs.yaml`. | Vous la tapez |
 | **À tout moment** | | |

@@ -40,7 +40,7 @@ WDI Method では、AI 駆動開発 (AiDD) は一つの順序で進みます。�
 - Node.js 20 以降。
 - Git。
 - [uv](https://docs.astral.sh/uv/)。このメソッドの Python 3.11+ 検証ツールを実行します。
-- エージェントプラットフォーム: Claude Code、Cursor、Codex、その他のエージェントプラットフォーム。
+- エージェントホスト: `npx wdi-method --list-agents` が表示するホストのいずれか — Claude Code、Kiro、Cursor、Codex、OpenCode、Gemini CLI、GitHub Copilot など。
 
 三つのステップを順番に実行してください。ステップ 1 またはステップ 2 が済んでいない場合、インストーラーは停止します。すべてのプロンプトにはデフォルト値があり、<kbd>Enter</kbd> を押すとそれを受け入れます。
 
@@ -55,7 +55,7 @@ npx bmad-method install
 ```bash
 npx skills@latest add mattpocock/skills
 ```
-*このメソッドが動かす六つのエンジンをすべて選択します:* `to-spec`、`to-tickets`、`implement`、`tdd`、`code-review`、`domain-modeling`。
+*このメソッドが動かす六つのエンジンをすべて選択します:* `to-spec`、`to-tickets`、`implement`、`tdd`、`code-review`、`domain-modeling`。さらに、使用するすべてのエージェントホストも選択します。各ホストはそれらを読めなければならず — たとえば Kiro は `.kiro/skills` しか読みません — 読めないホストがある場合、インストーラーは停止し、そのホスト向けの `npx skills add … --agent <id>` を表示します。
 
 > **Claude Code プラグインだけでは足りない理由:** 六つのエンジンのうち三つ（`to-spec`、`to-tickets`、`implement`）は `disable-model-invocation: true` 付きで配布されています。インストールと更新のたびに、WDI Method はリポジトリ内のコピーからその行を削除し、`wdi-build` と `wdi-autopilot` がそれらを実行できるようにします。ユーザーレベルのプラグインは編集できないため、エンジンがリポジトリに入るまでインストーラーは停止します。`--skip-engines-check` でこの確認を省略できます。
 
@@ -66,14 +66,16 @@ npx wdi-method
 ```
 *（非対話型: `npx wdi-method install --yes --agents claude-code --product "Your Product"`）*
 
-> **インストーラーが BMad で変更すること:** インストーラーは、エンジンが置き換える 13 個の BMad のビルドおよびスプリント用スキルについてモデルによる呼び出しをオフにし、対応する拒否ルールを `.claude/settings.json` に追加します。コマンドを入力すれば、それらは引き続き実行できます。
+> **インストーラーが BMad で変更すること:** インストーラーは、エンジンが置き換える 13 個の BMad のビルドおよびスプリント用スキルについてモデルによる呼び出しをオフにし、ロックを持つホストでは一つ追加します（Claude Code には `.claude/settings.json` の拒否ルール、OpenCode には `opencode.json` の `"ask"`）。どのホストでも、インストーラーが `AGENTS.md` と各ホスト自身のルールファイルに書き込むメソッドのブロックがそれらを禁じます。コマンドを入力すれば、それらは引き続き実行できます。
+
+> **どのホストも同じように動く:** メソッドは、選択された各ホストが何をできるかを `.control/wdi-method.yaml`（`hosts:`）に記録します — どこでスキルを読むか、どう入力するか、スキルを手動のみに保てるか、独自のスケジューラを持つか。スキルは Claude Code を前提とする代わりにその記録を読みます。
 
 ### 最初のコマンド: `/wdi-help`
 コーディングエージェントの中で次を実行します。
 ```text
 /wdi-help
 ```
-`wdi-help` は `.control/registry/` を読み、会話から推測することなく、プロジェクトがどのゲートにいるか、開いている仕様、次のスキルを伝えます。
+`wdi-help` は `.control/registry/` を読み、会話から推測することなく、プロジェクトがどのゲートにいるか、開いている仕様、次のスキルを伝えます。ほとんどのホストは `/wdi-help` を受け付けます。Codex は `$wdi-help`、Kimi Code と Pi は `/skill:wdi-help`、Windsurf は `@wdi-help` を受け付けます。`wdi-help` は次のスキルをあなたのホストの形式で示します。
 
 ---
 
@@ -110,7 +112,7 @@ WDI Method は、タスクの規模とリスクに合わせて手続きの重さ
 1. **`/wdi-daily-what-to-build [reviewer] <notes>`**  
    手動テストのメモ、QA の所見、バグ報告を、後の autopilot 実行のために、開発ブランチ上のレビュー済みの仕様またはチケットに変えます。そこで止まります。コミット、プッシュ、autopilot の開始は一切しません。
 2. **`/wdi-daily-autopilot [self-review] [peer] [interval] [--skip-peer-review]`**  
-   受け入れ済みのマンデートがあるか確認し、なければプリフライトを実行し、ローカル設定からレビュアーを決定して、ループを開始します（デフォルトは `/loop 10m /wdi-autopilot`）。ループはブランチ `autopilot/<mandate-id>` 上で作業し、コードをテストファーストで書き、すべての決定を台帳に記録し、レビュー準備のできた一つの PR で終わります。マージはオーナーが行います。
+   受け入れ済みのマンデートがあるか確認し、なければプリフライトを実行し、ローカル設定からレビュアーを決定して、ホスト自身のスケジューラでループを開始します（デフォルトは 10 分ごと — Claude Code では `/loop 10m /wdi-autopilot`）。スケジューラのないホストでは、入力するたびに一回のイテレーションを実行します。ループはブランチ `autopilot/<mandate-id>` 上で作業し、コードをテストファーストで書き、すべての決定を台帳に記録し、レビュー準備のできた一つの PR で終わります。マージはオーナーが行います。
 3. **`/wdi-daily-what-to-test [web <target> | mobile <target> | desktop]`**  
    マージ後に、開発ブランチを同期し、マージ済みのブランチとワークツリーを整理し、手動テスト用にアプリを準備し、前回の同期以降にクローズされたチケット（`before_sync..HEAD`）からチェックリストを作ります。引数なしの場合は、同期、整理、チェックリスト作成だけを行います。
 4. **`/wdi-prune-or-archive [--spec <id> | --all-closed] [--archive | --prune] [--dry-run]`**  
@@ -160,11 +162,11 @@ Windows では、実行中のアプリのバイナリやバックグラウンド
 WDI Method は 22 個のスキルをインストールします。ゲートのスキルが 7 個、daily tier のスキルが 5 個（`wdi-autopilot` を含む）、いつでも実行できるスキルが 10 個です。
 
 スキルの起動方法:
-- **あなたが入力する**: daily tier の四つのスキルと `wdi-explain-to-me`（これらは `disable-model-invocation: true` を持ちます）。
-- **あなたが入力するか、受け入れ済みのマンデートのもとで `wdi-autopilot` が実行する**: `wdi-build`。`wdi-autopilot` がこれを呼び出す必要があるため、`disable-model-invocation` フラグは持ちません。エージェントが自分からこれを始めないというルールは、インストーラーが `CLAUDE.md` と `AGENTS.md` に書き込む Method policy にあります。
+- **あなたが入力する**: daily tier の四つのスキルと `wdi-explain-to-me`（これらを尊重するホストには `disable-model-invocation: true` を、尊重しないホストにはガード行と `AGENTS.md` のルールを持ちます）。
+- **あなたが入力するか、受け入れ済みのマンデートのもとで `wdi-autopilot` が実行する**: `wdi-build`。`wdi-autopilot` がこれを呼び出す必要があるため、`disable-model-invocation` フラグは持ちません。エージェントが自分からこれを始めないというルールは、インストーラーが `AGENTS.md` と、選択された各ホストが読むすべてのルールファイルに書き込む Method policy にあります。
 - **あなたが入力するか、エージェントが示してあなたの了承を待つ**: その他のスキル。
 - **エージェントが自分で実行してよい（読み取り専用）**: `wdi-help`。
-- **受け入れ済みのマンデートのもとで `/loop` が起動する**: `wdi-autopilot`。マンデートのもとでは、`wdi-autopilot` が他のスキルも実行します。
+- **受け入れ済みのマンデートのもとでホスト自身のスケジューラが起動する、またはスケジューラのないホストでは呼び出しごとに一回**: `wdi-autopilot`。マンデートのもとでは、`wdi-autopilot` が他のスキルも実行します。
 
 | スキル | 役割 | 起動方法 |
 |---|---|---|
@@ -178,8 +180,8 @@ WDI Method は 22 個のスキルをインストールします。ゲートの�
 | `/wdi-build` | G5。一つの仕様をオープンからクローズまで: あなたが `to-spec` と `to-tickets` を実行し、各チケットがグリーンの PR になり、その後仕様がクローズされます。マージはしません。 | あなたが入力するか、`wdi-autopilot` が実行する |
 | **Daily tier** | | |
 | `/wdi-daily-what-to-build` | 手動テストのメモを、後の autopilot 実行のためのレビュー済みの仕様またはチケットに変えます。コード、コミット、プッシュの前で止まります。 | あなたが入力する |
-| `/wdi-daily-autopilot` | 受け入れ済みのマンデートがあるか確認し（なければプリフライトを実行）、ローカル設定からレビュアーを決定して、デフォルトでは 10 分ごとのループを開始します。 | あなたが入力する |
-| `/wdi-autopilot` | ループそのもの: 一つの受け入れ済みマンデートのもとで、一つのブランチと一つの PR で、すべての FR を順に処理し、すべての決定を一つの台帳に書きます。 | 受け入れ済みのマンデートのもとで `/loop` が起動する |
+| `/wdi-daily-autopilot` | 受け入れ済みのマンデートがあるか確認し（なければプリフライトを実行）、ローカル設定からレビュアーを決定して、ホスト自身のスケジューラでループを開始します。デフォルトでは 10 分ごと — スケジューラのないホストでは一回のイテレーションを実行します。 | あなたが入力する |
+| `/wdi-autopilot` | ループそのもの: 一つの受け入れ済みマンデートのもとで、一つのブランチと一つの PR で、すべての FR を順に処理し、すべての決定を一つの台帳に書きます。 | 受け入れ済みのマンデートのもとでホスト自身のスケジューラが起動する（またはスケジューラのないホストでは呼び出しごとに一回） |
 | `/wdi-daily-what-to-test` | マージ後に: 開発ブランチを同期し、マージ済みのブランチとワークツリーを整理し、手動テスト用にアプリを準備し、クローズされたチケットからチェックリストを作ります。 | あなたが入力する |
 | `/wdi-prune-or-archive` | クローズされた仕様を `.archive/specs/` へ移すか `git rm` で削除します。これは `lifecycle.py` を通じて行われ、先に確認し、失敗時にはロールバックします。仕様の行は `specs.yaml` に残ります。 | あなたが入力する |
 | **いつでも** | | |

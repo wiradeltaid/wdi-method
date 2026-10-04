@@ -38,7 +38,7 @@ A document behind the code is in its expected state, not a defect. Where the own
 - Node.js 20 or later.
 - Git.
 - [uv](https://docs.astral.sh/uv/), which runs the method's Python 3.11+ validators.
-- An agent platform: Claude Code, Cursor, Codex, and other agent platforms.
+- An agent host: any of the hosts `npx wdi-method --list-agents` prints — Claude Code, Kiro, Cursor, Codex, OpenCode, Gemini CLI, GitHub Copilot, and more.
 
 Run the three steps in order. The installer stops if step 1 or step 2 has not been done. All prompts offer defaults; pressing <kbd>Enter</kbd> accepts them.
 
@@ -53,7 +53,7 @@ Install the engines into your repository (choose either "copy" or "symlink"):
 ```bash
 npx skills@latest add mattpocock/skills
 ```
-*Select all six engines the method drives:* `to-spec`, `to-tickets`, `implement`, `tdd`, `code-review`, and `domain-modeling`.
+*Select all six engines the method drives:* `to-spec`, `to-tickets`, `implement`, `tdd`, `code-review`, and `domain-modeling`, and every agent host you will use. Each host must be able to read them — Kiro, for one, reads only `.kiro/skills` — and when one cannot, the installer stops and prints the `npx skills add … --agent <id>` for that host.
 
 > **Why the Claude Code Plugin Is Not Enough:** Three of the six engines (`to-spec`, `to-tickets`, `implement`) ship with `disable-model-invocation: true`. On every install and update, WDI Method removes that line from the copies in your repo, so `wdi-build` and `wdi-autopilot` can run them. It cannot edit a user-level plugin, so the installer stops until the engines are in the repo. `--skip-engines-check` skips this check.
 
@@ -64,14 +64,16 @@ npx wdi-method
 ```
 *(Non-interactive: `npx wdi-method install --yes --agents claude-code --product "Your Product"`)*
 
-> **What the installer changes in BMad:** The installer also turns off model invocation for 13 BMad build and sprint skills that the engines replace, and adds matching deny rules to `.claude/settings.json`. You can still run them by typing the command.
+> **What the installer changes in BMad:** The installer also turns off model invocation for 13 BMad build and sprint skills that the engines replace, and, on hosts that have a lock, adds one (`.claude/settings.json` deny rules for Claude Code, `"ask"` in `opencode.json` for OpenCode). On every host, the method block it writes into `AGENTS.md` and each host's own rule file forbids them. You can still run them by typing the command.
+
+> **Every host works the same way:** the method records what each selected host can do in `.control/wdi-method.yaml` (`hosts:`) — where it reads skills, how you type one, whether it can hold a skill to manual-only, and whether it has a scheduler of its own. Skills read that record instead of assuming Claude Code.
 
 ### Your First Command: `/wdi-help`
 Inside your coding agent, run:
 ```text
 /wdi-help
 ```
-`wdi-help` reads `.control/registry/` and tells you the gate your project is at, the open specs, and the next skill, without guessing from the conversation.
+`wdi-help` reads `.control/registry/` and tells you the gate your project is at, the open specs, and the next skill, without guessing from the conversation. Most hosts take `/wdi-help`; Codex takes `$wdi-help`, Kimi Code and Pi take `/skill:wdi-help`, and Windsurf takes `@wdi-help`. `wdi-help` names the next skill in your host's form.
 
 ### Updating Later: Do I Need `/wdi-upgrade`?
 You never have to work it out from the version number. `npx wdi-method@latest update` checks your repo's content for anything still in an older shape and writes what it found into `upgrade_pending` in `.control/wdi-method.yaml` — absent means nothing is owed. `/wdi-help` reads that field and tells you to run `/wdi-upgrade` first when it is there. `npx wdi-method upgrade-check` re-checks at any time. Every [`CHANGELOG.md`](CHANGELOG.md) entry also ends with a `wdi-upgrade: needed / not needed` line.
@@ -111,7 +113,7 @@ Once the architecture is in place, everyday work runs as a daily rhythm through 
 1. **`/wdi-daily-what-to-build [reviewer] <notes>`**  
    Turns hand-testing notes, QA observations, or bug reports into a reviewed spec or ticket on the development branch, for a later autopilot run. It stops there: it never commits, pushes, or starts the autopilot.
 2. **`/wdi-daily-autopilot [self-review] [peer] [interval] [--skip-peer-review]`**  
-   Checks for an accepted mandate and runs the preflight if there is none, resolves reviewers from local config, and starts the loop (default `/loop 10m /wdi-autopilot`). The loop works on branch `autopilot/<mandate-id>`, writes the code test-first, records every decision in its ledger, and ends with one PR ready for review. The owner merges.
+   Checks for an accepted mandate and runs the preflight if there is none, resolves reviewers from local config, and starts the loop on the host's own scheduler (every 10 minutes by default — `/loop 10m /wdi-autopilot` on Claude Code). On a host without a scheduler it runs one iteration each time you type it. The loop works on branch `autopilot/<mandate-id>`, writes the code test-first, records every decision in its ledger, and ends with one PR ready for review. The owner merges.
 3. **`/wdi-daily-what-to-test [web <target> | mobile <target> | desktop]`**  
    After a merge: syncs the development branch, prunes merged branches and worktrees, prepares the app for hand-testing, and builds a checklist from the tickets closed since the last sync (`before_sync..HEAD`). With no argument it only syncs, prunes, and builds the checklist.
 4. **`/wdi-prune-or-archive [--spec <id> | --all-closed] [--archive | --prune] [--dry-run]`**  
@@ -161,11 +163,11 @@ A runner named as a reviewer MUST be read-only. The read-only flag per CLI: `cla
 WDI Method installs 22 skills: 7 gate skills, 5 for the daily tier (including `wdi-autopilot`), and 10 you run any time.
 
 How a skill starts:
-- **You type it**: the four daily tier skills and `wdi-explain-to-me` (they carry `disable-model-invocation: true`).
-- **You type it, or `wdi-autopilot` runs it under an accepted mandate**: `wdi-build`. It carries no `disable-model-invocation` flag, because `wdi-autopilot` has to invoke it; the rule that agents do not start it on their own is in the Method policy the installer writes into `CLAUDE.md` and `AGENTS.md`.
+- **You type it**: the four daily tier skills and `wdi-explain-to-me` (they carry `disable-model-invocation: true` for the hosts that honour it, and a guard line plus an `AGENTS.md` rule for the hosts that do not).
+- **You type it, or `wdi-autopilot` runs it under an accepted mandate**: `wdi-build`. It carries no `disable-model-invocation` flag, because `wdi-autopilot` has to invoke it; the rule that agents do not start it on their own is in the Method policy the installer writes into `AGENTS.md` and every rule file a selected host reads.
 - **You type it, or the agent names it and waits for your go-ahead**: the other skills.
 - **The agent may run it on its own (read-only)**: `wdi-help`.
-- **Fired by `/loop` under an accepted mandate**: `wdi-autopilot`. Under a mandate, `wdi-autopilot` also runs the other skills.
+- **Fired by the host's scheduler under an accepted mandate, or once per invocation where the host has none**: `wdi-autopilot`. Under a mandate, `wdi-autopilot` also runs the other skills.
 
 | Skill | What It Does | How It Starts |
 |---|---|---|
@@ -179,8 +181,8 @@ How a skill starts:
 | `/wdi-build` | G5. One spec from open to closed: you run `to-spec` and `to-tickets`, each ticket goes to a green PR, then the spec closes. It never merges. | You type it, or `wdi-autopilot` runs it |
 | **Daily tier** | | |
 | `/wdi-daily-what-to-build` | Turns hand-testing notes into a reviewed spec or ticket for a later autopilot run. Stops before code, commit, or push. | You type it |
-| `/wdi-daily-autopilot` | Checks for an accepted mandate (runs the preflight if there is none), resolves reviewers from local config, and starts the loop, every 10 minutes by default. | You type it |
-| `/wdi-autopilot` | The loop itself: works through every FR under one accepted mandate, on one branch with one PR, and writes every decision to one ledger. | Fired by `/loop` under an accepted mandate |
+| `/wdi-daily-autopilot` | Checks for an accepted mandate (runs the preflight if there is none), resolves reviewers from local config, and starts the loop on the host's own scheduler, every 10 minutes by default — or runs one iteration where the host has none. | You type it |
+| `/wdi-autopilot` | The loop itself: works through every FR under one accepted mandate, on one branch with one PR, and writes every decision to one ledger. | Fired by the host's scheduler (or once per invocation) under an accepted mandate |
 | `/wdi-daily-what-to-test` | After a merge: syncs the development branch, prunes merged branches and worktrees, prepares the app for hand-testing, and builds a checklist from the closed tickets. | You type it |
 | `/wdi-prune-or-archive` | Moves closed specs to `.archive/specs/` or removes them with `git rm`, through `lifecycle.py`, which checks first and rolls back on failure. The spec row stays in `specs.yaml`. | You type it |
 | **Any time** | | |

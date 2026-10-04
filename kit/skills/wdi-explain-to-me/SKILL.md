@@ -6,6 +6,8 @@ disable-model-invocation: true
 
 # WDI Explain To Me
 
+> **Typed by the owner, or not at all.** Run this skill only when the person typed `wdi-explain-to-me` — `/wdi-explain-to-me` or this host's own syntax for it — in the turn that is running. Reached any other way (a description that looked relevant, another skill, a subagent), stop and name it instead. Hosts that can hold a skill to manual-only already do; on the others, this line is the lock.
+
 The owner names a problem. The result is a **decision briefing**: everything needed to decide, with the
 agent doing all of the reading and the owner doing only the deciding.
 

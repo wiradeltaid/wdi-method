@@ -48,7 +48,8 @@ free text and both default to English:
 Read those two before writing a document. A technical term the industry writes in English MUST be left in
 English whatever the setting says — an equivalent MUST NOT be invented for it.
 
-**These files are always English, whatever the settings say:** `AGENTS.md`, `CLAUDE.md`, and everything
+**These files are always English, whatever the settings say:** `AGENTS.md`, every rule file that mirrors
+its method block (`CLAUDE.md`, `GEMINI.md`, and the others a selected host reads), and everything
 under `.constitution/`. They are agent instructions, and they travel to every repo through the
 `wdi-method` package. The one exception is `.constitution/project/`, which is this product's own room.
 
@@ -159,6 +160,16 @@ The daily tier, started only when the owner types it: `wdi-daily-what-to-build` 
 
 **No BMad skill is invoked directly.** Each has a wrapper, and the wrapper is what checks position,
 verifies the result, and lands the memlog.
+
+**These hold on every host, whatever the host itself allows.** Many hosts cannot hold a skill to
+manual-only, so on those this block is the lock:
+
+- `wdi-daily-what-to-build` · `wdi-daily-autopilot` · `wdi-daily-what-to-test` · `wdi-prune-or-archive` ·
+  `wdi-explain-to-me` MUST run only when the owner typed them in the turn that is running.
+- The thirteen BMad skills retired at G5 (`.constitution/method/document/bmad-skill-register.md`) MUST NOT
+  be invoked by a model at all; a person typing one is the only route.
+- A skill is invoked through this host's own skill mechanism. On a host with no skill tool that is reading
+  the skill's whole `SKILL.md` from this repo — never a paraphrase from memory.
 
 ## What MUST NOT be done
 

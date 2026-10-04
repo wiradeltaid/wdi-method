@@ -6,6 +6,8 @@ disable-model-invocation: true
 
 # WDI Daily What-to-Build Triage
 
+> **Typed by the owner, or not at all.** Run this skill only when the person typed `wdi-daily-what-to-build` — `/wdi-daily-what-to-build` or this host's own syntax for it — in the turn that is running. Reached any other way (a description that looked relevant, another skill, a subagent), stop and name it instead. Hosts that can hold a skill to manual-only already do; on the others, this line is the lock.
+
 Daily entry point for "I just tested something by hand, now what." Classifies the notes (new feature,
 fix, removal, or green), authors the resulting spec or ticket through this repo's own `wdi-build` flow,
 dispatches an independent second opinion grounded in the *original* notes, folds that feedback back in,
@@ -107,9 +109,10 @@ Reviewer resolution:
 - If `.control/custom-dispatch.yaml` exists in the repo root (or in the main repository root via `(git rev-parse --git-common-dir)/..` when running inside a linked git worktree): inspect `runners:` and `roles.reviewer`.
   A runner definition specifies `type:` (`auto`, `in-session`, or `shell-out`):
   - `auto` (recommended): Evaluates whether the runner's target model is reachable in-session from the active
-    session profile (per the caller's global agent collaboration rules). Dispatches in-session via the `Agent`
-    tool in read-only mode if reachable; falls back to shell-out using `command` if unreachable in-session.
-  - `in-session`: Dispatches strictly via the in-session `Agent` tool using a read-only subagent type.
+    session profile (per the caller's global agent collaboration rules). Dispatches through this host's own
+    subagent tooling in read-only mode if reachable; falls back to shell-out using `command` if unreachable in-session.
+  - `in-session`: Dispatches strictly through this host's own subagent tooling, read-only. A host with none
+    cannot satisfy it — stop and report (fail-closed).
   - `shell-out`: Dispatches strictly via external shell `command` (single-string command, passing the review packet path).
     A shell-out reviewer MUST be invoked with its read-only flag where supported (e.g. `--trust-tools=fs_read` for
     `kiro-cli`, `--mode plan` for `cursor-agent`).
@@ -124,11 +127,11 @@ Reviewer resolution:
     killing). Record in the final report: `peer review: fell back to coordinator self-review after timeout/failure`.
     MUST NOT fabricate or synthesize unread reviewer output as if it were faithfully received.
 - In the absence of a custom runner file: follow the caller's configured agent collaboration setup
-  (e.g., in-session read-only subagent via the `Agent` tool if reachable, or the caller's configured CLI
+  (e.g., a read-only subagent through this host's own tooling if reachable, or the caller's configured CLI
   environment).
 
-When the dispatched reviewer has no native Skill tool, instruct it to read and follow the target
-guide directly as plain markdown instructions.
+The reviewer loads the target guide the way its host loads any instruction: through its skill tool where
+it has one, otherwise by reading the guide in full. MUST NOT hand it a summary in the guide's place.
 
 ## 5. Coordinator fold-in, stamping, and validation
 

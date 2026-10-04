@@ -40,9 +40,9 @@ describe("platform registry", () => {
     const file = path.join(dir, "manifest.yaml");
     fs.writeFileSync(
       file,
-      "installation:\n  version: 1.0.0\nides:\n  - claude-code\n  - windsurf\n",
+      "installation:\n  version: 1.0.0\nides:\n  - claude-code\n  - kiro\n",
     );
-    assert.deepEqual(readYamlIdesList(fs, file), ["claude-code", "windsurf"]);
+    assert.deepEqual(readYamlIdesList(fs, file), ["claude-code", "kiro"]);
   });
 
   it("detects platforms from BMad manifest before filesystem heuristics", () => {

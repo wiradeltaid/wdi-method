@@ -37,6 +37,9 @@ Three things, in this order, and nothing else unless asked:
 1. **Where the project stands** — the last gate passed, and which gate is next.
 2. **What blocks that gate** — the specific artifact, validator, or blocking question that is not ready.
 3. **Which skill to invoke next** — one skill, named, with its intent, and the reason in a clause.
+   Write it the way **this host** types a skill: `invoke:` for this host's entry in `hosts:` in
+   `.control/wdi-method.yaml` — `/{skill}`, `${skill}`, `/skill:{skill}`, `@{skill}` — or, where it says
+   `natural`, as "ask for the `<skill>` skill". Without a `hosts:` entry, name the skill and no syntax.
 
 Keep it under fifteen lines. A routing answer that needs scrolling has failed at its job.
 
@@ -79,7 +82,7 @@ mis-route in this flow, because every other gate is the same for every component
 | Numbers are wanted before the work is committed | `wdi-report` intent `estimate` |
 | Closed specs remain in `.scratch/`, or need archival/pruning | `wdi-prune-or-archive` — archives closed spec to `.archive/specs/` or prunes from disk |
 | Raw manual-test notes needing triage, review, and spec drafting | `wdi-daily-what-to-build` — classifies notes, drafts spec/tickets via `wdi-build`, gets second opinion |
-| Autonomous delivery loop with local runner and peer review | `wdi-daily-autopilot` — composes routine, resolves local runners, launches `/loop` unattended |
+| Autonomous delivery loop with local runner and peer review | `wdi-daily-autopilot` — composes routine, resolves local runners, starts the host's own scheduler (once where the host has none) |
 | Merged autopilot run needing branch cleanup and physical test checklist | `wdi-daily-what-to-test` — syncs branch, prunes merged worktrees/branches, configures smoke target, provides delta-scoped checklist |
 | Cleaning up generated rendered duplicate files from git | Untrack via `git rm -r --cached .what-rendered/ .how-rendered/`, add to `.gitignore`, regenerate via `validate.py --generate` |
 

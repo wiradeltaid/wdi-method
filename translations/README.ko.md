@@ -40,7 +40,7 @@ WDI Method에서 AI 주도 개발(AiDD)은 하나의 순서로 진행됩니다. 
 - Node.js 20 이상.
 - Git.
 - [uv](https://docs.astral.sh/uv/). 이 방법론의 Python 3.11+ 검증기를 실행합니다.
-- 에이전트 플랫폼: Claude Code, Cursor, Codex 및 기타 에이전트 플랫폼.
+- 에이전트 호스트: `npx wdi-method --list-agents`가 출력하는 호스트 중 하나 — Claude Code, Kiro, Cursor, Codex, OpenCode, Gemini CLI, GitHub Copilot 등.
 
 세 단계를 순서대로 실행하세요. 1단계 또는 2단계가 완료되지 않았으면 설치 프로그램이 멈춥니다. 모든 프롬프트에는 기본값이 있으며, <kbd>Enter</kbd>를 누르면 기본값을 받아들입니다.
 
@@ -55,7 +55,7 @@ npx bmad-method install
 ```bash
 npx skills@latest add mattpocock/skills
 ```
-*이 방법론이 구동하는 여섯 개의 엔진을 모두 선택합니다:* `to-spec`, `to-tickets`, `implement`, `tdd`, `code-review`, `domain-modeling`.
+*이 방법론이 구동하는 여섯 개의 엔진을 모두 선택합니다:* `to-spec`, `to-tickets`, `implement`, `tdd`, `code-review`, `domain-modeling`. 그리고 사용할 모든 에이전트 호스트도 선택합니다. 각 호스트가 이를 읽을 수 있어야 하며 — 예를 들어 Kiro는 `.kiro/skills`만 읽습니다 — 읽지 못하는 호스트가 있으면 설치 프로그램이 멈추고 그 호스트를 위한 `npx skills add … --agent <id>`를 출력합니다.
 
 > **Claude Code 플러그인만으로는 부족한 이유:** 여섯 개의 엔진 중 세 개(`to-spec`, `to-tickets`, `implement`)는 `disable-model-invocation: true`가 설정된 채로 배포됩니다. 설치와 업데이트 때마다 WDI Method는 저장소 안의 사본에서 그 줄을 제거하여 `wdi-build`와 `wdi-autopilot`가 이를 실행할 수 있게 합니다. 사용자 수준의 플러그인은 편집할 수 없으므로, 엔진이 저장소에 들어올 때까지 설치 프로그램이 멈춥니다. `--skip-engines-check`로 이 확인을 건너뛸 수 있습니다.
 
@@ -66,14 +66,16 @@ npx wdi-method
 ```
 *(비대화형: `npx wdi-method install --yes --agents claude-code --product "Your Product"`)*
 
-> **설치 프로그램이 BMad에서 바꾸는 것:** 설치 프로그램은 엔진이 대체하는 13개의 BMad 빌드 및 스프린트 스킬에 대해 모델 호출을 끄고, 이에 맞는 거부 규칙을 `.claude/settings.json`에 추가합니다. 명령을 입력하면 여전히 실행할 수 있습니다.
+> **설치 프로그램이 BMad에서 바꾸는 것:** 설치 프로그램은 엔진이 대체하는 13개의 BMad 빌드 및 스프린트 스킬에 대해 모델 호출을 끄고, 잠금 수단이 있는 호스트에는 하나를 추가합니다(Claude Code에는 `.claude/settings.json`의 거부 규칙, OpenCode에는 `opencode.json`의 `"ask"`). 모든 호스트에서, 설치 프로그램이 `AGENTS.md`와 각 호스트 자신의 규칙 파일에 쓰는 Method 블록이 이를 금지합니다. 명령을 입력하면 여전히 실행할 수 있습니다.
+
+> **모든 호스트는 같은 방식으로 동작합니다:** 방법론은 선택된 각 호스트가 무엇을 할 수 있는지를 `.control/wdi-method.yaml`(`hosts:`)에 기록합니다 — 어디에서 스킬을 읽는지, 어떻게 입력하는지, 스킬을 수동 전용으로 유지할 수 있는지, 자체 스케줄러가 있는지. 스킬은 Claude Code를 가정하는 대신 그 기록을 읽습니다.
 
 ### 첫 번째 명령어: `/wdi-help`
 코딩 에이전트 안에서 다음을 실행합니다.
 ```text
 /wdi-help
 ```
-`wdi-help`는 `.control/registry/`를 읽고, 대화에서 추측하지 않고 프로젝트가 있는 게이트, 열려 있는 사양, 다음 스킬을 알려 줍니다.
+`wdi-help`는 `.control/registry/`를 읽고, 대화에서 추측하지 않고 프로젝트가 있는 게이트, 열려 있는 사양, 다음 스킬을 알려 줍니다. 대부분의 호스트는 `/wdi-help`를 받습니다. Codex는 `$wdi-help`, Kimi Code와 Pi는 `/skill:wdi-help`, Windsurf는 `@wdi-help`를 받습니다. `wdi-help`는 다음 스킬을 사용자 호스트의 형식으로 알려 줍니다.
 
 ---
 
@@ -110,7 +112,7 @@ WDI Method는 작업의 규모와 위험에 맞춰 절차의 무게를 조정합
 1. **`/wdi-daily-what-to-build [reviewer] <notes>`**  
    수동 테스트 메모, QA 관찰 내용 또는 버그 보고를, 이후의 autopilot 실행을 위해 개발 브랜치 위의 검토된 사양이나 티켓으로 바꿉니다. 거기서 멈춥니다. 커밋, 푸시, autopilot 시작은 절대 하지 않습니다.
 2. **`/wdi-daily-autopilot [self-review] [peer] [interval] [--skip-peer-review]`**  
-   수락된 위임(mandate)이 있는지 확인하고 없으면 사전 점검(preflight)을 실행하며, 로컬 설정에서 검토자를 정하고, 루프를 시작합니다(기본값 `/loop 10m /wdi-autopilot`). 루프는 브랜치 `autopilot/<mandate-id>`에서 작업하고, 코드를 테스트 우선으로 작성하며, 모든 결정을 원장에 기록하고, 검토 준비가 된 하나의 PR로 끝납니다. 병합은 오너가 합니다.
+   수락된 위임(mandate)이 있는지 확인하고 없으면 사전 점검(preflight)을 실행하며, 로컬 설정에서 검토자를 정하고, 호스트 자체 스케줄러로 루프를 시작합니다(기본값은 10분마다 — Claude Code에서는 `/loop 10m /wdi-autopilot`). 스케줄러가 없는 호스트에서는 입력할 때마다 한 번의 반복을 실행합니다. 루프는 브랜치 `autopilot/<mandate-id>`에서 작업하고, 코드를 테스트 우선으로 작성하며, 모든 결정을 원장에 기록하고, 검토 준비가 된 하나의 PR로 끝납니다. 병합은 오너가 합니다.
 3. **`/wdi-daily-what-to-test [web <target> | mobile <target> | desktop]`**  
    병합 후에: 개발 브랜치를 동기화하고, 병합된 브랜치와 워크트리를 정리하고, 수동 테스트를 위해 앱을 준비하고, 마지막 동기화 이후 닫힌 티켓(`before_sync..HEAD`)으로 체크리스트를 만듭니다. 인수가 없으면 동기화, 정리, 체크리스트 작성만 합니다.
 4. **`/wdi-prune-or-archive [--spec <id> | --all-closed] [--archive | --prune] [--dry-run]`**  
@@ -160,11 +162,11 @@ Windows에서는 실행 중인 앱 바이너리나 백그라운드 빌드 데몬
 WDI Method는 22개의 스킬을 설치합니다. 게이트 스킬 7개, daily tier 스킬 5개(`wdi-autopilot` 포함), 언제든 실행할 수 있는 스킬 10개입니다.
 
 스킬이 시작되는 방식:
-- **사용자가 입력**: 네 개의 daily tier 스킬과 `wdi-explain-to-me`(이들은 `disable-model-invocation: true`를 가집니다).
-- **사용자가 입력하거나, 수락된 위임 아래에서 `wdi-autopilot`가 실행**: `wdi-build`. `wdi-autopilot`가 이를 호출해야 하므로 `disable-model-invocation` 플래그를 가지지 않습니다. 에이전트가 스스로 이를 시작하지 않는다는 규칙은 설치 프로그램이 `CLAUDE.md`와 `AGENTS.md`에 쓰는 Method policy에 있습니다.
+- **사용자가 입력**: 네 개의 daily tier 스킬과 `wdi-explain-to-me`(이를 존중하는 호스트에는 `disable-model-invocation: true`를, 존중하지 않는 호스트에는 가드 줄과 `AGENTS.md` 규칙을 가집니다).
+- **사용자가 입력하거나, 수락된 위임 아래에서 `wdi-autopilot`가 실행**: `wdi-build`. `wdi-autopilot`가 이를 호출해야 하므로 `disable-model-invocation` 플래그를 가지지 않습니다. 에이전트가 스스로 이를 시작하지 않는다는 규칙은 설치 프로그램이 `AGENTS.md`와 선택된 호스트가 읽는 모든 규칙 파일에 쓰는 Method policy에 있습니다.
 - **사용자가 입력하거나, 에이전트가 알려 주고 사용자의 승인을 기다림**: 나머지 스킬.
 - **에이전트가 스스로 실행할 수 있음(읽기 전용)**: `wdi-help`.
-- **수락된 위임 아래에서 `/loop`가 실행**: `wdi-autopilot`. 위임 아래에서는 `wdi-autopilot`가 다른 스킬도 실행합니다.
+- **수락된 위임 아래에서 호스트 자체 스케줄러가 실행하거나, 스케줄러가 없는 호스트에서는 호출마다 한 번**: `wdi-autopilot`. 위임 아래에서는 `wdi-autopilot`가 다른 스킬도 실행합니다.
 
 | 스킬 | 하는 일 | 시작 방식 |
 |---|---|---|
@@ -178,8 +180,8 @@ WDI Method는 22개의 스킬을 설치합니다. 게이트 스킬 7개, daily t
 | `/wdi-build` | G5. 하나의 사양을 열림부터 닫힘까지: 사용자가 `to-spec`과 `to-tickets`를 실행하고, 각 티켓이 녹색 PR에 도달한 뒤 사양이 닫힙니다. 병합은 하지 않습니다. | 사용자가 입력하거나, `wdi-autopilot`가 실행 |
 | **Daily tier** | | |
 | `/wdi-daily-what-to-build` | 수동 테스트 메모를 이후의 autopilot 실행을 위한 검토된 사양이나 티켓으로 바꿉니다. 코드, 커밋, 푸시 전에 멈춥니다. | 사용자가 입력 |
-| `/wdi-daily-autopilot` | 수락된 위임이 있는지 확인하고(없으면 사전 점검 실행), 로컬 설정에서 검토자를 정하고, 기본적으로 10분마다 도는 루프를 시작합니다. | 사용자가 입력 |
-| `/wdi-autopilot` | 루프 자체: 하나의 수락된 위임 아래에서, 하나의 브랜치와 하나의 PR로 모든 FR을 처리하고, 모든 결정을 하나의 원장에 기록합니다. | 수락된 위임 아래에서 `/loop`가 실행 |
+| `/wdi-daily-autopilot` | 수락된 위임이 있는지 확인하고(없으면 사전 점검 실행), 로컬 설정에서 검토자를 정하고, 호스트 자체 스케줄러로 루프를 시작합니다. 기본적으로 10분마다 — 스케줄러가 없는 호스트에서는 한 번의 반복을 실행합니다. | 사용자가 입력 |
+| `/wdi-autopilot` | 루프 자체: 하나의 수락된 위임 아래에서, 하나의 브랜치와 하나의 PR로 모든 FR을 처리하고, 모든 결정을 하나의 원장에 기록합니다. | 수락된 위임 아래에서 호스트 자체 스케줄러가 실행(또는 호출마다 한 번) |
 | `/wdi-daily-what-to-test` | 병합 후에: 개발 브랜치를 동기화하고, 병합된 브랜치와 워크트리를 정리하고, 수동 테스트를 위해 앱을 준비하고, 닫힌 티켓으로 체크리스트를 만듭니다. | 사용자가 입력 |
 | `/wdi-prune-or-archive` | 닫힌 사양을 `.archive/specs/`로 옮기거나 `git rm`으로 제거합니다. 이 작업은 `lifecycle.py`를 통해 이루어지며, 먼저 확인하고 실패하면 롤백합니다. 사양 행은 `specs.yaml`에 남습니다. | 사용자가 입력 |
 | **언제든** | | |

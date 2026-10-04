@@ -40,7 +40,7 @@ Dokumen yang tertinggal dari kode adalah keadaan wajar, bukan cacat. Bila pemili
 - Node.js 20 atau lebih baru.
 - Git.
 - [uv](https://docs.astral.sh/uv/), untuk menjalankan validator Python 3.11+ milik metode ini.
-- Platform agent: Claude Code, Cursor, Codex, dan platform agent lainnya.
+- Host agent: salah satu host yang dicetak `npx wdi-method --list-agents` — Claude Code, Kiro, Cursor, Codex, OpenCode, Gemini CLI, GitHub Copilot, dan lainnya.
 
 Jalankan ketiga langkah secara berurutan. Installer berhenti bila langkah 1 atau langkah 2 belum dikerjakan. Semua prompt menyediakan jawaban default; tekan <kbd>Enter</kbd> untuk menerimanya.
 
@@ -55,7 +55,7 @@ Pasang engine ke repositori Anda (pilih "copy" atau "symlink"):
 ```bash
 npx skills@latest add mattpocock/skills
 ```
-*Pilih keenam engine yang dijalankan metode ini:* `to-spec`, `to-tickets`, `implement`, `tdd`, `code-review`, dan `domain-modeling`.
+*Pilih keenam engine yang dijalankan metode ini:* `to-spec`, `to-tickets`, `implement`, `tdd`, `code-review`, dan `domain-modeling`, serta setiap host agent yang akan Anda pakai. Setiap host harus bisa membacanya — Kiro, misalnya, hanya membaca `.kiro/skills` — dan bila ada yang tidak bisa, installer berhenti dan mencetak `npx skills add … --agent <id>` untuk host itu.
 
 > **Mengapa Plugin Claude Code Tidak Cukup:** Tiga dari enam engine (`to-spec`, `to-tickets`, `implement`) dirilis dengan `disable-model-invocation: true`. Setiap install dan update, WDI Method menghapus baris itu dari salinan di repo Anda, supaya `wdi-build` dan `wdi-autopilot` bisa menjalankannya. Plugin tingkat pengguna tidak bisa diubah, jadi installer berhenti sampai engine ada di repo. `--skip-engines-check` melewati pemeriksaan ini.
 
@@ -66,14 +66,16 @@ npx wdi-method
 ```
 *(Non-interaktif: `npx wdi-method install --yes --agents claude-code --product "Your Product"`)*
 
-> **Yang diubah installer di BMad:** Installer juga mematikan pemanggilan oleh model untuk 13 skill build dan sprint BMad yang digantikan engine, dan menambahkan aturan deny yang sama ke `.claude/settings.json`. Anda tetap bisa menjalankannya dengan mengetik perintahnya.
+> **Yang diubah installer di BMad:** Installer juga mematikan pemanggilan oleh model untuk 13 skill build dan sprint BMad yang digantikan engine, dan, pada host yang punya kunci, menambahkan satu (aturan deny `.claude/settings.json` untuk Claude Code, `"ask"` di `opencode.json` untuk OpenCode). Di setiap host, blok metode yang ditulisnya ke `AGENTS.md` dan file aturan milik tiap host melarangnya. Anda tetap bisa menjalankannya dengan mengetik perintahnya.
+
+> **Setiap host bekerja dengan cara yang sama:** metode mencatat apa yang bisa dilakukan tiap host terpilih di `.control/wdi-method.yaml` (`hosts:`) — di mana ia membaca skill, bagaimana Anda mengetiknya, apakah ia bisa menahan sebuah skill agar hanya manual, dan apakah ia punya scheduler sendiri. Skill membaca catatan itu alih-alih mengasumsikan Claude Code.
 
 ### Perintah Pertama Anda: `/wdi-help`
 Di dalam coding agent Anda, jalankan:
 ```text
 /wdi-help
 ```
-`wdi-help` membaca `.control/registry/` dan memberi tahu gerbang tempat proyek Anda berada, spec yang terbuka, dan skill berikutnya, tanpa menebak dari percakapan.
+`wdi-help` membaca `.control/registry/` dan memberi tahu gerbang tempat proyek Anda berada, spec yang terbuka, dan skill berikutnya, tanpa menebak dari percakapan. Sebagian besar host menerima `/wdi-help`; Codex menerima `$wdi-help`, Kimi Code dan Pi menerima `/skill:wdi-help`, dan Windsurf menerima `@wdi-help`. `wdi-help` menyebut skill berikutnya dalam bentuk host Anda.
 
 ### Update Berikutnya: Perlukah `/wdi-upgrade`?
 Anda tidak perlu menebaknya dari nomor versi. `npx wdi-method@latest update` memeriksa isi repo Anda untuk apa pun yang masih berbentuk lama, lalu menulis temuannya ke `upgrade_pending` di `.control/wdi-method.yaml`; bila field itu tidak ada, tidak ada yang perlu dipindahkan. `/wdi-help` membaca field itu dan menyuruh Anda menjalankan `/wdi-upgrade` lebih dulu bila field itu ada. `npx wdi-method upgrade-check` memeriksa ulang kapan saja. Setiap entri [`CHANGELOG.md`](../CHANGELOG.md) juga diakhiri baris `wdi-upgrade: needed / not needed`.
@@ -113,7 +115,7 @@ Setelah arsitektur siap, pekerjaan sehari-hari berjalan sebagai ritme harian lew
 1. **`/wdi-daily-what-to-build [reviewer] <notes>`**  
    Mengubah catatan uji manual, temuan QA, atau laporan bug menjadi spec atau tiket yang sudah ditinjau di development branch, untuk run autopilot berikutnya. Skill ini berhenti di situ: tidak pernah melakukan commit, push, atau memulai autopilot.
 2. **`/wdi-daily-autopilot [self-review] [peer] [interval] [--skip-peer-review]`**  
-   Memeriksa mandat yang sudah diterima dan menjalankan preflight bila belum ada, menentukan reviewer dari konfigurasi lokal, lalu memulai loop (default `/loop 10m /wdi-autopilot`). Loop bekerja di branch `autopilot/<mandate-id>`, menulis kode dengan test lebih dulu, mencatat setiap keputusan di ledger-nya, dan berakhir dengan satu PR yang siap di-review. Pemilik yang melakukan merge.
+   Memeriksa mandat yang sudah diterima dan menjalankan preflight bila belum ada, menentukan reviewer dari konfigurasi lokal, lalu memulai loop di scheduler milik host (setiap 10 menit secara default — `/loop 10m /wdi-autopilot` di Claude Code). Di host tanpa scheduler, loop berjalan satu iterasi setiap kali Anda mengetiknya. Loop bekerja di branch `autopilot/<mandate-id>`, menulis kode dengan test lebih dulu, mencatat setiap keputusan di ledger-nya, dan berakhir dengan satu PR yang siap di-review. Pemilik yang melakukan merge.
 3. **`/wdi-daily-what-to-test [web <target> | mobile <target> | desktop]`**  
    Sesudah merge: menyinkronkan development branch, memangkas branch dan worktree yang sudah di-merge, menyiapkan aplikasi untuk uji manual, dan menyusun checklist dari tiket yang ditutup sejak sinkronisasi terakhir (`before_sync..HEAD`). Tanpa argumen, skill ini hanya menyinkronkan, memangkas, dan menyusun checklist.
 4. **`/wdi-prune-or-archive [--spec <id> | --all-closed] [--archive | --prune] [--dry-run]`**  
@@ -163,11 +165,11 @@ Runner yang ditunjuk sebagai reviewer WAJIB hanya membaca. Flag hanya membaca pe
 WDI Method memasang 22 skill: 7 skill gerbang, 5 untuk daily tier (termasuk `wdi-autopilot`), dan 10 yang bisa Anda jalankan kapan saja.
 
 Cara sebuah skill dimulai:
-- **Anda mengetiknya**: empat skill daily tier dan `wdi-explain-to-me` (membawa `disable-model-invocation: true`).
-- **Anda mengetiknya, atau `wdi-autopilot` menjalankannya di bawah mandat yang diterima**: `wdi-build`. Skill ini tidak membawa flag `disable-model-invocation`, karena `wdi-autopilot` harus bisa memanggilnya; aturan bahwa agent tidak memulainya sendiri ada di Method policy yang ditulis installer ke `CLAUDE.md` dan `AGENTS.md`.
+- **Anda mengetiknya**: empat skill daily tier dan `wdi-explain-to-me` (membawa `disable-model-invocation: true` untuk host yang menghormatinya, serta satu baris penjaga ditambah aturan `AGENTS.md` untuk host yang tidak).
+- **Anda mengetiknya, atau `wdi-autopilot` menjalankannya di bawah mandat yang diterima**: `wdi-build`. Skill ini tidak membawa flag `disable-model-invocation`, karena `wdi-autopilot` harus bisa memanggilnya; aturan bahwa agent tidak memulainya sendiri ada di Method policy yang ditulis installer ke `AGENTS.md` dan setiap file aturan yang dibaca host terpilih.
 - **Anda mengetiknya, atau agent menyebutnya dan menunggu izin Anda**: skill lainnya.
 - **Agent boleh menjalankannya sendiri (hanya membaca)**: `wdi-help`.
-- **Dijalankan `/loop` di bawah mandat yang diterima**: `wdi-autopilot`. Di bawah mandat, `wdi-autopilot` juga menjalankan skill lain.
+- **Dijalankan scheduler milik host di bawah mandat yang diterima, atau sekali per pemanggilan bila host tidak punya**: `wdi-autopilot`. Di bawah mandat, `wdi-autopilot` juga menjalankan skill lain.
 
 | Skill | Yang Dikerjakan | Cara Mulai |
 |---|---|---|
@@ -181,8 +183,8 @@ Cara sebuah skill dimulai:
 | `/wdi-build` | G5. Satu spec dari dibuka sampai ditutup: Anda menjalankan `to-spec` dan `to-tickets`, setiap tiket sampai PR hijau, lalu spec ditutup. Tidak pernah melakukan merge. | Anda mengetiknya, atau `wdi-autopilot` menjalankannya |
 | **Daily tier** | | |
 | `/wdi-daily-what-to-build` | Mengubah catatan uji manual menjadi spec atau tiket yang sudah ditinjau untuk run autopilot berikutnya. Berhenti sebelum kode, commit, atau push. | Anda mengetiknya |
-| `/wdi-daily-autopilot` | Memeriksa mandat yang sudah diterima (menjalankan preflight bila belum ada), menentukan reviewer dari konfigurasi lokal, lalu memulai loop, default setiap 10 menit. | Anda mengetiknya |
-| `/wdi-autopilot` | Loop-nya sendiri: mengerjakan semua FR di bawah satu mandat yang diterima, di satu branch dengan satu PR, dan menulis setiap keputusan ke satu ledger. | Dijalankan `/loop` di bawah mandat yang diterima |
+| `/wdi-daily-autopilot` | Memeriksa mandat yang sudah diterima (menjalankan preflight bila belum ada), menentukan reviewer dari konfigurasi lokal, lalu memulai loop di scheduler milik host, setiap 10 menit secara default — atau menjalankan satu iterasi bila host tidak punya. | Anda mengetiknya |
+| `/wdi-autopilot` | Loop-nya sendiri: mengerjakan semua FR di bawah satu mandat yang diterima, di satu branch dengan satu PR, dan menulis setiap keputusan ke satu ledger. | Dijalankan scheduler milik host (atau sekali per pemanggilan) di bawah mandat yang diterima |
 | `/wdi-daily-what-to-test` | Sesudah merge: menyinkronkan development branch, memangkas branch dan worktree yang sudah di-merge, menyiapkan aplikasi untuk uji manual, dan menyusun checklist dari tiket yang ditutup. | Anda mengetiknya |
 | `/wdi-prune-or-archive` | Memindahkan spec yang sudah ditutup ke `.archive/specs/` atau menghapusnya dengan `git rm`, lewat `lifecycle.py` yang memeriksa dulu dan membatalkan perubahan bila gagal. Baris spec tetap di `specs.yaml`. | Anda mengetiknya |
 | **Kapan saja** | | |

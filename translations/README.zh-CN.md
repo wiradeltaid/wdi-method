@@ -40,7 +40,7 @@
 - Node.js 20 或更高版本。
 - Git。
 - [uv](https://docs.astral.sh/uv/)，用于运行本方法的 Python 3.11+ 验证器。
-- 一个代理平台：Claude Code、Cursor、Codex 以及其他代理平台。
+- 一个代理宿主：`npx wdi-method --list-agents` 列出的任一宿主——Claude Code、Kiro、Cursor、Codex、OpenCode、Gemini CLI、GitHub Copilot 等。
 
 按顺序执行这三个步骤。如果第 1 步或第 2 步尚未完成，安装器会停止。所有提示都提供默认值；按 <kbd>Enter</kbd> 即接受默认值。
 
@@ -55,7 +55,7 @@ npx bmad-method install
 ```bash
 npx skills@latest add mattpocock/skills
 ```
-*选择本方法驱动的全部六个引擎：* `to-spec`、`to-tickets`、`implement`、`tdd`、`code-review` 和 `domain-modeling`。
+*选择本方法驱动的全部六个引擎：* `to-spec`、`to-tickets`、`implement`、`tdd`、`code-review` 和 `domain-modeling`，以及你将使用的每一个代理宿主。每个宿主都必须能够读取它们——例如 Kiro 只读取 `.kiro/skills`——若有宿主无法读取，安装器会停止，并为该宿主打印出 `npx skills add … --agent <id>`。
 
 > **为什么 Claude Code 插件不够用：** 六个引擎中有三个（`to-spec`、`to-tickets`、`implement`）自带 `disable-model-invocation: true`。每次安装和更新时，WDI Method 都会从你仓库中的副本里删除这一行，使 `wdi-build` 和 `wdi-autopilot` 能够运行它们。它无法编辑用户级插件，因此在引擎进入仓库之前，安装器会停止。`--skip-engines-check` 可以跳过这项检查。
 
@@ -66,14 +66,16 @@ npx wdi-method
 ```
 *（非交互式：`npx wdi-method install --yes --agents claude-code --product "Your Product"`）*
 
-> **安装器在 BMad 中改变了什么：** 安装器还会为被引擎取代的 13 个 BMad 构建与 sprint 技能关闭模型调用，并在 `.claude/settings.json` 中添加相应的拒绝规则。你仍然可以通过输入命令来运行它们。
+> **安装器在 BMad 中改变了什么：** 安装器还会为被引擎取代的 13 个 BMad 构建与 sprint 技能关闭模型调用，并在具备锁定机制的宿主上添加一项（为 Claude Code 添加 `.claude/settings.json` 的拒绝规则，为 OpenCode 在 `opencode.json` 中添加 `"ask"`）。在每个宿主上，它写入 `AGENTS.md` 以及各宿主自身规则文件的方法区块都会禁止它们。你仍然可以通过输入命令来运行它们。
+
+> **每个宿主的工作方式相同：** 本方法会在 `.control/wdi-method.yaml`（`hosts:`）中记录每个所选宿主能做什么——它在哪里读取技能、你如何输入技能、它能否把某个技能保持为仅手动，以及它是否有自己的调度器。技能读取该记录，而不是假定使用 Claude Code。
 
 ### 你的第一个命令：`/wdi-help`
 在你的编码代理中运行：
 ```text
 /wdi-help
 ```
-`wdi-help` 读取 `.control/registry/`，告诉你项目所处的关卡、未关闭的规格说明以及下一个技能，而不是从对话中猜测。
+`wdi-help` 读取 `.control/registry/`，告诉你项目所处的关卡、未关闭的规格说明以及下一个技能，而不是从对话中猜测。大多数宿主接受 `/wdi-help`；Codex 接受 `$wdi-help`，Kimi Code 和 Pi 接受 `/skill:wdi-help`，Windsurf 接受 `@wdi-help`。`wdi-help` 会以你的宿主所用的形式给出下一个技能。
 
 ---
 
@@ -110,7 +112,7 @@ WDI Method 根据任务的规模和风险调整流程的繁简程度。
 1. **`/wdi-daily-what-to-build [reviewer] <notes>`**  
    把手工测试笔记、QA 观察或缺陷报告转化为开发分支上一份经过审查的规格说明或工单，供之后的 autopilot 运行使用。它到此为止：从不提交、推送或启动 autopilot。
 2. **`/wdi-daily-autopilot [self-review] [peer] [interval] [--skip-peer-review]`**  
-   检查是否有已接受的授权（mandate），没有则运行预检，从本地配置解析审查者，然后启动循环（默认 `/loop 10m /wdi-autopilot`）。循环在分支 `autopilot/<mandate-id>` 上工作，以测试先行的方式编写代码，把每个决定记录到它的账本中，最后产出一个可供审查的 PR。由负责人合并。
+   检查是否有已接受的授权（mandate），没有则运行预检，从本地配置解析审查者，然后在宿主自己的调度器上启动循环（默认每 10 分钟一次——在 Claude Code 上为 `/loop 10m /wdi-autopilot`）。在没有调度器的宿主上，它每次由你输入时运行一次迭代。循环在分支 `autopilot/<mandate-id>` 上工作，以测试先行的方式编写代码，把每个决定记录到它的账本中，最后产出一个可供审查的 PR。由负责人合并。
 3. **`/wdi-daily-what-to-test [web <target> | mobile <target> | desktop]`**  
    合并之后：同步开发分支，清理已合并的分支和工作树，为手工测试准备应用，并根据自上次同步以来关闭的工单（`before_sync..HEAD`）生成检查清单。不带参数时，它只做同步、清理和生成检查清单。
 4. **`/wdi-prune-or-archive [--spec <id> | --all-closed] [--archive | --prune] [--dry-run]`**  
@@ -160,11 +162,11 @@ WDI Method 根据任务的规模和风险调整流程的繁简程度。
 WDI Method 安装 22 个技能：7 个关卡技能，5 个日常层（daily tier）技能（包括 `wdi-autopilot`），以及 10 个可随时运行的技能。
 
 技能如何启动：
-- **由你输入**：四个日常层技能和 `wdi-explain-to-me`（它们带有 `disable-model-invocation: true`）。
-- **由你输入，或在已接受的授权下由 `wdi-autopilot` 运行**：`wdi-build`。它不带 `disable-model-invocation` 标志，因为 `wdi-autopilot` 必须能调用它；代理不会自行启动它的规则，写在安装器写入 `CLAUDE.md` 和 `AGENTS.md` 的 Method policy 中。
+- **由你输入**：四个日常层技能和 `wdi-explain-to-me`（对于遵从该标志的宿主，它们带有 `disable-model-invocation: true`，对于不遵从的宿主，则带有一行守卫以及一条 `AGENTS.md` 规则）。
+- **由你输入，或在已接受的授权下由 `wdi-autopilot` 运行**：`wdi-build`。它不带 `disable-model-invocation` 标志，因为 `wdi-autopilot` 必须能调用它；代理不会自行启动它的规则，写在安装器写入 `AGENTS.md` 以及所选宿主读取的每个规则文件的 Method policy 中。
 - **由你输入，或由代理指出并等待你同意**：其他技能。
 - **代理可以自行运行（只读）**：`wdi-help`。
-- **在已接受的授权下由 `/loop` 触发**：`wdi-autopilot`。在授权下，`wdi-autopilot` 也会运行其他技能。
+- **在已接受的授权下由宿主自己的调度器触发，或在没有调度器的宿主上每次调用触发一次**：`wdi-autopilot`。在授权下，`wdi-autopilot` 也会运行其他技能。
 
 | 技能 | 做什么 | 如何启动 |
 |---|---|---|
@@ -178,8 +180,8 @@ WDI Method 安装 22 个技能：7 个关卡技能，5 个日常层（daily tier
 | `/wdi-build` | G5。一份规格说明从打开到关闭：你运行 `to-spec` 和 `to-tickets`，每个工单达到一个绿色的 PR，然后规格说明关闭。它从不合并。 | 由你输入，或由 `wdi-autopilot` 运行 |
 | **日常层** | | |
 | `/wdi-daily-what-to-build` | 把手工测试笔记转化为一份经过审查的规格说明或工单，供之后的 autopilot 运行使用。在代码、提交或推送之前停止。 | 由你输入 |
-| `/wdi-daily-autopilot` | 检查是否有已接受的授权（没有则运行预检），从本地配置解析审查者，然后启动循环，默认每 10 分钟一次。 | 由你输入 |
-| `/wdi-autopilot` | 循环本身：在一份已接受的授权下处理每一个 FR，使用一个分支和一个 PR，并把每个决定写入一个账本。 | 在已接受的授权下由 `/loop` 触发 |
+| `/wdi-daily-autopilot` | 检查是否有已接受的授权（没有则运行预检），从本地配置解析审查者，然后在宿主自己的调度器上启动循环，默认每 10 分钟一次——在没有调度器的宿主上则运行一次迭代。 | 由你输入 |
+| `/wdi-autopilot` | 循环本身：在一份已接受的授权下处理每一个 FR，使用一个分支和一个 PR，并把每个决定写入一个账本。 | 在已接受的授权下由宿主自己的调度器触发（或每次调用触发一次） |
 | `/wdi-daily-what-to-test` | 合并之后：同步开发分支，清理已合并的分支和工作树，为手工测试准备应用，并根据已关闭的工单生成检查清单。 | 由你输入 |
 | `/wdi-prune-or-archive` | 通过 `lifecycle.py` 把已关闭的规格说明移到 `.archive/specs/` 或用 `git rm` 删除它们；`lifecycle.py` 会先做检查，失败时回滚。规格说明的行保留在 `specs.yaml` 中。 | 由你输入 |
 | **随时可用** | | |
