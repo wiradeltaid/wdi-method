@@ -23,6 +23,11 @@ License: MIT (https://github.com/kevva)
 
 ========================================================================
 Upstream Methodology & Skills Architecture
-- BMad Method: Copyright (c) BMad Code Org, MIT License (https://github.com/bmad-code-org/BMAD-METHOD)
-- mattpocock/skills: Copyright (c) Matt Pocock, MIT License (https://github.com/mattpocock/skills)
+- BMad Method: Copyright (c) 2025 BMad Code, LLC, MIT License (https://github.com/bmad-code-org/BMAD-METHOD).
+  BMad, BMad Method and BMad Core are trademarks of BMad Code, LLC; WDI Method is not affiliated with
+  or endorsed by BMad Code, LLC.
+- mattpocock/skills: Copyright (c) 2026 Matt Pocock, MIT License (https://github.com/mattpocock/skills)
+
+WDI Method installs alongside both today. From 0.7.0 (mattpocock/skills) and 0.8.0 (BMad Method) parts of
+the kit are adapted from them; every adapted file names its source and version. See UPSTREAM.md.
 ========================================================================

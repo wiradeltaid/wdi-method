@@ -236,3 +236,69 @@ test("the kit names no host-specific tool as the only way: no bare `Skill tool`,
   }
   assert.ok(getPlatform("kiro").loop === null, "Kiro has no scheduler of its own — the once path must apply");
 });
+
+test("the refusal offers the offline fix and the leave-it-out fix, not only npx skills add", () => {
+  const target = tmp("kiro-msg");
+  try {
+    seedEngines(target, ".claude/skills");
+    const { ok, out } = install(target, "claude-code,kiro");
+    assert.equal(ok, false);
+    assert.match(out, /npx wdi-method engines --copy/, "the copy fix is not named");
+    assert.match(out, /--copy-engines/);
+    assert.match(out, /leave those hosts out/i, "deselecting an unused host is not offered");
+  } finally {
+    fs.rmSync(target, { recursive: true, force: true });
+  }
+});
+
+test("--copy-engines copies the repo's own engines where a blind host reads, unlocks them, never overwrites", () => {
+  const target = tmp("copy-eng");
+  try {
+    seedEngines(target, ".claude/skills");
+    const keep = path.join(target, ".kiro", "skills", "tdd");
+    fs.mkdirSync(keep, { recursive: true });
+    fs.writeFileSync(path.join(keep, "SKILL.md"), "---\nname: tdd\ndescription: the product's own\n---\n\nmine\n");
+    const { ok, out } = install(target, "claude-code,kiro", ["--copy-engines"]);
+    assert.ok(ok, out);
+    for (const name of ENGINES) {
+      assert.ok(fs.existsSync(path.join(target, ".kiro", "skills", name, "SKILL.md")), `${name} not copied for Kiro`);
+    }
+    for (const name of FLAGGED) {
+      assert.ok(!locked(fs.readFileSync(path.join(target, ".kiro", "skills", name, "SKILL.md"), "utf8")),
+        `${name} was copied but left flagged`);
+    }
+    assert.match(fs.readFileSync(path.join(keep, "SKILL.md"), "utf8"), /mine/,
+      "an engine folder that already existed was overwritten");
+  } finally {
+    fs.rmSync(target, { recursive: true, force: true });
+  }
+});
+
+test("`engines --copy` does the same for an installed repo, from its stamp", () => {
+  const target = tmp("copy-cmd");
+  try {
+    seedEngines(target, ".kiro/skills");
+    assert.ok(install(target, "kiro").ok);
+    const stamp = path.join(target, ".control", "wdi-method.yaml");
+    fs.writeFileSync(stamp, fs.readFileSync(stamp, "utf8")
+      .replace("platforms:\n  - kiro", "platforms:\n  - kiro\n  - codebuddy")
+      .replace("hosts:\n", "hosts:\n  - id: codebuddy\n    reads: [\".codebuddy/skills\"]\n"));
+    const { ok, out } = run(target, ["engines", target, "--copy"]);
+    assert.ok(ok, out);
+    assert.ok(fs.existsSync(path.join(target, ".codebuddy", "skills", "to-spec", "SKILL.md")), out);
+    assert.match(out, /engines\s+all present/);
+  } finally {
+    fs.rmSync(target, { recursive: true, force: true });
+  }
+});
+
+test("upstream/ is never shipped, and ROADMAP.md and UPSTREAM.md exist and are linked", () => {
+  const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8"));
+  assert.ok(!pkg.files.some((f) => /^upstream/.test(f)), "package.json files ships upstream/");
+  const r = spawnSync("npm pack --dry-run --json", { cwd: ROOT, encoding: "utf8", shell: true });
+  const listed = JSON.parse(r.stdout.slice(r.stdout.indexOf("[")))[0].files.map((f) => f.path);
+  assert.ok(!listed.some((p) => p.startsWith("upstream/")), "the tarball carries upstream/");
+  for (const f of ["ROADMAP.md", "UPSTREAM.md"]) assert.ok(fs.existsSync(path.join(ROOT, f)), `${f} missing`);
+  assert.match(fs.readFileSync(path.join(ROOT, "README.md"), "utf8"), /\(ROADMAP\.md\)/);
+  assert.match(fs.readFileSync(path.join(ROOT, "NOTICE"), "utf8"), /BMad Code, LLC/);
+});

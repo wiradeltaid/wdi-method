@@ -49,6 +49,10 @@ X"* inside `kit-overlay/` ships that assumption to every consumer.
 | A guide, template, script, or skill wrapper | **here**, in `kit/` | the published package |
 | `bin/` `lib/` `tests/` `kit-overlay/` README | here, directly | the published package |
 | Anything in `kit/.constitution/project/` | here — `promote` skips that folder | `update`, seeded once |
+| Anything adapted from BMad Method or mattpocock/skills | here, following `UPSTREAM.md` | the published package |
+
+An upstream adoption or pin bump MUST follow `UPSTREAM.md`: allowlisted skills only, provenance on every
+adapted file, `upstream/` never shipped. `ROADMAP.md` says which release takes which upstream.
 
 **The direction was reversed on 2026-08-19.** A method change is authored HERE and proven against
 `tests/fixture/` — a small complete corpus the three registry scripts actually run against. It MUST

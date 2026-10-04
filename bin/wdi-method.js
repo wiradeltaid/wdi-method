@@ -206,7 +206,9 @@ function usage() {
   install [dir]             first install (TUI unless --yes)
   update  [dir]             update      (TUI unless --yes)
   verify  [dir]
-  engines [dir] [--fix]     report the six engines, their invocation state, and the BMad G5 ban
+  engines [dir] [--fix] [--copy]
+                            report the six engines, their invocation state, and the BMad G5 ban;
+                            --copy puts the repo's own engine copies where each selected host reads
   upgrade-check [dir]       re-probe what wdi-upgrade still owes; rewrites upgrade_pending (exit 1 if any)
   promote <live-dir> --rescue   pull a method change back out of a consumer (not the normal flow)
 
@@ -219,6 +221,7 @@ function usage() {
   --doc-filename-language <text>   slug part of document filenames; free text, default English
   --skip-bmad-check
   --skip-engines-check      install without to-spec / to-tickets / implement
+  --copy-engines            engines are in the repo but a selected host cannot read them: copy them there
 
 BMad first, then this package. ${WDI_REPO}
 `);
@@ -264,6 +267,7 @@ function parseArgs(argv) {
     const t = rest.shift();
     if (t === "--skip-bmad-check") args.skipBmad = true;
     else if (t === "--fix") args.fix = true;
+    else if (t === "--copy" || t === "--copy-engines") args.copyEngines = true;
     else if (t === "--skip-engines-check") args.skipEngines = true;
     else if (t === "--rescue") args.rescue = true;
     else if (t === "--yes" || t === "-y") args.yes = true;
@@ -446,6 +450,31 @@ function enginesReport(target, agents = []) {
 
 function enginesPresent(target, agents = []) {
   return enginesReport(target, agents).present;
+}
+
+/** Engines that ARE in the repo, copied into the skill folder of each selected host that cannot see
+ * them. The source is the repo's own copy — no network, no third-party installer — which is what
+ * `npx skills add` in "copy" mode would have produced. An existing folder is never overwritten.
+ * Returns the number of engine folders written; engines missing from the repo entirely are left to
+ * `npx skills add`, because there is nothing here to copy from.
+ */
+function copyEnginesToHosts(target, agents) {
+  const report = enginesReport(target, agents);
+  let written = 0;
+  for (const [id, names] of report.missingByHost) {
+    const host = getPlatform(id);
+    for (const name of names) {
+      const copies = report.files.get(name);
+      if (!copies) continue;
+      const source = path.dirname([...copies.keys()].sort()[0]);
+      const dest = path.join(target, ...host.skillDir.split("/"), name);
+      if (fs.existsSync(dest)) continue;
+      copyTree(source, dest);
+      written += 1;
+    }
+    note(`copied engines for ${host.name} → ${host.skillDir}/ (from the repo's own copy)`);
+  }
+  return written;
 }
 
 /** Only ever a WARNING. The plugin's copies are namespaced and still flagged, so they can neither be
@@ -683,8 +712,12 @@ function enginesMissingMessage(report) {
     for (const [id, names] of byHost) {
       const p = getPlatform(id);
       head.push(`  ${p.name} reads ${p.reads.join(", ")} — cannot see ${names.join(" · ")}`,
-        `    ${ENGINES_INSTALL_ANY} --agent ${p.skillsCli}`);
+        `    ${ENGINES_INSTALL_ANY} --agent ${p.skillsCli}   (lands them where ${p.name} reads)`);
     }
+    head.push("",
+      "Or, without the network — the engines are already in this repo, just not where those hosts read:",
+      "  npx wdi-method engines --copy        (or add --copy-engines to install / update)",
+      "Or leave those hosts out if this repo does not use them:  --agents <the hosts you use>");
   }
   return [
     ...head,
@@ -693,7 +726,8 @@ function enginesMissingMessage(report) {
     "`disable-model-invocation` from its own copies so `wdi-build` and `wdi-autopilot` can drive",
     "them, and a plugin's files are not the repo's to edit.",
     "",
-    `Take all six: ${ENGINE_SKILLS.join(" · ")}. Choose "copy" or "symlink" — either is read.`,
+    `Take all six: ${ENGINE_SKILLS.join(" · ")}. Choose "copy" or "symlink" — either is read; on Windows`,
+    "without Developer Mode a symlink fails and the installer falls back to copy, which is fine.",
     "",
     "You do NOT need to run the setup skill after this — the installer seeds docs/agents/ already",
     `answered for this method. Run ${ENGINES_SETUP} only to change tracker.`,
@@ -1974,8 +2008,13 @@ function noteRetiredPlatforms(target) {
   }
 }
 
-function enginesCommand(target, { fix }) {
+function enginesCommand(target, { fix, copy }) {
   const agents = declaredPlatforms(target, fs);
+  if (copy) {
+    const n = copyEnginesToHosts(target, agents);
+    if (n) enableEngineInvocation(target);
+    ok(n ? `copied ${n} engine folder${n === 1 ? "" : "s"}` : "nothing to copy — every selected host already reads the engines, or none are in the repo");
+  }
   const before = enginesReport(target, agents);
   console.log("");
   console.log(`  engines   ${before.present ? "all present" : before.missing.length ? `MISSING ${before.missing.join(" · ")}` : "present, but not where every host reads"}`);
@@ -2335,7 +2374,7 @@ async function runWizard(pre) {
   const detected = pre.agents
     ? normalizePlatformIds(pre.agents)
     : detectPlatforms(target, fs);
-  const selected = cancelIf(
+  let selected = cancelIf(
     await p.autocompleteMultiselect({
       message: "Which tools get the wdi-* skills? (⭐ = recommended)",
       options: platformSelectOptions(detected),
@@ -2348,7 +2387,29 @@ async function runWizard(pre) {
 
   // Step 2 again, now that the hosts are known. Present somewhere is not enough: Kiro reads
   // `.kiro/skills` only, so engines in `.agents/skills` leave it unable to run G5.
-  const hostGate = enginesReport(target, selected);
+  let hostGate = enginesReport(target, selected);
+  if (!hostGate.present && !pre.skipEngines && !hostGate.missing.length) {
+    // The engines are in the repo, only not where these hosts read. That is fixable right here.
+    const blind = [...hostGate.missingByHost.keys()];
+    const names = blind.map((id) => getPlatform(id).name).join(", ");
+    const choice = cancelIf(await p.select({
+      message: `The engines are in this repo, but ${names} cannot read them. What now?`,
+      options: [
+        { value: "copy", label: `Copy them where ${names} read`, hint: "from this repo's own copy, no network" },
+        { value: "drop", label: `Leave ${names} out of this install`, hint: "if this repo does not use them" },
+        { value: "stop", label: "Stop — I will run npx skills add myself" },
+      ],
+      initialValue: "copy",
+    }));
+    if (choice === "copy") copyEnginesToHosts(target, selected);
+    if (choice === "drop") selected = selected.filter((id) => !blind.includes(id));
+    if (choice === "stop" || !selected.length) {
+      p.note(enginesMissingMessage(hostGate), "Engines for the hosts you picked");
+      p.outro("Install them where each host reads, then run this again: npx wdi-method");
+      process.exit(1);
+    }
+    hostGate = enginesReport(target, selected);
+  }
   if (!hostGate.present && !pre.skipEngines) {
     p.note(enginesMissingMessage(hostGate), "Engines for the hosts you picked");
     p.outro("Install them where each host reads, then run this again: npx wdi-method");
@@ -2405,6 +2466,7 @@ function runNonInteractive(args) {
   if (!args.skipBmad && !bmadPresent(target)) {
     die(bmadMissingMessage());
   }
+  if (args.copyEngines) copyEnginesToHosts(target, agents);
   if (!args.skipEngines && !enginesPresent(target, agents)) {
     die(enginesMissingMessage(enginesReport(target, agents)));
   }
@@ -2448,7 +2510,7 @@ async function main() {
     return;
   }
   if (args.cmd === "engines") {
-    enginesCommand(requireTarget(args.dir), { fix: Boolean(args.fix) });
+    enginesCommand(requireTarget(args.dir), { fix: Boolean(args.fix), copy: Boolean(args.copyEngines) });
     return;
   }
   if (args.cmd === "upgrade-check") {

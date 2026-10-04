@@ -51,6 +51,10 @@ used to read as "no engines in this repo").
   Claude Code, Command Code, and Qoder; the host's scheduler on CodeBuddy, Cline, Goose, GitHub Copilot,
   Warp, and AdaL. On every other host the skill runs one iteration per invocation under the same mandate,
   ledger, and branch — never a shell loop or an OS scheduler.
+- **Engines in the repo but not where a host reads can be copied in place.** The TUI offers it (copy,
+  leave the host out, or stop); non-interactively it is `--copy-engines` on `install` / `update`, or
+  `npx wdi-method engines --copy` later. The source is the repo's own copy — no network, nothing
+  overwritten. The refusal message now names all three fixes and the Windows symlink fallback.
 - **`wdi-help` names the next skill in this host's syntax** — `/name`, `$name` (Codex, Cortex),
   `/skill:name` (Kimi Code, Pi), `@name` (Windsurf).
 - **Hosts removed:** iFlow (shut down), Firebender (service ends 2026-10-31), Roo Code (archived), Hermes
@@ -62,7 +66,8 @@ used to read as "no engines in this repo").
 - The installer's last Indonesian strings are English; the host picker says how many hosts it searches.
 
 **`wdi-upgrade`:** not needed. Nothing in the repo's content changes shape; `update` itself writes the new
-stamp fields. If `update` refuses, run the `npx skills add … --agent <id>` it prints, then `update` again.
+stamp fields. If `update` refuses, it prints three fixes: `--copy-engines` (offline, from the repo's own
+copy), `npx skills add … --agent <id>`, or leaving an unused host out with `--agents`.
 
 ---
 

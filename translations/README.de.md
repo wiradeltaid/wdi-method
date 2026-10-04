@@ -3,7 +3,7 @@
 > Eine Überprüfungsschicht auf BMad: Dokumente, die ein Mensch liest, um technische Entscheidungen zu prüfen, bevor Code geschrieben wird, bemessen an dem, was die Änderung tatsächlich verdient.
 
 [English](../README.md) | [Bahasa Indonesia](README.id.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Español](README.es.md) | [Deutsch](README.de.md) | [Français](README.fr.md) | [Português (Brasil)](README.pt-BR.md) | [Русский](README.ru.md)  
-[Website](https://wiradelta.com/wdi-method/docs/) | [Changelog](../CHANGELOG.md) | [Contributing](../CONTRIBUTING.md) | [License](../LICENSE) | [Security](../SECURITY.md) | [Privacy](../PRIVACY.md)
+[Website](https://wiradelta.com/wdi-method/docs/) | [Changelog](../CHANGELOG.md) | [Roadmap](../ROADMAP.md) | [Contributing](../CONTRIBUTING.md) | [License](../LICENSE) | [Security](../SECURITY.md) | [Privacy](../PRIVACY.md)
 
 ---
 
