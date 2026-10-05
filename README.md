@@ -1,5 +1,7 @@
 # WDI Method
 
+> **Cakupan Playbook:** Paket method generic publik ini memproduksi aturan method lintas produk (`.constitution/method/`) dan berada di luar cakupan aplikasi WDI Coding Playbook langsung.
+
 > A review layer on top of BMad: documents a human reads to check technical decisions before code is written, sized to what the change actually deserves.
 
 [English](README.md) | [Bahasa Indonesia](translations/README.id.md) | [简体中文](translations/README.zh-CN.md) | [日本語](translations/README.ja.md) | [한국어](translations/README.ko.md) | [Español](translations/README.es.md) | [Deutsch](translations/README.de.md) | [Français](translations/README.fr.md) | [Português (Brasil)](translations/README.pt-BR.md) | [Русский](translations/README.ru.md)  
