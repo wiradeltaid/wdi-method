@@ -1,0 +1,30 @@
+#!/bin/sh
+# WDI pre-push: scan the commits about to be pushed for secrets (public repos only).
+# Master: ops/research/tooling/workstation/hooks/pre-push-gitleaks. Enable per clone:
+#   git config core.hooksPath .githooks
+# Without gitleaks on this host the push is NOT blocked (moving between devices must keep working);
+# a warning is printed instead. CI (where present) is the second layer.
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-push: gitleaks is not installed; secret scan skipped (winget install Gitleaks.Gitleaks / brew install gitleaks)" >&2
+  exit 0
+fi
+
+zero=0000000000000000000000000000000000000000
+cfg=""
+[ -f .gitleaks.toml ] && cfg="--config .gitleaks.toml"
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  case "$local_sha" in 0000000*) continue ;; esac            # branch deletion
+  case "$remote_sha" in
+    0000000*) range="$local_sha --not --remotes" ;;          # new branch: only commits no remote has
+    *)        range="$remote_sha..$local_sha" ;;
+  esac
+  # shellcheck disable=SC2086
+  if ! gitleaks git --log-opts="$range" --redact --no-banner $cfg; then
+    echo "pre-push: gitleaks found a possible secret in $local_ref; push aborted." >&2
+    echo "          Remove it from the commits (amend/rebase), or, if it is a false positive, add it to .gitleaks.toml." >&2
+    exit 1
+  fi
+done
+exit 0
