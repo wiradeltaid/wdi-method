@@ -1,6 +1,6 @@
 #!/bin/sh
 # WDI pre-push: scan the commits about to be pushed for secrets (public repos only).
-# Master: ops/research/tooling/workstation/hooks/pre-push-gitleaks. Enable per clone:
+# Enable per clone:
 #   git config core.hooksPath .githooks
 # Without gitleaks on this host the push is NOT blocked (moving between devices must keep working);
 # a warning is printed instead. CI (where present) is the second layer.
