@@ -182,7 +182,7 @@ itself.
 | How it is built — the spine, C4, an inventory, an SDD, a contract | `.how/` |
 | The complete page a human reads at a gate — regenerated, never edited | `.what-rendered/` · `.how-rendered/` |
 | A skill run's working output | `_bmad-output/` |
-| Scratch that empties when the task closes | `.work/` |
+| Committed working area (working papers, review packets, analyses) | `.work/` |
 | The application | `src/` · `web/` |
 
 The test that settles anything ambiguous: **is this file still correct after its spec has passed?** Yes →

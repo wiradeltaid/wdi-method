@@ -10,6 +10,28 @@ version contains every fix below it.
 
 ---
 
+## [0.6.33] - 2026-10-21
+
+Two clarifications that change what an agent does day to day; no file moves.
+
+### Changed: behaviour
+
+- **`.work/` is a committed working area, not disposable scratch.** The words "scratch that empties when the task
+  closes", "disposable", and "deleted once folded" led agents to add `.work/` to `.gitignore`, so working papers and
+  reviews never reached another machine. `AGENTS.md`, `constitution.md`, `repo-guide.md`, and the folder table in
+  `why/README.md` now say it is committed, never ignored, not authority, and removed only when the owner prunes it.
+  `corpus-in-git` already failed on an ignored `.work/`; nothing in the validator changed. Spec-close cleanup of a
+  spec's own triage folder (`wdi-build` step 4) and the run-branch staging rule in `wdi-autopilot` are unchanged.
+- **Tests per ticket are the affected ones, not the whole suite.** `wdi-build` Step 2 and its rules now require the
+  tests the change can reach (touched modules and their dependents), the full suite for a ticket that touches shared
+  code (a module others import, a schema, a public contract, build config), and the full suite again at spec close.
+  A suite is not re-run on code unchanged since it last passed. `ci-guide.md` says the same.
+
+**`wdi-upgrade`:** not needed — wording only; no content changes shape. Run `npx wdi-method@latest update` to receive
+the new text.
+
+---
+
 ## [0.6.32] - 2026-10-04
 
 A patch by the owner's choice, though it carries behaviour changes: until now the method only worked

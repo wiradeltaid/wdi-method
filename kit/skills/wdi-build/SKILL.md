@@ -171,7 +171,7 @@ satisfied MUST NOT be started, however ready it looks.
 | # | Step | Engine | Exit condition |
 |---|---|---|---|
 | 1 | Encode | invoke `tdd` | **Failing tests exist that encode this ticket's acceptance criteria** |
-| 2 | Build | invoke `implement` — it uses `tdd` at the agreed seams and calls `code-review` itself | Those tests green, typecheck clean, full suite green once |
+| 2 | Build | invoke `implement` — it uses `tdd` at the agreed seams and calls `code-review` itself | Those tests green, typecheck clean, the affected tests green (full suite when the ticket touches shared code) |
 | 3 | Panel | invoke `code-review`, as a **separate** dispatch by a **different** agent | Panel adjudicated, zero unresolved must-fix |
 | 4 | Publish | — | Branch pushed, PR open, ticket-closing checklist answered |
 | 5 | CI | — | All checks conclude green on the pushed head SHA |
@@ -238,8 +238,10 @@ is not.
 - **`/implement` calls `/code-review` itself, and that call does NOT satisfy Step 3.** It is the builder
   reviewing its own work — self-review by construction. Step 3 stands as a separate dispatch regardless of what
   ran inside Step 2.
-- The full suite MUST be run green once at the end, not only the tests this ticket touched. A ticket that
-  passes its own tests and breaks a neighbour's has not finished.
+- A ticket MUST end with every test its change can reach green: the tests of the modules it touched and of
+  their dependents. A ticket that touches shared code (a module other modules import, a schema, a public
+  contract, build config) MUST run the full suite. The full suite runs once more when the spec closes
+  (`wdi-autopilot`). A suite MUST NOT be re-run on code unchanged since it last passed.
 - Where the work turns out to need something the ticket does not authorise, it stops and reaches the owner with
   the question verbatim. The builder MUST NOT widen its own scope.
 

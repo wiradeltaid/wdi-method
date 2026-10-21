@@ -218,7 +218,7 @@ How a skill starts:
 .what/ & .how/             Working corpus documents (brief, PRD, SRS, blueprint, SDD)
 .what-rendered/            Rendered pages for G1 and G2 (generated)
 .how-rendered/             Rendered pages for G3 and G4 (generated)
-.work/                     Scratch that empties when a task closes
+.work/                     Committed working area (never ignored)
 ```
 
 ---

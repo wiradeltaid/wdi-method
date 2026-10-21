@@ -103,7 +103,7 @@ Read this instead of reasoning about what `.what/` and `.how/` mean.
 | A spine, C4, an inventory, an SDD, a contract — how it is built | `.how/` |
 | Active spec workspaces and tickets tracked in `specs.yaml` | `.scratch/<spec-id>-<slug>/` |
 | A skill run's working output, and documents that predate the method | `_bmad-output/` |
-| Scratch that empties when the task closes (prompt packets, tool dumps) | `.work/` |
+| Committed working area: working papers, review packets, analyses, tool output | `.work/` |
 | The application | named under `## Code` below |
 
 ## Layer boundaries
@@ -115,7 +115,7 @@ Read this instead of reasoning about what `.what/` and `.how/` mean.
 | `.what/` | What is promised | Solution shape — tables, endpoints, technology |
 | `.how/` | How it is built | Promises to the user |
 | `_bmad-output/` | Work in progress; committed, not curated | Anything still correct after its wave has passed |
-| `.work/` | Scratch; emptied when a task closes | Secrets, commercial figures, anything meant as authority |
+| `.work/` | Working area; committed, removed only when the owner prunes it | Secrets, commercial figures, anything meant as authority |
 
 The placement test: **is this file still correct after its wave has passed?** Yes → the corpus. No →
 `_bmad-output/`. In doubt → `.constitution/method/document/corpus-guide.md`.
@@ -203,7 +203,7 @@ manual-only, so on those this block is the lock:
   specs — inspect only the candidate spec's folder using `spec_folder:` from `status.yaml` or `specs.yaml`.
 - Loose files (prompt dumps, tool outputs, transcripts, script logs) MUST NOT be written into `.scratch/`
   root, and unregistered folders MUST NOT be created there. All execution scratch MUST live in
-  `.work/<skill>/` and MUST be cleaned up before committing (`scratch-hygiene` enforces this).
+  `.work/<skill>/`, which is committed (`scratch-hygiene` enforces the `.scratch/` side).
 
 ## Routing — load a guide when the task matches
 

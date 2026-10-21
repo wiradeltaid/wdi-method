@@ -20,7 +20,7 @@ triggers**.
 
 | | Runs where | When |
 |---|---|---|
-| Build, typecheck, the full suite **during** the work | **Locally**, on the machine doing the work | Every ticket — `wdi-build` Phase 3 Step 2 already requires it, and it is free |
+| Build, typecheck, the affected tests per ticket; the full suite at spec close and for tickets touching shared code | **Locally**, on the machine doing the work | `wdi-build` Phase 3 Step 2 and `wdi-autopilot` spec close require it, and it is free |
 | The cloud workflow | GitHub Actions | **Once**, when the work is offered for review |
 
 - A workflow MUST be configured so that an intermediate push — a ticket commit, a memlog rewrite, a

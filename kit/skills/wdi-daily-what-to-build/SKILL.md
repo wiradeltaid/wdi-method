@@ -56,7 +56,7 @@ exception.
 The specification and its ticket files MUST land under `.scratch/<spec-id>-<slug>/` and `spec_folder`
 in `.control/registry/specs.yaml` MUST name that exact path.
 - MUST NOT place `SPEC.md` or ticket files in `.work/` or `docs/`.
-- `.work/` is reserved strictly for ephemeral execution scratch (such as `.work/wdi-daily-what-to-build/`);
+- `.work/` is the committed working area for execution material (such as `.work/wdi-daily-what-to-build/`);
   a spec in `.work/` violates `spec-folder-location` and fails lifecycle archiving.
 
 ### Ticket Dependency Contract (Upfront `parallel-tickets-blocked`)

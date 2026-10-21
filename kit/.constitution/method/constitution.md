@@ -27,7 +27,7 @@ The repo layout is governed by `corpus-guide.md` and mapped by
 | `_bmad-output/` | Run workspace; MUST be in git, not curated |
 | `.scratch/` | One directory per effort: a spec's `SPEC.md` and its ticket files, and ad hoc work that has no `FR` yet. MUST be in git — the corpus cites into it by path |
 | `.archive/` | Archived records — closed specs and historical provenance moved from `.scratch/`. MUST be in git |
-| `.work/` | Scratch; MUST be in git, emptied when a task closes |
+| `.work/` | Working area; MUST be in git, never ignored; removed only when the owner prunes it |
 | *(application roots)* | Application code — named and mapped in `.control/structure-codebase.md` |
 
 **One exception, and it is not corpus.** `docs/agents/issue-tracker.md` and `docs/agents/domain.md` are the ENGINES' config, and their path belongs to the engines' author — `to-spec`, `to-tickets`, `implement` and `triage` read those two files and nowhere else. What they SAY is this method's, and `wdi-method` seeds both already answered. Neither is corpus, neither is a rule, and nothing else MAY be added beside them.

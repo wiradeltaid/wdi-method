@@ -40,10 +40,10 @@ fact and MUST NOT state the commercial one. *"Retention is 90 days"* is a techni
 *"Retention is 90 days because the client would not pay for more"* is a commercial one wearing a
 technical coat.
 
-## `.work/` — non-authoritative execution scratch
+## `.work/` — committed, non-authoritative working area
 
-`.work/` holds execution scratch and work in progress that has no home yet: notes while reading
-an unfamiliar system, exploratory output, disposable reviewer transport, a working paper for a change
+`.work/` holds work in progress that has no home yet: notes while reading an unfamiliar system,
+exploratory output, review packets and answers, analyses and evaluations, a working paper for a change
 spanning several sessions.
 
 It is **committed**, so that a session picked up on another machine finds it, and so a reviewer can
@@ -54,29 +54,29 @@ see what a change was actually reasoning about.
 INSIDE `.work/` — a vendored checkout, a tool's raw dumps, logs — is allowed and stays green; a
 pattern that drops the folder is not, because it leaves the material on one machine and in no clone.
 
-It is **ephemeral**, and the two together are what make its rules matter:
+It is **not authority**, and the two together are what make its rules matter:
 
 - `.work/` is execution scratch only. It MUST NOT contain `SPEC.md`, ticket files, or any `spec_folder`
   target. Active specification workspaces MUST live at `.scratch/<spec-id>-<slug>/` where `wdi-build`
   and the registry track them.
 - Any durable outcome MUST be moved out before the task closes — to the corpus if it is truth, to
   `_bmad-output/` if it is a run's byproduct.
-- Obsolete scratch MUST be deleted when its task closes. `.work/` that only grows stops being
-  scratch and becomes a second, unindexed corpus that nobody trusts and nobody deletes.
-- Secrets and commercial figures MUST NOT be written here. Being scratch is not an exemption; it is
-  the reason people assume it is one.
+- It is NOT emptied automatically when a task closes: analyses and evaluations stay readable later.
+  What is no longer useful is removed when the owner prunes it. An agent MUST NOT add `.work/` (or the
+  folder's parent) to an ignore file; only patterns the owner approved MAY be ignored inside it.
+- Secrets and commercial figures MUST NOT be written here. Being a working area is not an exemption.
 - Nothing MUST be read from `.work/` as authority. If something there is right, it belongs
   somewhere with an owner.
 
 `.work/` MUST NOT be confused with `_bmad-output/` or `.scratch/`. `_bmad-output/` holds the output of
 skill runs, is never curated, and is cited by path. `.scratch/` holds active specifications and tickets
-tracked in `specs.yaml`. `.work/` holds disposable execution scratch written by hand or during triage
-(such as `.work/wdi-daily-what-to-build/`), and is meant to empty out.
+tracked in `specs.yaml`. `.work/` holds committed working material written by hand or during triage
+(such as `.work/wdi-daily-what-to-build/`).
 
 `.scratch/` is **strictly for registered spec workspaces**. It MUST NOT be used as an informal scratchpad:
 - Loose files (such as prompt dumps, tool stdout/stderr, review packets, script logs) MUST NOT be written directly under `.scratch/`.
 - Unregistered directories MUST NOT be created under `.scratch/`. Every child directory MUST match an active or unarchived `spec_folder` in `.control/registry/specs.yaml`.
-- All temporary subagent transport files, raw reviewer outputs, and intermediate scratch MUST be written under `.work/<skill>/` and deleted once folded into the spec. `scratch-hygiene` enforces these boundaries.
+- All temporary subagent transport files, raw reviewer outputs, and intermediate scratch MUST be written under `.work/<skill>/`, which is committed. `scratch-hygiene` enforces these boundaries.
 
 ## Referring to things outside this repository
 
